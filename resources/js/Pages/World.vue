@@ -1,33 +1,7 @@
 <template>
     <div class="game-wrapper">
-        <div class="hud-top" style="background-color: rgba(0, 0, 0, 0.5)">
-            <!-- HP -->
-            <div class="bar hp">
-                <div
-                    class="fill"
-                    :style="{ width: (stats.hp / stats.maxHp) * 100 + '%' }"
-                ></div>
-                <span>HP {{ stats.hp }} / {{ stats.maxHp }}</span>
-            </div>
+        <PlayerStat />
 
-            <!-- MP -->
-            <div class="bar mp">
-                <div
-                    class="fill"
-                    :style="{ width: (stats.mp / stats.maxMp) * 100 + '%' }"
-                ></div>
-                <span>MP {{ stats.mp }} / {{ stats.maxMp }}</span>
-            </div>
-
-            <!-- EXP -->
-            <div class="bar exp">
-                <div
-                    class="fill"
-                    :style="{ width: (stats.exp / stats.maxExp) * 100 + '%' }"
-                ></div>
-                <span>EXP {{ stats.exp }}%</span>
-            </div>
-        </div>
         <div
             class="game-map"
             @click="handleMapClick"
@@ -79,29 +53,31 @@
                     transform: `translate(${player.renderX}px, ${player.renderY}px)`,
                 }"
             >
-                <!-- <img src="/sprites/player.png" class="sprite" /> 🐉 -->
-                <!-- <img
-                    :src="`/sprites/player-${player.direction}.gif`"
+                <img
                     class="sprite"
-                /> -->
-                🐉
+                    :src="`/sprites/${player.className}/${player.moving ? 'walk' : 'idle'}-${player.direction}.gif`"
+                />
             </div>
         </div>
-        <div class="hud-bottom">
-            <div class="skill">1</div>
-            <div class="skill">2</div>
-            <div class="skill">3</div>
-            <div class="skill">4</div>
-            <div class="skill">5</div>
+
+        <PlayerSkill />
+        <WorldChat />
+
+        <div class="controls">
+            {{ player }}
         </div>
     </div>
 </template>
 
 <script setup>
 import { reactive, computed, onMounted } from "vue";
+import PlayerStat from "./GameComponents/PlayerStat.vue";
+import PlayerSkill from "./GameComponents/PlayerSkill.vue";
+import WorldChat from "./GameComponents/WorldChat.vue";
 
 const tileSize = 64;
 const moveQueue = reactive([]);
+const speed = 14;
 const hoverTile = reactive({
     x: 0,
     y: 0,
@@ -109,14 +85,6 @@ const hoverTile = reactive({
     blocked: false,
 });
 
-const stats = reactive({
-    hp: 80,
-    maxHp: 100,
-    mp: 40,
-    maxMp: 100,
-    exp: 30,
-    maxExp: 100,
-});
 const hoverBlocked = reactive({
     value: false,
 });
@@ -153,6 +121,7 @@ const flatMap = computed(() => map.flat());
 const player = reactive({
     x: 10,
     y: 2,
+    className: "Archer",
     renderX: 10 * tileSize,
     renderY: 2 * tileSize,
     direction: "down",
@@ -227,6 +196,14 @@ function processQueue() {
         return;
     }
 
+    const dx = next.x - player.x;
+    const dy = next.y - player.y;
+
+    if (dx > 0) player.direction = "right";
+    if (dx < 0) player.direction = "left";
+    if (dy > 0) player.direction = "down";
+    if (dy < 0) player.direction = "up";
+
     player.x = next.x;
     player.y = next.y;
 
@@ -234,7 +211,7 @@ function processQueue() {
 
     smoothMove(player, next.x * tileSize, next.y * tileSize, () => {
         player.moving = false;
-        processQueue(); // continue walking
+        processQueue();
     });
 }
 
@@ -247,23 +224,29 @@ function isBlocked(x, y) {
 }
 
 function smoothMove(entity, targetX, targetY, callback = null) {
-    const speed = 6;
+    const speed = 2.5; // pixels per frame (lower = smoother, slower)
 
     function animate() {
         const dx = targetX - entity.renderX;
         const dy = targetY - entity.renderY;
 
-        if (Math.abs(dx) < 1 && Math.abs(dy) < 1) {
+        const distance = Math.sqrt(dx * dx + dy * dy);
+
+        // stop condition
+        if (distance <= speed) {
             entity.renderX = targetX;
             entity.renderY = targetY;
 
             callback?.();
-
             return;
         }
 
-        entity.renderX += dx / speed;
-        entity.renderY += dy / speed;
+        // normalize direction (prevents diagonal “skating” speed boost)
+        const nx = dx / distance;
+        const ny = dy / distance;
+
+        entity.renderX += nx * speed;
+        entity.renderY += ny * speed;
 
         requestAnimationFrame(animate);
     }
@@ -362,6 +345,15 @@ onMounted(() => {
     flex-direction: column;
     gap: 20px;
     overflow: hidden;
+
+    font-family: "Press Start 2P", cursive;
+
+    font-smooth: never;
+    -webkit-font-smoothing: none;
+    text-rendering: geometricPrecision;
+    image-rendering: pixelated;
+    letter-spacing: 1px;
+    font-size: 14px;
 }
 .tile {
     position: absolute;
@@ -418,92 +410,5 @@ onMounted(() => {
 .controls {
     color: white;
     text-align: center;
-}
-
-.hud-top {
-    position: fixed;
-    top: 50px;
-    left: 20%;
-    transform: translateX(-50%);
-
-    width: min(300px, 90vw);
-
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-
-    z-index: 999;
-}
-
-.bar {
-    position: relative;
-    height: 10px;
-    background: rgba(0, 0, 0, 0.5);
-    border-radius: 6px;
-    overflow: hidden;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.bar span {
-    position: absolute;
-    width: 100%;
-    text-align: center;
-    font-size: 12px;
-    color: white;
-    line-height: 10px;
-    z-index: 2;
-}
-
-.fill {
-    height: 100%;
-    width: 0%;
-    transition: width 0.2s linear;
-}
-
-.hp .fill {
-    background: linear-gradient(to right, #ff3b3b, #ff6b6b);
-}
-
-.mp .fill {
-    background: linear-gradient(to right, #3b82f6, #60a5fa);
-}
-
-.exp .fill {
-    background: linear-gradient(to right, #facc15, #fde047);
-}
-
-/* SKILL BAR */
-.hud-bottom {
-    position: fixed;
-    bottom: 50px;
-    left: 50%;
-    transform: translateX(-50%);
-
-    display: flex;
-    gap: 10px;
-
-    z-index: 999;
-}
-
-.skill {
-    width: 50px;
-    height: 50px;
-
-    background: rgba(0, 0, 0, 0.6);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 8px;
-
-    display: flex;
-    justify-content: center;
-    align-items: center;
-
-    color: white;
-    font-weight: bold;
-
-    cursor: pointer;
-}
-
-.skill:hover {
-    background: rgba(255, 255, 255, 0.1);
 }
 </style>

@@ -1,87 +1,167 @@
 <script setup>
-import { ref, nextTick } from "vue";
-import { router } from "@inertiajs/vue3";
+import { reactive } from "vue";
 
-const message = ref("");
-const chatBox = ref(null);
-
-// props from backend
-const props = defineProps({
-    messages: Array,
+const chatInput = reactive({
+    value: "",
 });
 
-const sendMessage = () => {
-    if (!message.value.trim()) return;
+const worldMessages = reactive([
+    {
+        name: "System",
+        text: "Welcome to Elfaria MMORPG.",
+    },
+    {
+        name: "KnightZero",
+        text: "Anyone farming slimes?",
+    },
+    {
+        name: "MageX",
+        text: "Selling potions!",
+    },
+]);
 
-    router.post(
-        "/world-chat",
-        {
-            message: message.value,
-        },
-        {
-            preserveScroll: true,
-            onSuccess: async () => {
-                message.value = "";
-                await nextTick();
-                scrollToBottom();
-            },
-        },
-    );
-};
+function sendMessage() {
+    if (!chatInput.value.trim()) return;
 
-const scrollToBottom = () => {
-    if (chatBox.value) {
-        chatBox.value.scrollTop = chatBox.value.scrollHeight;
-    }
-};
+    worldMessages.push({
+        name: "You",
+        text: chatInput.value,
+    });
+
+    chatInput.value = "";
+}
 </script>
 
 <template>
-    <div
-        class="w-full max-w-md bg-black/60 border border-white/10 rounded-2xl overflow-hidden flex flex-col"
-    >
-        <!-- Header -->
-        <div class="p-3 bg-black/80 border-b border-white/10">
-            <h2 class="text-yellow-300 font-bold tracking-widest">
-                🌍 WORLD CHAT
-            </h2>
-        </div>
+    <div class="world-chat">
+        <div class="chat-header">WORLD CHAT</div>
 
-        <!-- Messages -->
-        <div ref="chatBox" class="h-80 overflow-y-auto p-3 space-y-2 text-sm">
+        <div class="chat-messages">
             <div
-                v-for="(msg, index) in messages"
+                v-for="(message, index) in worldMessages"
                 :key="index"
-                class="bg-white/5 p-2 rounded-lg"
+                class="chat-message"
             >
-                <span class="text-green-400 font-bold">
-                    {{ msg.user }}
-                </span>
-                <span class="text-gray-300">:</span>
-                <span class="text-white ml-1">
-                    {{ msg.message }}
-                </span>
+                <span class="chat-name">{{ message.name }}:</span>
+                <span class="chat-text">{{ message.text }}</span>
             </div>
         </div>
 
-        <!-- Input -->
-        <form
-            @submit.prevent="sendMessage"
-            class="flex border-t border-white/10"
-        >
+        <div class="chat-input-wrapper">
             <input
-                v-model="message"
+                v-model="chatInput.value"
                 type="text"
+                class="chat-input"
                 placeholder="Type message..."
-                class="flex-1 bg-black/70 text-white px-3 py-2 outline-none"
+                @keydown.enter="sendMessage"
             />
 
-            <button
-                type="submit"
-                class="px-4 bg-yellow-400 text-black font-bold hover:bg-yellow-300 transition"
-            >
-                Send
-            </button>
-        </form>
+            <button class="chat-button" @click="sendMessage">Send</button>
+        </div>
     </div>
 </template>
+<style scoped>
+.world-chat {
+    position: fixed;
+    left: 200px;
+    bottom: 70px;
+
+    max-width: 90vw;
+
+    width: 420px;
+    height: 260px;
+
+    background: rgba(0, 0, 0, 0.75);
+    border: 3px solid #374151;
+    border-radius: 10px;
+
+    display: flex;
+    flex-direction: column;
+
+    overflow: hidden;
+
+    z-index: 999;
+}
+
+.chat-header {
+    padding: 10px;
+
+    background: rgba(255, 255, 255, 0.08);
+
+    color: #facc15;
+
+    font-size: 8px;
+
+    border-bottom: 2px solid rgba(255, 255, 255, 0.08);
+}
+
+.chat-messages {
+    flex: 1;
+
+    padding: 5px;
+
+    overflow-y: auto;
+
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+
+    color: white;
+
+    font-size: 9px;
+}
+
+.chat-message {
+    line-height: 1.6;
+    word-break: break-word;
+}
+
+.chat-name {
+    color: #60a5fa;
+}
+
+.chat-text {
+    color: white;
+}
+
+.chat-input-wrapper {
+    display: flex;
+
+    border-top: 2px solid rgba(255, 255, 255, 0.08);
+}
+
+.chat-input {
+    flex: 1;
+
+    background: rgba(0, 0, 0, 0.5);
+
+    border: none;
+    outline: none;
+
+    padding: 12px;
+
+    color: white;
+
+    font-family: inherit;
+    font-size: 9px;
+}
+
+.chat-button {
+    width: 90px;
+
+    border: none;
+
+    background: #2563eb;
+
+    color: white;
+
+    cursor: pointer;
+
+    font-family: inherit;
+    font-size: 10px;
+}
+
+.chat-button:hover {
+    background: #3b82f6;
+}
+</style>
