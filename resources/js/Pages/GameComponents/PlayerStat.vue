@@ -67,9 +67,9 @@ const stats = reactive({
 </template>
 <style scoped>
 .hud-top {
-    position: fixed;
-    top: 25px;
-    left: 200px;
+    position: absolute;
+    top: 5px;
+    left: 5px;
 
     z-index: 999;
 }

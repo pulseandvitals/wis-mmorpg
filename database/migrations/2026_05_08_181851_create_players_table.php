@@ -31,6 +31,7 @@ return new class extends Migration
             $table->foreignId('current_map_id')->nullable();
             $table->integer('x')->default(10);
             $table->integer('y')->default(2);
+            $table->string('direction')->default('down');
             $table->integer('helm_id')->unsigned()->nullable();
             $table->integer('armor_id')->unsigned()->nullable();
             $table->integer('pants_id')->unsigned()->nullable();

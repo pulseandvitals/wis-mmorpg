@@ -11,8 +11,8 @@
 <style scoped>
 /* SKILL BAR */
 .hud-bottom {
-    position: fixed;
-    bottom: 70px;
+    position: absolute;
+    bottom: 10px;
     left: 50%;
     transform: translateX(-50%);
 

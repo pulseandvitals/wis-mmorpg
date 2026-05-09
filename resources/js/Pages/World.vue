@@ -1,7 +1,5 @@
 <template>
     <div class="game-wrapper">
-        <PlayerStat />
-
         <div
             class="game-map"
             @click="handleMapClick"
@@ -58,10 +56,13 @@
                     :src="`/sprites/${player.className}/${player.moving ? 'walk' : 'idle'}-${player.direction}.gif`"
                 />
             </div>
-        </div>
 
-        <PlayerSkill />
-        <WorldChat />
+            <!-- HUD COMPONENTS -->
+            <PlayerStat />
+            <PlayerSkill />
+            <WorldChat />
+            <PvE />
+        </div>
 
         <div class="controls">
             {{ player }}
@@ -74,10 +75,10 @@ import { reactive, computed, onMounted } from "vue";
 import PlayerStat from "./GameComponents/PlayerStat.vue";
 import PlayerSkill from "./GameComponents/PlayerSkill.vue";
 import WorldChat from "./GameComponents/WorldChat.vue";
+import PvE from "./GameComponents/Battle.vue/PvE.vue";
 
 const tileSize = 64;
 const moveQueue = reactive([]);
-const speed = 14;
 const hoverTile = reactive({
     x: 0,
     y: 0,

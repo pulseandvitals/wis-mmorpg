@@ -25,6 +25,7 @@ class Player extends Model
         'current_map_id',
         'x',
         'y',
+        'direction',
         'helm_id',
         'armor_id',
         'pants_id',

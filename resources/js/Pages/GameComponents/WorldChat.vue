@@ -62,9 +62,9 @@ function sendMessage() {
 </template>
 <style scoped>
 .world-chat {
-    position: fixed;
-    left: 200px;
-    bottom: 70px;
+    position: absolute;
+    left: 5px;
+    bottom: 5px;
 
     max-width: 90vw;
 
