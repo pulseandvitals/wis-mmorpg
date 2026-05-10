@@ -43,19 +43,7 @@
             </div>
 
             <!-- PLAYER -->
-            <div
-                class="player"
-                :style="{
-                    width: tileSize + 'px',
-                    height: tileSize + 'px',
-                    transform: `translate(${player.renderX}px, ${player.renderY}px)`,
-                }"
-            >
-                <img
-                    class="sprite"
-                    :src="`/sprites/${player.className}/${player.moving ? 'walk' : 'idle'}-${player.direction}.gif`"
-                />
-            </div>
+            <Player :player="player" :tileSize="tileSize" />
 
             <!-- HUD COMPONENTS -->
             <PlayerStat />
@@ -75,6 +63,7 @@ import { reactive, computed, onMounted } from "vue";
 import PlayerStat from "./GameComponents/PlayerStat.vue";
 import PlayerSkill from "./GameComponents/PlayerSkill.vue";
 import WorldChat from "./GameComponents/WorldChat.vue";
+import Player from "./GameComponents/Player.vue";
 import PvE from "./GameComponents/Battle.vue/PvE.vue";
 
 const tileSize = 64;
@@ -127,6 +116,10 @@ const player = reactive({
     renderY: 2 * tileSize,
     direction: "down",
     moving: false,
+    hp: 100,
+    maxHp: 100,
+    mp: 30,
+    maxMp: 50,
 });
 
 const monsters = reactive([
@@ -391,21 +384,12 @@ onMounted(() => {
     background: rgba(255, 0, 0, 0.2);
 }
 
-.player,
 .monster {
     position: absolute;
     display: flex;
     justify-content: center;
     align-items: center;
     z-index: 10;
-}
-
-.sprite {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-
-    image-rendering: pixelated;
 }
 
 .controls {
