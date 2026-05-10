@@ -96,8 +96,8 @@ const props = defineProps({
     display: flex;
     flex-direction: column;
     gap: 2px;
-    background: rgba(0, 0, 0, 0.6);
-    padding: 2px;
+    background: #f1f1f1;
+    padding: 0.5px;
     border-radius: 3px;
     border: 1px solid rgba(255, 255, 255, 0.2);
 }

@@ -8,7 +8,7 @@
             :style="{
                 width: mapWidth * tileSize + 'px',
                 height: mapHeight * tileSize + 'px',
-                backgroundImage: `url('/maps/town1.png')`,
+                backgroundImage: `url('/maps/Valdora Grassland.png')`,
                 cursor: hoverBlocked.value ? 'not-allowed' : 'pointer',
             }"
         >
@@ -29,47 +29,34 @@
                 }"
             />
 
-            <!-- MONSTERS -->
-            <div
-                v-for="monster in monsters"
-                :key="monster.id"
-                class="monster"
-                :style="{
-                    width: tileSize + 'px',
-                    height: tileSize + 'px',
-                    transform: `translate(${monster.renderX}px, ${monster.renderY}px)`,
-                }"
-            >
-                <!-- <img src="/sprites/monster.png" class="sprite" /> -->😈
-            </div>
-
+            <Monster :monsters="monsters" :tileSize="tileSize" />
             <!-- PLAYER -->
             <Player :player="player" :tileSize="tileSize" />
 
             <!-- HUD COMPONENTS -->
+            <Menu />
             <PlayerStat />
             <PlayerSkill />
             <WorldChat />
-            <PvE />
-        </div>
-
-        <div class="controls">
-            {{ player }}
+            <PvE @openBattle="selectMonster" />
         </div>
     </div>
 </template>
 
 <script setup>
-import { reactive, computed, onMounted } from "vue";
+import { reactive, computed, onMounted, ref } from "vue";
 import PlayerStat from "./GameComponents/PlayerStat.vue";
 import PlayerSkill from "./GameComponents/PlayerSkill.vue";
 import WorldChat from "./GameComponents/WorldChat.vue";
 import Player from "./GameComponents/Player.vue";
 import PvE from "./GameComponents/Battle.vue/PvE.vue";
+import Menu from "./GameComponents/Menu.vue";
 import { Head } from "@inertiajs/vue3";
+import Monster from "./GameComponents/Battle.vue/Monster.vue";
 
 const tileSize = 64;
 const moveQueue = reactive([]);
+
 const hoverTile = reactive({
     x: 0,
     y: 0,
@@ -128,21 +115,32 @@ const player = reactive({
 const monsters = reactive([
     {
         id: 1,
+        name: "Orc Warrior",
         x: 7,
         y: 4,
         renderX: 7 * tileSize,
         renderY: 4 * tileSize,
         dir: 1,
+
+        // NEW
+        moving: false,
+        direction: "down",
     },
     {
         id: 2,
+        name: "Orc Zombie",
         x: 9,
         y: 6,
         renderX: 9 * tileSize,
         renderY: 6 * tileSize,
         dir: -1,
+
+        // NEW
+        moving: false,
+        direction: "down",
     },
 ]);
+
 function handleMouseMove(e) {
     const rect = e.currentTarget.getBoundingClientRect();
 
@@ -222,7 +220,10 @@ function isBlocked(x, y) {
 
 function smoothMove(entity, targetX, targetY, callback = null) {
     const speed = 2.5; // pixels per frame (lower = smoother, slower)
-
+    if (document.hidden) {
+        requestAnimationFrame(animate);
+        return;
+    }
     function animate() {
         const dx = targetX - entity.renderX;
         const dy = targetY - entity.renderY;
@@ -298,32 +299,59 @@ function handleKey(e) {
     }
 }
 
+let nextMoveTime = 0;
+
 function moveMonsters() {
-    setInterval(() => {
-        monsters.forEach((monster) => {
-            const directions = [
-                { dx: 0, dy: -1 }, // up
-                { dx: 0, dy: 1 }, // down
-                { dx: -1, dy: 0 }, // left
-                { dx: 1, dy: 0 }, // right
-            ];
+    function loop(timestamp) {
+        if (nextMoveTime === 0) {
+            nextMoveTime = timestamp + 3000;
+        }
 
-            // pick random direction
-            const move =
-                directions[Math.floor(Math.random() * directions.length)];
+        if (timestamp >= nextMoveTime) {
+            monsters.forEach((monster) => {
+                const directions = [
+                    { dx: 0, dy: -1 },
+                    { dx: 0, dy: 1 },
+                    { dx: -1, dy: 0 },
+                    { dx: 1, dy: 0 },
+                ];
 
-            const nextX = monster.x + move.dx;
-            const nextY = monster.y + move.dy;
+                const move =
+                    directions[Math.floor(Math.random() * directions.length)];
 
-            // check collision
-            if (!isBlocked(nextX, nextY)) {
-                monster.x = nextX;
-                monster.y = nextY;
+                const nextX = monster.x + move.dx;
+                const nextY = monster.y + move.dy;
 
-                smoothMove(monster, monster.x * tileSize, monster.y * tileSize);
-            }
-        });
-    }, 3000);
+                if (!isBlocked(nextX, nextY)) {
+                    if (move.dx > 0) monster.direction = "right";
+                    if (move.dx < 0) monster.direction = "left";
+                    if (move.dy > 0) monster.direction = "down";
+                    if (move.dy < 0) monster.direction = "up";
+
+                    monster.moving = true;
+
+                    monster.x = nextX;
+                    monster.y = nextY;
+
+                    smoothMove(
+                        monster,
+                        monster.x * tileSize,
+                        monster.y * tileSize,
+                        () => {
+                            monster.moving = false;
+                        },
+                    );
+                }
+            });
+
+            // reset timer cleanly (no backlog buildup)
+            nextMoveTime = timestamp + 3000;
+        }
+
+        requestAnimationFrame(loop);
+    }
+
+    requestAnimationFrame(loop);
 }
 onMounted(() => {
     window.addEventListener("keydown", handleKey);
@@ -385,18 +413,5 @@ onMounted(() => {
 
 .wall {
     background: rgba(255, 0, 0, 0.2);
-}
-
-.monster {
-    position: absolute;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 10;
-}
-
-.controls {
-    color: white;
-    text-align: center;
 }
 </style>
