@@ -1,4 +1,5 @@
 <template>
+    <Head title="Elfaria Online" />
     <div class="game-wrapper">
         <div
             class="game-map"
@@ -65,6 +66,7 @@ import PlayerSkill from "./GameComponents/PlayerSkill.vue";
 import WorldChat from "./GameComponents/WorldChat.vue";
 import Player from "./GameComponents/Player.vue";
 import PvE from "./GameComponents/Battle.vue/PvE.vue";
+import { Head } from "@inertiajs/vue3";
 
 const tileSize = 64;
 const moveQueue = reactive([]);
@@ -114,6 +116,7 @@ const player = reactive({
     className: "Archer",
     renderX: 10 * tileSize,
     renderY: 2 * tileSize,
+    name: "KnightZero",
     direction: "down",
     moving: false,
     hp: 100,

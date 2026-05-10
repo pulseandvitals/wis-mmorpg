@@ -19,6 +19,11 @@ const props = defineProps({
             transform: `translate(${player.renderX}px, ${player.renderY}px)`,
         }"
     >
+        <!-- NAME -->
+        <div class="player-name">
+            {{ player.name }}
+        </div>
+
         <img
             class="sprite"
             :src="`/sprites/${player.className}/${player.moving ? 'walk' : 'idle'}-${player.direction}.gif`"
@@ -56,11 +61,22 @@ const props = defineProps({
 <style scoped>
 .player {
     position: absolute;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    z-index: 10;
+    text-align: center;
+}
+
+.player-name {
+    position: absolute;
+    top: -5px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 8px;
+    font-weight: bold;
+    color: white;
+    text-shadow: 0 0 3px black;
+    pointer-events: none;
+    white-space: nowrap;
+    padding: 0 5px;
+    background-color: rgb(0, 0, 0, 0.5);
 }
 
 .sprite {
@@ -72,7 +88,7 @@ const props = defineProps({
 
 .player-stats {
     position: absolute;
-    bottom: -35%;
+    bottom: -25%;
     left: 50%;
     transform: translateX(-50%);
     width: 90%;
@@ -94,10 +110,10 @@ const props = defineProps({
 
 .stat-bar {
     flex: 1;
-    height: 6px;
+    height: 3px;
     background: rgba(0, 0, 0, 0.8);
     border: 1px solid rgba(255, 255, 255, 0.15);
-    border-radius: 2px;
+    border-radius: 0px;
     overflow: hidden;
 }
 
