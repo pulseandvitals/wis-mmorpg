@@ -1,8 +1,9 @@
 <script setup>
+import { useForm } from "@inertiajs/vue3";
 import { reactive } from "vue";
 
-const chatInput = reactive({
-    value: "",
+const form = useForm({
+    msg_value: "",
 });
 
 const worldMessages = reactive([
@@ -21,14 +22,12 @@ const worldMessages = reactive([
 ]);
 
 function sendMessage() {
-    if (!chatInput.value.trim()) return;
-
-    worldMessages.push({
-        name: "You",
-        text: chatInput.value,
+    if (!form.msg_value.trim()) return;
+    form.post(route("npc.send-message"), {
+        onSuccess: () => {
+            form.msg_value = "";
+        },
     });
-
-    chatInput.value = "";
 }
 </script>
 
@@ -49,7 +48,7 @@ function sendMessage() {
 
         <div class="chat-input-wrapper">
             <input
-                v-model="chatInput.value"
+                v-model="form.msg_value"
                 type="text"
                 class="chat-input"
                 placeholder="Type message..."

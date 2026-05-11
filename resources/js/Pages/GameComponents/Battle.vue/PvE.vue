@@ -36,7 +36,7 @@ const player = ref({
     skills: [
         {
             id: 1,
-            name: "Slash",
+            name: "Blood Impact",
             damage: 18,
             mana: 5,
             targets: 1,
@@ -71,6 +71,7 @@ const battleEnded = ref(false);
 const attackingMonsterId = ref(null);
 const playerShout = ref("");
 const monsterShouts = ref({});
+const skillEffect = ref(null);
 const logs = ref([]);
 
 /* =========================================
@@ -157,6 +158,7 @@ function useSkill(skill, selectedMonster = null) {
     player.value.mp -= skill.mana;
 
     attackAnimation();
+    triggerSkillEffect(skill);
     skillShout(skill);
 
     targets.forEach((monster) => {
@@ -193,6 +195,17 @@ function useSkill(skill, selectedMonster = null) {
             monsterTurn();
         }, 1000);
     }
+}
+function triggerSkillEffect(skill) {
+    const skillName = skill.name
+        .toLowerCase()
+        .replace(/\s+/g, "-") // "Double Strike" → "double-strike"
+        .replace(/[^a-z-]/g, ""); // clean special chars
+    skillEffect.value = skillName;
+
+    setTimeout(() => {
+        skillEffect.value = null;
+    }, 1000);
 }
 
 function skillShout(skill) {
@@ -393,6 +406,11 @@ function randomDamage(min, max) {
                         >
                             {{ monsterShouts[monster.id] }}
                         </div>
+                        <div
+                            v-if="skillEffect"
+                            :class="skillEffect"
+                            class="skill-effect"
+                        ></div>
                         <img
                             :src="
                                 monster.hp <= 0
@@ -1216,5 +1234,11 @@ MONSTER SELECT
         opacity: 0;
         transform: translate(-50%, -10px) scale(1);
     }
+}
+
+.skill-effect {
+    position: absolute;
+    pointer-events: none;
+    z-index: 50;
 }
 </style>
