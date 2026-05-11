@@ -1,7 +1,9 @@
 <script setup>
-import { ref, computed, watch } from "vue";
+import { ref, computed } from "vue";
+import Monster from "./Monster.vue";
+
 const props = defineProps({
-    player: {
+    playerData: {
         type: Object,
         required: true,
     },
@@ -9,17 +11,28 @@ const props = defineProps({
         type: Object,
         default: null,
     },
+    tileSize: {
+        type: Number,
+        required: true,
+    },
+    monsters: {
+        type: Array,
+        required: true,
+    },
 });
 
 const player = ref({
-    name: "Archer",
-    hp: 120,
-    maxHp: 120,
-    mp: 80,
-    maxMp: 80,
-    attack: 18,
-    battle_gif: "sprites/Archer/idle-right.gif",
-    attack_gif: "sprites/Archer/attack.gif",
+    name: props.playerData.name,
+    hp: props.playerData.current_health,
+    maxHp: props.playerData.max_health,
+    mp: props.playerData.current_mana,
+    maxMp: props.playerData.max_mana,
+    attack: props.playerData.current_attack,
+
+    battle_gif: `/sprites/${props.playerData.class_type}/idle-right.gif`,
+    attack_gif: `/sprites/${props.playerData.class_type}/attack.gif`,
+    dead_gif: `/sprites/${props.playerData.class_type}/dead.gif`,
+
     skills: [
         {
             id: 1,
@@ -51,8 +64,13 @@ BATTLE STATE
 const showBattleModal = ref(false);
 const battleMonsters = ref([]);
 const isAttacking = ref(false);
+const playerDamage = ref(null);
+const monsterDamages = ref({});
 const playerTurn = ref(true);
 const battleEnded = ref(false);
+const attackingMonsterId = ref(null);
+const playerShout = ref("");
+const monsterShouts = ref({});
 const logs = ref([]);
 
 /* =========================================
@@ -65,14 +83,23 @@ const aliveMonsters = computed(() => {
 /* =========================================
 OPEN BATTLE
 ========================================= */
+function handleSelectMonster(monster) {
+    if (showBattleModal.value) return;
+
+    openBattle(monster);
+}
+
 function openBattle(monster) {
     showBattleModal.value = true;
+
     battleEnded.value = false;
+
     playerTurn.value = true;
 
     logs.value = [];
 
     player.value.hp = player.value.maxHp;
+
     player.value.mp = player.value.maxMp;
 
     const monsterCount = Math.random() < 0.5 ? 2 : 3;
@@ -86,7 +113,9 @@ function openBattle(monster) {
             hp: randomHp,
             maxHp: randomHp,
             attack: monster.attack,
-            gif: monster.battle_gif,
+            battle_gif: `/monster_sprites/${monster.name}/idle-left.gif`,
+            attack_gif: `/monster_sprites/${monster.name}/attack.gif`,
+            dead_gif: `/monster_sprites/${monster.name}/dead.gif`,
         };
     });
 
@@ -113,19 +142,32 @@ function useSkill(skill, selectedMonster = null) {
     if (skill.targets === 1) {
         if (!selectedMonster) return;
 
-        if (selectedMonster.hp <= 0) return;
+        const target = battleMonsters.value.find(
+            (monster) => monster.id === selectedMonster.id,
+        );
 
-        targets = [selectedMonster];
+        if (!target || target.hp <= 0) return;
+
+        targets = [target];
     } else {
         /* MULTI TARGET */
         targets = aliveMonsters.value.slice(0, skill.targets);
     }
 
     player.value.mp -= skill.mana;
+
     attackAnimation();
+    skillShout(skill);
 
     targets.forEach((monster) => {
         const damage = randomDamage(skill.damage - 4, skill.damage + 4);
+
+        /* SHOW DAMAGE */
+        monsterDamages.value[monster.id] = damage;
+
+        setTimeout(() => {
+            delete monsterDamages.value[monster.id];
+        }, 800);
 
         monster.hp -= damage;
 
@@ -153,6 +195,24 @@ function useSkill(skill, selectedMonster = null) {
     }
 }
 
+function skillShout(skill) {
+    playerShout.value = `${skill.name}!!`;
+
+    setTimeout(() => {
+        playerShout.value = "";
+    }, 1000);
+}
+function monsterSkillShout(monster) {
+    monsterShouts.value[monster.id] = "Attack!!";
+
+    setTimeout(() => {
+        delete monsterShouts.value[monster.id];
+    }, 1000);
+}
+
+/* =========================================
+ATTACK ANIMATION
+========================================= */
 function attackAnimation() {
     isAttacking.value = true;
 
@@ -165,23 +225,48 @@ function attackAnimation() {
 MONSTER TURN
 ========================================= */
 function monsterTurn() {
+    let delay = 0;
+
     aliveMonsters.value.forEach((monster) => {
-        const damage = randomDamage(monster.attack - 2, monster.attack + 2);
+        setTimeout(() => {
+            attackingMonsterId.value = monster.id;
 
-        player.value.hp -= damage;
+            const damage = randomDamage(monster.attack - 2, monster.attack + 2);
 
-        if (player.value.hp < 0) {
-            player.value.hp = 0;
-        }
+            /* SHOW PLAYER DAMAGE */
+            playerDamage.value = damage;
 
-        logs.value.unshift(`${monster.name} attacked for ${damage}`);
+            setTimeout(() => {
+                playerDamage.value = null;
+            }, 800);
+
+            player.value.hp -= damage;
+
+            if (player.value.hp < 0) {
+                player.value.hp = 0;
+            }
+
+            logs.value.unshift(`${monster.name} attacked for ${damage}`);
+
+            /* STOP ATTACK */
+            monsterSkillShout(monster);
+            setTimeout(() => {
+                attackingMonsterId.value = null;
+            }, 700);
+
+            checkBattle();
+
+            if (
+                monster.id ===
+                    aliveMonsters.value[aliveMonsters.value.length - 1]?.id &&
+                !battleEnded.value
+            ) {
+                playerTurn.value = true;
+            }
+        }, delay);
+
+        delay += 1000;
     });
-
-    checkBattle();
-
-    if (!battleEnded.value) {
-        playerTurn.value = true;
-    }
 }
 
 /* =========================================
@@ -192,12 +277,18 @@ function checkBattle() {
         battleEnded.value = true;
 
         logs.value.unshift("You were defeated");
+        setTimeout(() => {
+            closeBattle();
+        }, 3000);
     }
 
     if (aliveMonsters.value.length === 0) {
         battleEnded.value = true;
 
         logs.value.unshift("Victory!");
+        setTimeout(() => {
+            closeBattle();
+        }, 3000);
     }
 }
 
@@ -222,22 +313,33 @@ function randomDamage(min, max) {
 
                 <button @click="closeBattle" class="close-btn">✕</button>
             </div>
-
             <!-- BODY -->
             <div class="battle-body">
-                <!-- HERO -->
+                <!-- PLAYER -->
                 <div class="player-section">
                     <div class="player-wrapper">
                         <img
                             :src="
-                                isAttacking
-                                    ? player.attack_gif
-                                    : player.battle_gif
+                                player.hp <= 0
+                                    ? player.dead_gif
+                                    : isAttacking
+                                      ? player.attack_gif
+                                      : player.battle_gif
                             "
                             class="player-sprite"
                         />
 
-                        <!-- PLAYER UI -->
+                        <div v-if="playerShout" class="shout-text player-shout">
+                            {{ playerShout }}
+                        </div>
+
+                        <div
+                            v-if="playerDamage"
+                            class="damage-text player-damage"
+                        >
+                            -{{ playerDamage }}
+                        </div>
+
                         <div class="player-ui">
                             <p class="player-name">
                                 {{ player.name }}
@@ -285,14 +387,37 @@ function randomDamage(min, max) {
                         :key="monster.id"
                         class="monster-card"
                     >
-                        <img :src="monster.gif" class="monster-sprite" />
+                        <div
+                            v-if="monsterShouts[monster.id]"
+                            class="shout-text monster-shout"
+                        >
+                            {{ monsterShouts[monster.id] }}
+                        </div>
+                        <img
+                            :src="
+                                monster.hp <= 0
+                                    ? monster.dead_gif
+                                    : attackingMonsterId === monster.id
+                                      ? monster.attack_gif
+                                      : monster.battle_gif
+                            "
+                            class="monster-sprite"
+                        />
 
-                        <!-- MONSTER UI -->
+                        <div
+                            v-if="monsterDamages[monster.id]"
+                            class="damage-text monster-damage"
+                        >
+                            -{{ monsterDamages[monster.id] }}
+                        </div>
+
                         <div class="monster-ui">
+                            <!-- NAME -->
                             <p class="monster-name">
                                 {{ monster.name }}
                             </p>
 
+                            <!-- HP BAR -->
                             <div class="monster-hp-bar">
                                 <div
                                     class="monster-hp-fill"
@@ -310,37 +435,49 @@ function randomDamage(min, max) {
 
             <!-- SKILLS -->
             <div class="skills-panel">
-                <button
+                <div
                     v-for="skill in player.skills"
                     :key="skill.id"
-                    class="skill-btn"
-                    :disabled="!playerTurn || battleEnded"
+                    class="skill-card"
                 >
-                    {{ skill.name }}
+                    <!-- SKILL ICON CENTER -->
+                    <div class="skill-icon-wrap" @click="useSkill(skill)">
+                        <img
+                            :src="skill.icon || '/icons/default-skill.png'"
+                            class="skill-icon"
+                        />
+                    </div>
 
-                    <!-- SINGLE TARGET -->
-                    <template v-if="skill.targets === 1">
-                        <div class="target-buttons">
+                    <!-- SKILL NAME -->
+                    <p class="skill-name">
+                        {{ skill.name }}
+                    </p>
+
+                    <!-- TARGETS -->
+                    <div class="target-buttons">
+                        <template v-if="skill.targets === 1">
                             <button
                                 v-for="monster in aliveMonsters"
                                 :key="monster.id"
                                 class="target-btn"
+                                :disabled="!playerTurn || battleEnded"
                                 @click="useSkill(skill, monster)"
                             >
                                 {{ monster.name }}
                             </button>
-                        </div>
-                    </template>
+                        </template>
 
-                    <!-- MULTI TARGET -->
-                    <template v-else>
-                        <div class="target-buttons">
-                            <button class="target-btn" @click="useSkill(skill)">
+                        <template v-else>
+                            <button
+                                class="target-btn"
+                                :disabled="!playerTurn || battleEnded"
+                                @click="useSkill(skill)"
+                            >
                                 Cast
                             </button>
-                        </div>
-                    </template>
-                </button>
+                        </template>
+                    </div>
+                </div>
             </div>
 
             <!-- FOOTER -->
@@ -356,23 +493,11 @@ function randomDamage(min, max) {
         </div>
     </div>
 
-    <!-- =========================================
-    MONSTER SELECT
-    ========================================= -->
-    <!-- <div v-if="!showBattleModal" class="monster-select">
-        <div
-            v-for="monster in worldMonsters"
-            :key="monster.id"
-            class="select-card"
-            @click="openBattle(monster)"
-        >
-            <img :src="monster.battle_gif" class="select-sprite" />
-
-            <p class="select-name">
-                {{ monster.name }}
-            </p>
-        </div>
-    </div> -->
+    <Monster
+        :monsters="monsters"
+        :tileSize="tileSize"
+        @select-monster="handleSelectMonster"
+    />
 </template>
 
 <style scoped>
@@ -383,7 +508,8 @@ OVERLAY
     position: absolute;
     inset: 0;
 
-    background: rgba(0, 0, 0, 0.82);
+    /* LESS DARK / MORE TRANSPARENT */
+    background: rgba(0, 0, 0, 0.35);
 
     display: flex;
     align-items: center;
@@ -391,7 +517,7 @@ OVERLAY
 
     z-index: 9999;
 
-    backdrop-filter: blur(4px);
+    backdrop-filter: blur(2px);
 }
 
 /* =========================================
@@ -401,9 +527,10 @@ MODAL
     width: 92%;
     height: 88%;
 
-    background: linear-gradient(to bottom, #141414, #0d0d0d);
+    /* TRANSPARENT GLASS EFFECT */
+    background: rgba(15, 15, 15, 0.38);
 
-    border: 2px solid rgba(251, 191, 36, 0.45);
+    border: 1px solid rgba(255, 255, 255, 0.06);
 
     border-radius: 16px;
 
@@ -413,10 +540,10 @@ MODAL
     flex-direction: column;
 
     box-shadow:
-        0 0 30px rgba(0, 0, 0, 0.7),
-        inset 0 0 20px rgba(255, 255, 255, 0.03);
+        0 0 30px rgba(0, 0, 0, 0.45),
+        inset 0 0 15px rgba(255, 255, 255, 0.02);
 
-    font-family: "Press Start 2P", cursive;
+    backdrop-filter: blur(6px);
 }
 
 /* =========================================
@@ -425,7 +552,7 @@ HEADER
 .modal-header {
     height: 42px;
 
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
 
     display: flex;
     align-items: center;
@@ -433,6 +560,7 @@ HEADER
 
     position: relative;
 
+    /* MORE TRANSPARENT */
     background: rgba(255, 255, 255, 0.02);
 }
 
@@ -441,6 +569,8 @@ HEADER
     font-size: 8px;
 
     letter-spacing: 1px;
+
+    opacity: 0.9;
 }
 
 .close-btn {
@@ -457,7 +587,7 @@ HEADER
     border: none;
     border-radius: 5px;
 
-    background: rgba(239, 68, 68, 0.2);
+    background: rgba(255, 255, 255, 0.06);
 
     color: #fca5a5;
 
@@ -469,7 +599,7 @@ HEADER
 }
 
 .close-btn:hover {
-    background: rgba(239, 68, 68, 0.4);
+    background: rgba(255, 255, 255, 0.12);
 }
 
 /* =========================================
@@ -511,12 +641,12 @@ PLAYER SIDE
     transform: translateY(-50%);
 
     width: 1px;
-    height: 60%;
+    height: 55%;
 
     background: linear-gradient(
         to bottom,
         transparent,
-        rgba(251, 191, 36, 0.3),
+        rgba(255, 255, 255, 0.12),
         transparent
     );
 }
@@ -529,13 +659,18 @@ PLAYER SIDE
     position: relative;
 
     display: flex;
+    flex-direction: column;
+
     align-items: center;
     justify-content: center;
+
+    gap: 10px;
 }
 
+/* SMALLER PLAYER */
 .player-sprite {
-    width: 150px;
-    height: 150px;
+    width: 70px;
+    height: 70px;
 
     object-fit: contain;
 
@@ -546,20 +681,28 @@ PLAYER SIDE
 
 /* PLAYER UI */
 .player-ui {
-    position: absolute;
+    position: relative;
 
-    bottom: 55px;
-    left: 50%;
+    bottom: unset;
+    left: unset;
 
-    transform: translateX(-50%);
+    transform: none;
 
-    width: 105px;
+    width: 90px;
+
+    padding: 5px;
+
+    background: rgba(255, 255, 255, 0.03);
+
+    backdrop-filter: blur(4px);
+
+    margin-top: -5px;
 }
 
 .player-name {
-    color: #fde047;
+    color: #f1f1f1;
 
-    font-size: 4px;
+    font-size: 8px;
 
     text-align: center;
 
@@ -580,15 +723,11 @@ HP / MP
 
 .stat-bar {
     width: 100%;
-    height: 5px;
+    height: 4px;
 
-    background: rgba(0, 0, 0, 0.6);
-
-    border-radius: 999px;
+    background: rgba(0, 0, 0, 0.45);
 
     overflow: hidden;
-
-    border: 1px solid rgba(255, 255, 255, 0.04);
 }
 
 .stat-fill {
@@ -597,11 +736,11 @@ HP / MP
 }
 
 .hp-fill {
-    background: linear-gradient(to right, #22c55e, #15803d);
+    background: green;
 }
 
 .mp-fill {
-    background: linear-gradient(to right, #3b82f6, #1d4ed8);
+    background: blue;
 }
 
 /* =========================================
@@ -617,7 +756,7 @@ MONSTERS
     justify-content: center;
     align-items: center;
 
-    gap: 2px;
+    gap: 8px;
 
     overflow-y: auto;
 }
@@ -632,9 +771,10 @@ MONSTERS
     justify-content: center;
 }
 
+/* SMALLER MONSTER */
 .monster-sprite {
-    width: 150px;
-    height: 150px;
+    width: 95px;
+    height: 95px;
 
     object-fit: contain;
 
@@ -647,43 +787,47 @@ MONSTERS
 .monster-ui {
     position: absolute;
 
-    bottom: 22px;
+    bottom: -25px;
     left: 50%;
 
     transform: translateX(-50%);
 
     width: 90px;
+
+    padding: 6px;
+
+    border-radius: 10px;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    gap: 3px;
 }
 
 .monster-name {
     color: #f87171;
 
-    font-size: 4px;
-
+    font-size: 5px;
     text-align: center;
 
-    margin-bottom: 2px;
-
-    opacity: 0.9;
+    opacity: 0.95;
 }
 
 .monster-hp-bar {
     width: 100%;
     height: 4px;
 
-    background: rgba(0, 0, 0, 0.65);
-
-    border-radius: 999px;
+    background: #f1f1f1;
 
     overflow: hidden;
-
-    border: 1px solid rgba(255, 255, 255, 0.04);
 }
 
+/* FILL */
 .monster-hp-fill {
     height: 100%;
 
-    background: linear-gradient(to right, #ef4444, #991b1b);
+    background: red;
 
     transition: width 0.25s ease;
 }
@@ -692,7 +836,7 @@ MONSTERS
 SKILLS
 ========================================= */
 .skills-panel {
-    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    border-top: 1px solid rgba(255, 255, 255, 0.04);
 
     padding: 8px;
 
@@ -708,9 +852,9 @@ SKILLS
 .skill-btn {
     min-width: 105px;
 
-    background: rgba(51, 65, 85, 0.6);
+    background: rgba(255, 255, 255, 0.04);
 
-    border: 1px solid rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.04);
 
     border-radius: 7px;
 
@@ -718,17 +862,19 @@ SKILLS
 
     padding: 6px;
 
-    font-size: 5px;
+    font-size: 8px;
 
     font-family: inherit;
 
     cursor: pointer;
 
     transition: 0.2s;
+
+    backdrop-filter: blur(4px);
 }
 
 .skill-btn:hover {
-    background: rgba(71, 85, 105, 0.7);
+    background: rgba(255, 255, 255, 0.08);
 }
 
 .skill-btn:disabled {
@@ -736,31 +882,88 @@ SKILLS
     cursor: not-allowed;
 }
 
-/* TARGET BUTTONS */
+/* SKILL CARD */
+.skill-card {
+    min-width: 110px;
+
+    padding: 8px;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    gap: 6px;
+
+    background: rgba(255, 255, 255, 0.03);
+
+    border: 1px solid rgba(255, 255, 255, 0.05);
+
+    border-radius: 10px;
+
+    backdrop-filter: blur(4px);
+
+    transition: 0.2s;
+}
+
+.skill-card:hover {
+    transform: translateY(-2px);
+    background: rgba(255, 255, 255, 0.06);
+}
+
+/* CENTER ICON */
+.skill-icon-wrap {
+    width: 34px;
+    height: 34px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 8px;
+
+    background: rgba(0, 0, 0, 0.35);
+
+    cursor: pointer;
+}
+
+.skill-icon {
+    width: 22px;
+    height: 22px;
+
+    image-rendering: pixelated;
+}
+
+/* NAME UNDER ICON */
+.skill-name {
+    font-size: 5px;
+    color: #fde047;
+
+    text-align: center;
+
+    opacity: 0.9;
+}
+
+/* TARGET AREA */
 .target-buttons {
     display: flex;
-    justify-content: center;
     flex-wrap: wrap;
+    justify-content: center;
 
     gap: 3px;
-
-    margin-top: 5px;
 }
 
 .target-btn {
-    background: rgba(239, 68, 68, 0.18);
-
-    border: 1px solid rgba(239, 68, 68, 0.2);
-
-    border-radius: 4px;
-
-    color: #fecaca;
+    font-size: 4px;
 
     padding: 3px 5px;
 
-    font-size: 4px;
+    border-radius: 4px;
 
-    font-family: inherit;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+
+    background: rgba(255, 255, 255, 0.05);
+
+    color: #fecaca;
 
     cursor: pointer;
 
@@ -768,7 +971,7 @@ SKILLS
 }
 
 .target-btn:hover {
-    background: rgba(239, 68, 68, 0.35);
+    background: rgba(255, 255, 255, 0.12);
 }
 
 /* =========================================
@@ -777,7 +980,7 @@ FOOTER
 .battle-footer {
     height: 32px;
 
-    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    border-top: 1px solid rgba(255, 255, 255, 0.04);
 
     display: flex;
     align-items: center;
@@ -801,6 +1004,7 @@ FOOTER
 
     font-size: 5px;
 }
+
 .skill-inner {
     display: flex;
     align-items: center;
@@ -838,7 +1042,7 @@ MONSTER SELECT
     position: absolute;
     inset: 0;
 
-    background: rgba(0, 0, 0, 0.72);
+    background: rgba(0, 0, 0, 0.45);
 
     display: grid;
     grid-template-columns: repeat(2, 1fr);
@@ -846,6 +1050,8 @@ MONSTER SELECT
     gap: 18px;
 
     padding: 20px;
+
+    backdrop-filter: blur(4px);
 }
 
 .select-card {
@@ -855,25 +1061,28 @@ MONSTER SELECT
     align-items: center;
     justify-content: center;
 
-    border: 2px solid #fbbf24;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+
     border-radius: 12px;
 
-    background: rgba(0, 0, 0, 0.35);
+    background: rgba(255, 255, 255, 0.03);
 
     cursor: pointer;
 
     transition: 0.2s;
+
+    backdrop-filter: blur(4px);
 }
 
 .select-card:hover {
     transform: scale(1.03);
 
-    background: rgba(255, 255, 255, 0.05);
+    background: rgba(255, 255, 255, 0.06);
 }
 
 .select-sprite {
-    width: 130px;
-    height: 130px;
+    width: 100px;
+    height: 100px;
 
     object-fit: contain;
 }
@@ -884,5 +1093,128 @@ MONSTER SELECT
     font-size: 8px;
 
     margin-top: 8px;
+}
+
+/* DAMAGE TEXT */
+.damage-text {
+    position: absolute;
+
+    font-size: 10px;
+    font-weight: bold;
+
+    color: #ff4d4d;
+
+    animation: damageFloat 0.8s ease-out forwards;
+
+    pointer-events: none;
+
+    z-index: 20;
+}
+
+/* PLAYER DAMAGE */
+.player-damage {
+    top: 45%;
+    left: 50%;
+
+    transform: translateX(-50%);
+}
+
+/* MONSTER DAMAGE */
+.monster-damage {
+    top: 22%;
+    left: 50%;
+
+    transform: translateX(-50%);
+}
+
+/* FLOAT ANIMATION */
+@keyframes damageFloat {
+    0% {
+        opacity: 0;
+        transform: translate(-50%, 0px) scale(0.7);
+    }
+
+    20% {
+        opacity: 1;
+        transform: translate(-50%, -10px) scale(1.2);
+    }
+
+    50% {
+        opacity: 1;
+        transform: translate(-50%, -25px) scale(1.2);
+    }
+
+    100% {
+        opacity: 0;
+        transform: translate(-50%, -35px) scale(1);
+    }
+}
+
+.shout-text {
+    position: absolute;
+
+    top: 210px;
+    left: 50%;
+
+    transform: translate(-50%, -120%);
+
+    font-size: 7px;
+    font-weight: bold;
+
+    color: #f1f1f1;
+
+    white-space: nowrap;
+
+    pointer-events: none;
+
+    z-index: 50;
+}
+
+.player-shout {
+    color: #f1f1f1;
+    background-color: rgb(0, 0, 0, 0.5);
+    padding: 5px 10px;
+}
+.shout-text {
+    position: absolute;
+
+    top: 210px;
+    left: 50%;
+
+    transform: translate(-50%, -120%);
+
+    font-size: 7px;
+    font-weight: bold;
+
+    color: #f1f1f1;
+
+    white-space: nowrap;
+
+    pointer-events: none;
+
+    z-index: 50;
+}
+.monster-shout {
+    top: 20%;
+    color: #f1f1f1;
+    padding: 5px 10px;
+    background-color: rgb(0, 0, 0, 0.5);
+}
+
+@keyframes shoutPop {
+    0% {
+        opacity: 0;
+        transform: translate(-50%, 10px) scale(0.8);
+    }
+
+    30% {
+        opacity: 1;
+        transform: translate(-50%, 0px) scale(1.2);
+    }
+
+    100% {
+        opacity: 0;
+        transform: translate(-50%, -10px) scale(1);
+    }
 }
 </style>

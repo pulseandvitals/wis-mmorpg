@@ -14,9 +14,9 @@ Route::get('/', function () {
     ]);
 });
 
-Route::get('/world', function () {
-    return Inertia::render('World');
-})->middleware(['auth', 'verified'])->name('world');
+Route::prefix('world')->group(function () {
+    Route::get('/map/{map_id}', [\App\Http\Controllers\WorldMapController::class, 'worldMap'])->name('world.map');
+});
 
 Route::prefix('streams')->group(function () {
     Route::get('/get-players', [\App\Http\Controllers\PlayerController::class, 'index'])->name('stream.players');

@@ -1,25 +1,22 @@
 <script setup>
 import { reactive } from "vue";
-
-const stats = reactive({
-    hp: 80,
-    maxHp: 100,
-    mp: 40,
-    maxMp: 100,
-    exp: 30,
-    maxExp: 100,
+const props = defineProps({
+    playerData: {
+        type: Object,
+        required: true,
+    },
 });
 </script>
 <template>
     <div class="hud-top">
         <div class="hud-panel">
             <div class="player-header">
-                <div class="player-name">KnightZero</div>
+                <div class="player-name">{{ playerData.name }}</div>
 
                 <div class="player-meta">
-                    <span class="lvl">Lv. 12</span>
+                    <span class="lvl">Lv. {{ playerData.current_level }}</span>
                     <span class="dot">•</span>
-                    <span class="class">Knight</span>
+                    <span class="class">{{ playerData.class_type }}</span>
                 </div>
             </div>
             <!-- HP -->
@@ -29,9 +26,18 @@ const stats = reactive({
                 <div class="bar hp">
                     <div
                         class="fill"
-                        :style="{ width: (stats.hp / stats.maxHp) * 100 + '%' }"
+                        :style="{
+                            width:
+                                (playerData.current_health /
+                                    playerData.max_health) *
+                                    100 +
+                                '%',
+                        }"
                     ></div>
-                    <span>{{ stats.hp }} / {{ stats.maxHp }}</span>
+                    <span
+                        >{{ playerData.current_health }} /
+                        {{ playerData.max_health }}</span
+                    >
                 </div>
             </div>
 
@@ -42,9 +48,18 @@ const stats = reactive({
                 <div class="bar mp">
                     <div
                         class="fill"
-                        :style="{ width: (stats.mp / stats.maxMp) * 100 + '%' }"
+                        :style="{
+                            width:
+                                (playerData.current_mana /
+                                    playerData.max_mana) *
+                                    100 +
+                                '%',
+                        }"
                     ></div>
-                    <span>{{ stats.mp }} / {{ stats.maxMp }}</span>
+                    <span
+                        >{{ playerData.current_mana }} /
+                        {{ playerData.max_mana }}</span
+                    >
                 </div>
             </div>
 
@@ -56,10 +71,14 @@ const stats = reactive({
                     <div
                         class="fill"
                         :style="{
-                            width: (stats.exp / stats.maxExp) * 100 + '%',
+                            width:
+                                (playerData.current_experience /
+                                    playerData.max_experience) *
+                                    100 +
+                                '%',
                         }"
                     ></div>
-                    <span>{{ stats.exp }}%</span>
+                    <span>{{ playerData.current_experience }}%</span>
                 </div>
             </div>
         </div>

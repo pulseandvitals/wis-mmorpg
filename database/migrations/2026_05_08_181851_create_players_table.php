@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('players', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->string('class_type_id');
+            $table->string('class_type');
             $table->integer('current_level')->default(1);
             $table->integer('current_experience')->default(0);
             $table->integer('max_health')->default(100);
@@ -41,7 +41,6 @@ return new class extends Migration
             $table->integer('shield_id')->unsigned()->nullable();
             $table->integer('accessory_id')->unsigned()->nullable();
             $table->boolean('is_online')->default(true);
-            $table->integer('user_id')->unsigned();
             $table->timestamps();
         });
     }

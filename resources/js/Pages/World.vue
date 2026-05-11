@@ -8,7 +8,7 @@
             :style="{
                 width: mapWidth * tileSize + 'px',
                 height: mapHeight * tileSize + 'px',
-                backgroundImage: `url('/maps/Valdora Grassland.png')`,
+                backgroundImage: `url('/maps/${current_map.name}.png')`,
                 cursor: hoverBlocked.value ? 'not-allowed' : 'pointer',
             }"
         >
@@ -29,16 +29,19 @@
                 }"
             />
 
-            <Monster :monsters="monsters" :tileSize="tileSize" />
             <!-- PLAYER -->
             <Player :player="player" :tileSize="tileSize" />
 
             <!-- HUD COMPONENTS -->
             <Menu />
-            <PlayerStat />
+            <PlayerStat :playerData="playerData.data" />
             <PlayerSkill />
             <WorldChat />
-            <PvE @openBattle="selectMonster" />
+            <PvE
+                :playerData="playerData.data"
+                :monsters="monsters"
+                :tileSize="tileSize"
+            />
         </div>
     </div>
 </template>
@@ -52,7 +55,12 @@ import Player from "./GameComponents/Player.vue";
 import PvE from "./GameComponents/Battle.vue/PvE.vue";
 import Menu from "./GameComponents/Menu.vue";
 import { Head } from "@inertiajs/vue3";
-import Monster from "./GameComponents/Battle.vue/Monster.vue";
+
+const props = defineProps({
+    playerData: Object,
+    current_map: Object,
+    map_tiles: Array,
+});
 
 const tileSize = 64;
 const moveQueue = reactive([]);
@@ -76,46 +84,34 @@ const hoverBlocked = reactive({
 |--------------------------------------------------------------------------
 */
 
-const map = [
-    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-    [1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-    [1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 1],
-    [1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1],
-    [1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1],
-    [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1],
-    [1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1],
-    [1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1],
-    [1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1],
-    [1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-    [1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-    [1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-];
-
+const map = props.map_tiles;
 const mapHeight = map.length;
 const mapWidth = map[0].length;
 
 const flatMap = computed(() => map.flat());
 
 const player = reactive({
-    x: 10,
-    y: 2,
-    className: "Archer",
-    renderX: 10 * tileSize,
-    renderY: 2 * tileSize,
-    name: "KnightZero",
+    x: props.playerData.data.x,
+    y: props.playerData.data.y,
+    className: props.playerData.data.class_type,
+    renderX: props.playerData.data.x * tileSize,
+    renderY: props.playerData.data.y * tileSize,
+    name: props.playerData.data.name,
     direction: "down",
     moving: false,
-    hp: 100,
-    maxHp: 100,
-    mp: 30,
-    maxMp: 50,
+    hp: props.playerData.data.current_health,
+    maxHp: props.playerData.data.max_health,
+    mp: props.playerData.data.current_mana,
+    maxMp: props.playerData.data.max_mana,
 });
 
 const monsters = reactive([
     {
         id: 1,
         name: "Orc Warrior",
+        hp: 50,
+        maxHp: 50,
+        attack: 10,
         x: 7,
         y: 4,
         renderX: 7 * tileSize,
@@ -129,6 +125,9 @@ const monsters = reactive([
     {
         id: 2,
         name: "Orc Zombie",
+        hp: 50,
+        maxHp: 50,
+        attack: 10,
         x: 9,
         y: 6,
         renderX: 9 * tileSize,

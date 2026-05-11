@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\Map;
+use App\Models\Player;
 use App\Models\User;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
@@ -35,6 +37,7 @@ class RegisteredUserController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|string|lowercase|email|max:255|unique:'.User::class,
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
+            'class' => ['required','in:Knight,Crusader,Wizard,Archer,Assassin']
         ]);
 
         $user = User::create([
@@ -43,10 +46,13 @@ class RegisteredUserController extends Controller
             'password' => Hash::make($request->password),
         ]);
 
+        $player = new Player();
+        $player->registerPlayer($request->name, $request->class, $user->id);
+
         event(new Registered($user));
 
         Auth::login($user);
 
-        return redirect(route('world', absolute: false));
+        return redirect(route('world.map', ['map_id' => Map::where('name', 'Town Square')->firstOrFail()->map_id]));
     }
 }

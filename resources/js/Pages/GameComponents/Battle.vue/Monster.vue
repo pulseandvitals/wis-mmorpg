@@ -9,12 +9,18 @@ const props = defineProps({
         required: true,
     },
 });
+
+const emit = defineEmits(["selectMonster"]);
+function selectMonster(monster) {
+    emit("selectMonster", monster);
+}
 </script>
 <template>
     <div
         v-for="monster in monsters"
         :key="monster.id"
         class="monster"
+        @click="selectMonster(monster)"
         :style="{
             width: tileSize + 'px',
             height: tileSize + 'px',
