@@ -37,7 +37,7 @@ class MapSeeder extends Seeder
                 'level_requirement' => 5,
             ],
             [
-                'name' => 'Crystal Caves',
+                'name' => 'Crystal Cave',
                 'description' => 'A network of glittering caves adorned with sparkling crystals and hidden treasures.',
                 'map_id' => random_int(10000000, 99999999),
                 'is_safe_zone' => true,

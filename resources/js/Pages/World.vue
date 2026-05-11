@@ -370,7 +370,7 @@ onMounted(() => {
     gap: 20px;
     overflow: hidden;
 
-    font-family: "Press Start 2P", cursive;
+    font-family: "Nova Square", sans-serif;
 
     font-smooth: never;
     -webkit-font-smoothing: none;
