@@ -99,7 +99,6 @@ const props = defineProps({
     background: rgba(0, 0, 0, 0.5);
 
     border: 3px solid #374151;
-    border-radius: 10px;
 
     padding: 8px;
 
@@ -121,7 +120,7 @@ const props = defineProps({
 .label {
     width: 32px;
 
-    font-size: 8px;
+    font-size: 10px;
     color: #f1f1f1;
 
     text-align: right;
@@ -155,7 +154,7 @@ const props = defineProps({
     justify-content: center;
     align-items: center;
 
-    font-size: 9px;
+    font-size: 10px;
     color: white;
 
     z-index: 2;
@@ -194,12 +193,12 @@ const props = defineProps({
 
 .player-name {
     color: #facc15;
-    font-size: 9px;
+    font-size: 15px;
     letter-spacing: 1px;
 }
 
 .player-meta {
-    font-size: 9px;
+    font-size: 10px;
     color: #d1d5db;
 
     display: flex;

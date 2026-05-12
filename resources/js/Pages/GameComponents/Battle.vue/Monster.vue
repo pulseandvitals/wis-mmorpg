@@ -69,7 +69,7 @@ function selectMonster(monster) {
 
 .monster-name {
     color: #ef4444; /* RED */
-    font-size: 6px;
+    font-size: 10px;
     font-weight: bold;
     padding: 3px 5px;
     background-color: rgb(0, 0, 0, 0.5);

@@ -69,7 +69,7 @@ const props = defineProps({
     top: -5px;
     left: 50%;
     transform: translateX(-50%);
-    font-size: 8px;
+    font-size: 10px;
     font-weight: bold;
     color: white;
     text-shadow: 0 0 3px black;

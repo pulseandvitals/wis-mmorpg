@@ -35,6 +35,7 @@
             <!-- HUD COMPONENTS -->
             <Menu />
             <PlayerStat :playerData="playerData.data" />
+            <TownSquareNPC v-if="current_map.name === 'Town Square'" />
             <PlayerSkill />
             <WorldChat />
             <PvE
@@ -54,6 +55,7 @@ import WorldChat from "./GameComponents/WorldChat.vue";
 import Player from "./GameComponents/Player.vue";
 import PvE from "./GameComponents/Battle.vue/PvE.vue";
 import Menu from "./GameComponents/Menu.vue";
+import TownSquareNPC from "./GameComponents/Npc/TownSquareNPC.vue";
 import { Head } from "@inertiajs/vue3";
 
 const props = defineProps({
@@ -64,26 +66,15 @@ const props = defineProps({
 
 const tileSize = 64;
 const moveQueue = reactive([]);
-
 const hoverTile = reactive({
     x: 0,
     y: 0,
     visible: false,
     blocked: false,
 });
-
 const hoverBlocked = reactive({
     value: false,
 });
-/*
-|--------------------------------------------------------------------------
-| MAP COLLISION
-|--------------------------------------------------------------------------
-| 0 = walkable
-| 1 = blocked
-|--------------------------------------------------------------------------
-*/
-
 const map = props.map_tiles;
 const mapHeight = map.length;
 const mapWidth = map[0].length;

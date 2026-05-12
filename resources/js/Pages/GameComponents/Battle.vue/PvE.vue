@@ -420,6 +420,9 @@ function randomDamage(min, max) {
                                       : monster.battle_gif
                             "
                             class="monster-sprite"
+                            :class="{
+                                'monster-hurt': monsterDamages[monster.id],
+                            }"
                         />
 
                         <div
@@ -477,17 +480,17 @@ function randomDamage(min, max) {
                             <button
                                 v-for="monster in aliveMonsters"
                                 :key="monster.id"
-                                class="target-btn"
+                                class="target-btn skill-btn"
                                 :disabled="!playerTurn || battleEnded"
                                 @click="useSkill(skill, monster)"
                             >
-                                {{ monster.name }}
+                                Cast
                             </button>
                         </template>
 
                         <template v-else>
                             <button
-                                class="target-btn"
+                                class="target-btn skill-btn"
                                 :disabled="!playerTurn || battleEnded"
                                 @click="useSkill(skill)"
                             >
@@ -584,7 +587,7 @@ HEADER
 
 .battle-title {
     color: #fde047;
-    font-size: 8px;
+    font-size: 10px;
 
     letter-spacing: 1px;
 
@@ -611,7 +614,7 @@ HEADER
 
     cursor: pointer;
 
-    font-size: 9px;
+    font-size: 15px;
 
     transition: 0.2s;
 }
@@ -720,7 +723,7 @@ PLAYER SIDE
 .player-name {
     color: #f1f1f1;
 
-    font-size: 8px;
+    font-size: 10px;
 
     text-align: center;
 
@@ -735,7 +738,6 @@ HP / MP
 .player-stats {
     display: flex;
     flex-direction: column;
-
     gap: 2px;
 }
 
@@ -744,7 +746,6 @@ HP / MP
     height: 4px;
 
     background: rgba(0, 0, 0, 0.45);
-
     overflow: hidden;
 }
 
@@ -826,14 +827,14 @@ MONSTERS
 .monster-name {
     color: #f87171;
 
-    font-size: 5px;
+    font-size: 10px;
     text-align: center;
 
     opacity: 0.95;
 }
 
 .monster-hp-bar {
-    width: 100%;
+    width: 80%;
     height: 4px;
 
     background: #f1f1f1;
@@ -880,7 +881,7 @@ SKILLS
 
     padding: 6px;
 
-    font-size: 8px;
+    font-size: 10px;
 
     font-family: inherit;
 
@@ -953,7 +954,7 @@ SKILLS
 
 /* NAME UNDER ICON */
 .skill-name {
-    font-size: 5px;
+    font-size: 10px;
     color: #fde047;
 
     text-align: center;
@@ -971,7 +972,7 @@ SKILLS
 }
 
 .target-btn {
-    font-size: 4px;
+    font-size: 10px;
 
     padding: 3px 5px;
 
@@ -1012,7 +1013,7 @@ FOOTER
 .log-text {
     color: #d1d5db;
 
-    font-size: 5px;
+    font-size: 10px;
 
     opacity: 0.85;
 }
@@ -1020,7 +1021,7 @@ FOOTER
 .turn-text {
     color: #fde047;
 
-    font-size: 5px;
+    font-size: 10px;
 }
 
 .skill-inner {
@@ -1044,12 +1045,12 @@ FOOTER
 }
 
 .skill-name {
-    font-size: 5px;
+    font-size: 15px;
     color: #fff;
 }
 
 .skill-meta {
-    font-size: 4px;
+    font-size: 10px;
     color: #94a3b8;
 }
 
@@ -1108,7 +1109,7 @@ MONSTER SELECT
 .select-name {
     color: #fde047;
 
-    font-size: 8px;
+    font-size: 10px;
 
     margin-top: 8px;
 }
@@ -1117,12 +1118,12 @@ MONSTER SELECT
 .damage-text {
     position: absolute;
 
-    font-size: 10px;
+    font-size: 25px;
     font-weight: bold;
 
     color: #ff4d4d;
 
-    animation: damageFloat 0.8s ease-out forwards;
+    animation: damageFloat 1.2s ease-out forwards;
 
     pointer-events: none;
 
@@ -1143,6 +1144,31 @@ MONSTER SELECT
     left: 50%;
 
     transform: translateX(-50%);
+}
+
+.monster-hurt {
+    animation: monsterShake 0.25s linear;
+}
+
+@keyframes monsterShake {
+    0% {
+        transform: translateX(0);
+    }
+    20% {
+        transform: translateX(-8px);
+    }
+    40% {
+        transform: translateX(8px);
+    }
+    60% {
+        transform: translateX(-6px);
+    }
+    80% {
+        transform: translateX(6px);
+    }
+    100% {
+        transform: translateX(0);
+    }
 }
 
 /* FLOAT ANIMATION */
@@ -1176,7 +1202,7 @@ MONSTER SELECT
 
     transform: translate(-50%, -120%);
 
-    font-size: 7px;
+    font-size: 15px;
     font-weight: bold;
 
     color: #f1f1f1;
@@ -1201,7 +1227,7 @@ MONSTER SELECT
 
     transform: translate(-50%, -120%);
 
-    font-size: 7px;
+    font-size: 10px;
     font-weight: bold;
 
     color: #f1f1f1;

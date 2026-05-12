@@ -72,7 +72,6 @@ function sendMessage() {
 
     background: rgba(0, 0, 0, 0.75);
     border: 3px solid #374151;
-    border-radius: 10px;
 
     display: flex;
     flex-direction: column;
@@ -89,7 +88,7 @@ function sendMessage() {
 
     color: #facc15;
 
-    font-size: 8px;
+    font-size: 10px;
 
     border-bottom: 2px solid rgba(255, 255, 255, 0.08);
 }
@@ -107,7 +106,7 @@ function sendMessage() {
 
     color: white;
 
-    font-size: 9px;
+    font-size: 10px;
 }
 
 .chat-message {
@@ -142,7 +141,7 @@ function sendMessage() {
     color: white;
 
     font-family: inherit;
-    font-size: 9px;
+    font-size: 15px;
 }
 
 .chat-button {

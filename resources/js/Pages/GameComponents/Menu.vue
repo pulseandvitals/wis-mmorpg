@@ -18,19 +18,23 @@
 </template>
 
 <script setup>
+import { useForm } from "@inertiajs/vue3";
+const form = useForm({});
 const menuItems = [
     { id: 1, label: "Inventory", icon: "🎒" },
     { id: 2, label: "Gears", icon: "✨" },
     { id: 3, label: "Skills", icon: "✨" },
     { id: 4, label: "Ranking", icon: "🏆" },
     { id: 5, label: "Discord", icon: "💬" },
+    { id: 6, label: "Town Square", icon: "💬" },
 ];
 
 const handleMenuClick = (item) => {
-    console.log(item.label);
-
     if (item.id === 5) {
         window.open("https://discord.com", "_blank");
+    }
+    if (item.id === 6) {
+        form.get(route("world.map", 32784528));
     }
 };
 </script>
@@ -63,8 +67,8 @@ const handleMenuClick = (item) => {
 
     color: #fbbf24;
 
-    font-size: 6px;
-    font-family: "Press Start 2P", cursive;
+    font-size: 15px;
+    font-family: "Nova Square", sans-serif;
 
     cursor: pointer;
 
@@ -77,7 +81,7 @@ const handleMenuClick = (item) => {
 }
 
 .hud-icon {
-    font-size: 10px;
+    font-size: 15px;
 }
 
 .hud-label {
