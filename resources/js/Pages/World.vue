@@ -35,16 +35,21 @@
             <!-- HUD COMPONENTS -->
             <Menu />
             <PlayerStat :playerData="playerData.data" />
-            <TownSquareNPC v-if="current_map.name === 'Town Square'" />
-            <PlayerSkill />
+            <TownSquareNPC
+                v-if="current_map.name === 'Town Square'"
+                :all_maps="all_maps"
+            />
+            <PlayerSkill :playerSkills="playerSkills" />
             <WorldChat />
             <PvE
                 :playerData="playerData.data"
                 :monsters="monsters"
+                :playerSkills="playerSkills"
                 :tileSize="tileSize"
             />
         </div>
     </div>
+    {{ all_maps }}
 </template>
 
 <script setup>
@@ -60,6 +65,9 @@ import { Head } from "@inertiajs/vue3";
 
 const props = defineProps({
     playerData: Object,
+    playerSkills: Object,
+    skills: Object,
+    all_maps: Object,
     current_map: Object,
     map_tiles: Array,
 });

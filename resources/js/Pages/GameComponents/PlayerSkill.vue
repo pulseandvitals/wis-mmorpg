@@ -1,11 +1,21 @@
-<script setup></script>
+<script setup>
+const props = defineProps({
+    playerSkills: Object,
+});
+</script>
 <template>
     <div class="hud-bottom">
-        <div class="skill">1</div>
-        <div class="skill">2</div>
-        <div class="skill">3</div>
-        <div class="skill">4</div>
-        <div class="skill">5</div>
+        <div
+            class="skill"
+            v-for="(skill, index) in playerSkills"
+            :key="skill.id"
+        >
+            <img :src="skill.icon_path" :alt="skill.name" class="skill-icon" />
+
+            <span class="skill-key">
+                {{ index + 1 }}
+            </span>
+        </div>
     </div>
 </template>
 <style scoped>

@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\MapResource;
 use App\Http\Resources\PlayerResource;
 use App\Models\Map;
+use App\Models\Skill;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -56,9 +58,9 @@ class WorldMapController extends Controller
         ];
 
         return Inertia::render('World',[
-            'playerData' => PlayerResource::make($player),
             'current_map' => $map,
             'map_tiles' => $mapTiles,
+            ...$this->getPlayerData()
         ]);
     }
 
@@ -86,9 +88,10 @@ class WorldMapController extends Controller
         ];
 
         return Inertia::render('World',[
-            'playerData' => PlayerResource::make($player),
             'current_map' => $map,
+            'all_maps' => MapResource::collection(Map::all()),
             'map_tiles' => $mapTiles,
+            ...$this->getPlayerData()
         ]);
     }
 
@@ -116,9 +119,9 @@ class WorldMapController extends Controller
         ];
 
         return Inertia::render('World',[
-            'playerData' => PlayerResource::make($player),
             'current_map' => $map,
             'map_tiles' => $mapTiles,
+            ...$this->getPlayerData()
         ]);
     }
 
@@ -149,5 +152,16 @@ class WorldMapController extends Controller
             'current_map' => $map,
             'map_tiles' => $mapTiles,
         ]);
+    }
+
+    private function getPlayerData()
+    {
+        $player = auth()->user()->player;
+
+        return [
+            'playerData' => PlayerResource::make($player),
+            'playerSkills' => Skill::byClass($player->class_type)->byLevel($player->current_level)->get(),
+            'skills' => Skill::byClass($player->class_type)->get(),
+        ];
     }
 }

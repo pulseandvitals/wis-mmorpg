@@ -7,6 +7,10 @@ const props = defineProps({
         type: Object,
         required: true,
     },
+    playerSkills: {
+        type: Object,
+        required: true,
+    },
     selectedMonster: {
         type: Object,
         default: null,
@@ -27,35 +31,22 @@ const player = ref({
     maxHp: props.playerData.max_health,
     mp: props.playerData.current_mana,
     maxMp: props.playerData.max_mana,
-    attack: props.playerData.current_attack,
+    attack: props.playerData.total_attack,
 
     battle_gif: `/sprites/${props.playerData.class_type}/idle-right.gif`,
     attack_gif: `/sprites/${props.playerData.class_type}/attack.gif`,
     dead_gif: `/sprites/${props.playerData.class_type}/dead.gif`,
 
-    skills: [
-        {
-            id: 1,
-            name: "Blood Impact",
-            damage: 18,
-            mana: 5,
-            targets: 1,
-        },
-        {
-            id: 2,
-            name: "Double Strike",
-            damage: 14,
-            mana: 10,
-            targets: 2,
-        },
-        {
-            id: 3,
-            name: "Whirlwind",
-            damage: 10,
-            mana: 18,
-            targets: 3,
-        },
-    ],
+    skills: props.playerSkills.map((skill) => ({
+        id: skill.id,
+        name: skill.name,
+        description: skill.description,
+        damage: skill.damage,
+        mana: skill.mana_cost,
+        targets: skill.target,
+        element: skill.element,
+        icon: skill.icon_path,
+    })),
 });
 
 /* =========================================
@@ -162,8 +153,8 @@ function useSkill(skill, selectedMonster = null) {
     skillShout(skill);
 
     targets.forEach((monster) => {
-        const damage = randomDamage(skill.damage - 4, skill.damage + 4);
-
+        const totalDamage = player.value.attack + skill.damage;
+        const damage = randomDamage(totalDamage - 4, totalDamage + 4);
         /* SHOW DAMAGE */
         monsterDamages.value[monster.id] = damage;
 
@@ -931,25 +922,18 @@ SKILLS
 
 /* CENTER ICON */
 .skill-icon-wrap {
-    width: 34px;
-    height: 34px;
+    width: 64px;
+    height: 64px;
 
     display: flex;
     align-items: center;
     justify-content: center;
 
-    border-radius: 8px;
-
+    border-radius: 10px;
     background: rgba(0, 0, 0, 0.35);
 
     cursor: pointer;
-}
-
-.skill-icon {
-    width: 22px;
-    height: 22px;
-
-    image-rendering: pixelated;
+    overflow: hidden;
 }
 
 /* NAME UNDER ICON */
@@ -1032,8 +1016,8 @@ FOOTER
 }
 
 .skill-icon {
-    width: 16px;
-    height: 16px;
+    width: 50px;
+    height: 50px;
 
     image-rendering: pixelated;
 }
