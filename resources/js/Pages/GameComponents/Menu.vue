@@ -49,7 +49,7 @@ const handleMenuClick = (item) => {
     flex-direction: column;
     gap: 6px;
 
-    z-index: 9999;
+    z-index: 999;
 }
 
 .hud-btn {

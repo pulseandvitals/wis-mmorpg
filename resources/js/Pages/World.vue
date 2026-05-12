@@ -1,57 +1,3 @@
-<template>
-    <Head title="Elfaria Online" />
-    <div class="game-wrapper">
-        <div
-            class="game-map"
-            @click="handleMapClick"
-            @mousemove="handleMouseMove"
-            :style="{
-                width: mapWidth * tileSize + 'px',
-                height: mapHeight * tileSize + 'px',
-                backgroundImage: `url('/maps/${current_map.name}.png')`,
-                cursor: hoverBlocked.value ? 'not-allowed' : 'pointer',
-            }"
-        >
-            <!-- COLLISION DEBUG (OPTIONAL) -->
-            <div
-                v-for="(tile, index) in flatMap"
-                :key="index"
-                class="tile"
-                :class="{
-                    wall: tile === 1,
-                }"
-                :style="{
-                    width: tileSize + 'px',
-                    height: tileSize + 'px',
-                    position: 'absolute',
-                    left: (index % mapWidth) * tileSize + 'px',
-                    top: Math.floor(index / mapWidth) * tileSize + 'px',
-                }"
-            />
-
-            <!-- PLAYER -->
-            <Player :player="player" :tileSize="tileSize" />
-
-            <!-- HUD COMPONENTS -->
-            <Menu />
-            <PlayerStat :playerData="playerData.data" />
-            <TownSquareNPC
-                v-if="current_map.name === 'Town Square'"
-                :all_maps="all_maps"
-            />
-            <PlayerSkill :playerSkills="playerSkills" />
-            <WorldChat />
-            <PvE
-                :playerData="playerData.data"
-                :monsters="monsters"
-                :playerSkills="playerSkills"
-                :tileSize="tileSize"
-            />
-        </div>
-    </div>
-    {{ all_maps }}
-</template>
-
 <script setup>
 import { reactive, computed, onMounted, ref } from "vue";
 import PlayerStat from "./GameComponents/PlayerStat.vue";
@@ -62,6 +8,7 @@ import PvE from "./GameComponents/Battle.vue/PvE.vue";
 import Menu from "./GameComponents/Menu.vue";
 import TownSquareNPC from "./GameComponents/Npc/TownSquareNPC.vue";
 import { Head } from "@inertiajs/vue3";
+import GameLayout from "@/Layouts/GameLayout.vue";
 
 const props = defineProps({
     playerData: Object,
@@ -357,38 +304,65 @@ onMounted(() => {
     moveMonsters();
 });
 </script>
+<template>
+    <Head title="Elfaria Online" />
+    <GameLayout>
+        <div
+            class="game-map"
+            @click="handleMapClick"
+            @mousemove="handleMouseMove"
+            :style="{
+                width: mapWidth * tileSize + 'px',
+                height: mapHeight * tileSize + 'px',
+                backgroundImage: `url('/maps/${current_map.name}.png')`,
+                cursor: hoverBlocked.value ? 'not-allowed' : 'pointer',
+            }"
+        >
+            <!-- COLLISION DEBUG (OPTIONAL) -->
+            <!-- <div
+                v-for="(tile, index) in flatMap"
+                :key="index"
+                class="tile"
+                :class="{
+                    wall: tile === 1,
+                }"
+                :style="{
+                    width: tileSize + 'px',
+                    height: tileSize + 'px',
+                    position: 'absolute',
+                    left: (index % mapWidth) * tileSize + 'px',
+                    top: Math.floor(index / mapWidth) * tileSize + 'px',
+                }"
+            /> -->
 
+            <!-- PLAYER -->
+            <Player :player="player" :tileSize="tileSize" />
+
+            <!-- HUD COMPONENTS -->
+            <Menu />
+            <PlayerStat :playerData="playerData.data" />
+            <TownSquareNPC
+                v-if="current_map.name === 'Town Square'"
+                :all_maps="all_maps.data"
+            />
+            <PlayerSkill :playerSkills="playerSkills" />
+            <WorldChat />
+            <PvE
+                :playerData="playerData.data"
+                :monsters="monsters"
+                :playerSkills="playerSkills"
+                :tileSize="tileSize"
+            />
+        </div>
+    </GameLayout>
+</template>
 <style scoped>
-.game-wrapper {
-    min-height: 100vh;
-    background: #111827;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-    gap: 20px;
-    overflow: hidden;
-
-    font-family: "Nova Square", sans-serif;
-
-    font-smooth: never;
-    -webkit-font-smoothing: none;
-    text-rendering: geometricPrecision;
-    image-rendering: pixelated;
-    letter-spacing: 1px;
-    font-size: 14px;
-}
 .tile {
     position: absolute;
     box-sizing: border-box;
 }
 .game-map {
     position: relative;
-
-    width: calc(24 * 64px);
-    height: calc(13 * 64px);
-
-    background-image: url("/maps/town1.png");
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;

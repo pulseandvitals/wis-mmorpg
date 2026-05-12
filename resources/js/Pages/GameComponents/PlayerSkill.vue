@@ -11,10 +11,6 @@ const props = defineProps({
             :key="skill.id"
         >
             <img :src="skill.icon_path" :alt="skill.name" class="skill-icon" />
-
-            <span class="skill-key">
-                {{ index + 1 }}
-            </span>
         </div>
     </div>
 </template>

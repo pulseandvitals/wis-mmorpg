@@ -72,7 +72,7 @@ class Player extends Model
         $this->total_critical_percentage = 5.0;
         $this->current_map_id = Map::where('name', 'Town Square')->firstOrFail()->map_id;
         $this->x = 7;
-        $this->y = 2;
+        $this->y = 7;
         $this->direction = 'down';
 
         $data = self::create($this->attributesToArray());

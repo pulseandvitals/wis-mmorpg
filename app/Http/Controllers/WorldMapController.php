@@ -13,7 +13,9 @@ class WorldMapController extends Controller
 {
     public function worldMap($map_id)
     {
+        sleep(3); // 3 seconds loading
         $map = Map::where('map_id', $map_id)->firstOrFail();
+
         switch($map->name) {
             case 'Town Square':
                 $current_map = $this->getTownSquareMap($map);
@@ -27,6 +29,12 @@ class WorldMapController extends Controller
             case 'Crystal Cave':
                 $current_map = $this->getCrystalCaveMap($map);
                 break;
+            case 'Volcanic Wasteland':
+                $current_map = $this->getVolcanicWastelandMap($map);
+                break;
+            case 'Sky Islands':
+                $current_map = $this->getSkyIslandsMap($map);
+                break;
             default:
                 $current_map =$this->getTownSquareMap($map);
         }
@@ -38,8 +46,11 @@ class WorldMapController extends Controller
         $player = auth()->user()->player;
 
         if($map->level_requirement > $player->current_level) {
-            return Map::where('name', 'Town Square')->firstOrFail();
-        }
+            return redirect()->back();
+        };
+
+        $this->saveMap($map->map_id);
+
 
         $mapTiles =  [
             [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
@@ -60,6 +71,7 @@ class WorldMapController extends Controller
         return Inertia::render('World',[
             'current_map' => $map,
             'map_tiles' => $mapTiles,
+            'all_maps' => MapResource::collection(Map::all()),
             ...$this->getPlayerData()
         ]);
     }
@@ -68,8 +80,10 @@ class WorldMapController extends Controller
         $player = auth()->user()->player;
 
         if($map->level_requirement > $player->current_level) {
-            return Map::where('name', 'Town Square')->firstOrFail();
-        }
+            return redirect()->back();
+        };
+
+        $this->saveMap($map->map_id);
 
         $mapTiles =  [
             [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
@@ -98,9 +112,11 @@ class WorldMapController extends Controller
     private function getDarkForestMap($map) {
         $player = auth()->user()->player;
 
-        // if($map->level_requirement > $player->current_level) {
-        //     return Map::where('name', 'Town Square')->firstOrFail();
-        // }
+        if($map->level_requirement > $player->current_level) {
+            return redirect()->back();
+        };
+
+        $this->saveMap($map->map_id);
 
         $mapTiles =  [
             [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
@@ -128,9 +144,11 @@ class WorldMapController extends Controller
     private function getCrystalCaveMap($map) {
         $player = auth()->user()->player;
 
-        // if($map->level_requirement > $player->current_level) {
-        //     return Map::where('name', 'Town Square')->firstOrFail();
-        // }
+        if($map->level_requirement > $player->current_level) {
+            return redirect()->back();
+        };
+
+        $this->saveMap($map->map_id);
 
         $mapTiles =  [
             [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
@@ -148,9 +166,73 @@ class WorldMapController extends Controller
             [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
         ];
         return Inertia::render('World',[
-            'playerData' => PlayerResource::make($player),
             'current_map' => $map,
             'map_tiles' => $mapTiles,
+            ...$this->getPlayerData()
+        ]);
+    }
+
+    private function getVolcanicWastelandMap($map) {
+        $player = auth()->user()->player;
+
+        if($map->level_requirement > $player->current_level) {
+            return redirect()->back();
+        };
+
+        $this->saveMap($map->map_id);
+
+        $mapTiles =  [
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1],
+            [1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1],
+            [1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1],
+            [1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1],
+            [1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1],
+            [1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1],
+            [1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+        ];
+
+        return Inertia::render('World',[
+            'current_map' => $map,
+            'map_tiles' => $mapTiles,
+            ...$this->getPlayerData()
+        ]);
+    }
+
+    private function getSkyIslandsMap($map)
+    {
+        $player = auth()->user()->player;
+
+        if($map->level_requirement > $player->current_level) {
+            return redirect()->back();
+        };
+
+        $this->saveMap($map->map_id);
+
+        $mapTiles =  [
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1],
+            [1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1],
+            [1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1],
+            [1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1],
+            [1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1],
+            [1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1],
+            [1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+        ];
+        return Inertia::render('World',[
+            'current_map' => $map,
+            'map_tiles' => $mapTiles,
+            ...$this->getPlayerData()
         ]);
     }
 

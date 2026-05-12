@@ -1,10 +1,19 @@
 <script setup>
 import { ref, computed } from "vue";
+import DungeonMaps from "./DungeonMaps.vue";
+const props = defineProps({
+    all_maps: Object,
+});
 
-const open = ref(false);
-
-const currentNpc = ref(null);
-
+const isPortalOpen = ref(false);
+const isBlacksmithOpen = ref(false);
+const isPotionHouseOpen = ref(false);
+const isWeaponHouseOpen = ref(false);
+const isArmorHouseOpen = ref(false);
+const isEventOrgOpen = ref(false);
+const isMarketOpen = ref(false);
+const isGeneralStoreOpen = ref(false);
+const currentNpc = ref();
 const npcData = {
     blacksmith: {
         name: "Blacksmith",
@@ -67,17 +76,54 @@ const npcData = {
         color: "from-purple-700 to-indigo-950",
         services: ["Learn Skills", "Magic Scrolls", "Enchant Gear"],
     },
+    portal: {
+        name: "Dungeon Portal",
+        x: 1260,
+        y: 750,
+        icon: "✨",
+        color: "from-purple-700 to-indigo-950",
+        services: isPortalOpen,
+    },
 };
-
 const npc = computed(() => npcData[currentNpc.value]);
-
 function openNpc(key) {
     currentNpc.value = key;
-    open.value = true;
-}
+    switch (key) {
+        case "portal":
+            isPortalOpen.value = true;
+            break;
 
-function closeNpc() {
-    open.value = false;
+        case "blacksmith":
+            isBlacksmithOpen.value = true;
+            break;
+
+        case "potion":
+            isPotionHouseOpen.value = true;
+            break;
+
+        case "weapon":
+            isWeaponHouseOpen.value = true;
+            break;
+
+        case "armor":
+            isArmorHouseOpen.value = true;
+            break;
+
+        case "event":
+            isEventOrgOpen.value = true;
+            break;
+
+        case "market":
+            isMarketOpen.value = true;
+            break;
+
+        case "general":
+            isGeneralStoreOpen.value = true;
+            break;
+
+        default:
+            break;
+    }
 }
 </script>
 
@@ -96,34 +142,13 @@ function closeNpc() {
         >
             {{ data.icon }} {{ data.name }}
         </button>
-
-        <!-- MODAL -->
-        <div v-if="open && npc" class="npc-modal">
-            <div class="npc-modal-content p-6">
-                <div class="flex justify-between items-center mb-6">
-                    <h1 class="text-3xl text-white font-bold">
-                        {{ npc.name }}
-                    </h1>
-
-                    <button
-                        @click="closeNpc"
-                        class="px-4 py-2 bg-red-600 hover:bg-red-500 rounded-lg text-white"
-                    >
-                        Close
-                    </button>
-                </div>
-
-                <div class="grid grid-cols-2 gap-4">
-                    <button
-                        v-for="service in npc.services"
-                        :key="service"
-                        class="p-5 rounded-xl bg-gray-800 hover:bg-gray-700 text-white transition"
-                    >
-                        {{ service }}
-                    </button>
-                </div>
-            </div>
-        </div>
+        {{ isPortalOpen }}
+        <DungeonMaps
+            v-if="isPortalOpen"
+            :all_maps="all_maps"
+            :npc="npc"
+            @close="isPortalOpen = false"
+        />
     </div>
 </template>
 <style scoped>
@@ -136,20 +161,6 @@ function closeNpc() {
 
 /* BUTTON AREA */
 .npc-wrapper > div {
-}
-
-/* NPC MODAL */
-.npc-modal {
-    position: fixed;
-    inset: 0;
-
-    background: rgba(0, 0, 0, 0.45);
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    z-index: 999999999;
 }
 
 /* MODAL BOX */
