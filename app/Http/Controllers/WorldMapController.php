@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\ClassSkillResource;
 use App\Http\Resources\MapResource;
 use App\Http\Resources\PlayerResource;
 use App\Models\Map;
+use App\Models\Monster;
 use App\Models\Skill;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -105,6 +107,7 @@ class WorldMapController extends Controller
             'current_map' => $map,
             'all_maps' => MapResource::collection(Map::all()),
             'map_tiles' => $mapTiles,
+            'monsters' => $this->getMonsterByMap($map),
             ...$this->getPlayerData()
         ]);
     }
@@ -137,6 +140,7 @@ class WorldMapController extends Controller
         return Inertia::render('World',[
             'current_map' => $map,
             'map_tiles' => $mapTiles,
+            'monsters' => $this->getMonsterByMap($map),
             ...$this->getPlayerData()
         ]);
     }
@@ -168,6 +172,7 @@ class WorldMapController extends Controller
         return Inertia::render('World',[
             'current_map' => $map,
             'map_tiles' => $mapTiles,
+            'monsters' => $this->getMonsterByMap($map),
             ...$this->getPlayerData()
         ]);
     }
@@ -200,6 +205,7 @@ class WorldMapController extends Controller
         return Inertia::render('World',[
             'current_map' => $map,
             'map_tiles' => $mapTiles,
+            'monsters' => $this->getMonsterByMap($map),
             ...$this->getPlayerData()
         ]);
     }
@@ -232,8 +238,14 @@ class WorldMapController extends Controller
         return Inertia::render('World',[
             'current_map' => $map,
             'map_tiles' => $mapTiles,
+            'monsters' => $this->getMonsterByMap($map),
             ...$this->getPlayerData()
         ]);
+    }
+
+    private function getMonsterByMap($map)
+    {
+        return Monster::whereMap('Valdora Grassland')->get() ?: null;
     }
 
     private function getPlayerData()
@@ -242,8 +254,8 @@ class WorldMapController extends Controller
 
         return [
             'playerData' => PlayerResource::make($player),
-            'playerSkills' => Skill::byClass($player->class_type)->byLevel($player->current_level)->get(),
-            'skills' => Skill::byClass($player->class_type)->get(),
+            'playerSkills' => ClassSkillResource::collection(Skill::byClass($player->class_type)->byLevel($player->current_level)->get()),
+            'classSkills' => ClassSkillResource::collection(Skill::byClass($player->class_type)->get()),
         ];
     }
 }

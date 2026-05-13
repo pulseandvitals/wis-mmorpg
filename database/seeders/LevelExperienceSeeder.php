@@ -16,11 +16,11 @@ class LevelExperienceSeeder extends Seeder
         $experiences = [];
         $exp = 0;
         for ($level = 1; $level <= 50; $level++) {
-            $experiences[] = ['level' => $level, 'experience_required' => $exp];
+            $experiences[] = ['level' => $level, 'required_experience' => $exp];
             if ($level < 50) {
-                $exp += 100 * $level * $level;
+                $exp += floor(80 * pow($level, 1.75));
             }
         }
-        DB::table('level_experiences')->insert($experiences);
+        DB::table('experiences')->insert($experiences);
     }
 }

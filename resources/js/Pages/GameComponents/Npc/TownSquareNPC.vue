@@ -17,7 +17,7 @@ const currentNpc = ref();
 const npcData = {
     blacksmith: {
         name: "Blacksmith",
-        x: 340,
+        x: 350,
         y: 100,
         icon: "⚒️",
         color: "from-stone-700 to-stone-900",
@@ -26,7 +26,7 @@ const npcData = {
 
     potion: {
         name: "Potion House",
-        x: 990,
+        x: 1005,
         y: 75,
         icon: "🧪",
         color: "from-emerald-700 to-green-900",
@@ -35,7 +35,7 @@ const npcData = {
 
     weapon: {
         name: "Weapon House",
-        x: 680,
+        x: 685,
         y: 10,
         icon: "🗡️",
         color: "from-red-700 to-red-950",
@@ -53,7 +53,7 @@ const npcData = {
 
     event: {
         name: "Event Org",
-        x: 1165,
+        x: 1170,
         y: 235,
         icon: "✨",
         color: "from-purple-700 to-indigo-950",
@@ -61,7 +61,7 @@ const npcData = {
     },
     market: {
         name: "Market/Mall",
-        x: 600,
+        x: 605,
         y: 550,
         icon: "✨",
         color: "from-purple-700 to-indigo-950",
@@ -70,7 +70,7 @@ const npcData = {
 
     general: {
         name: "General Store",
-        x: 1260,
+        x: 1275,
         y: 450,
         icon: "✨",
         color: "from-purple-700 to-indigo-950",
@@ -78,7 +78,7 @@ const npcData = {
     },
     portal: {
         name: "Dungeon Portal",
-        x: 1260,
+        x: 1290,
         y: 750,
         icon: "✨",
         color: "from-purple-700 to-indigo-950",

@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('name');
             $table->text('description')->nullable();
             $table->integer('level_requirement')->default(1);
+            $table->string('exp_multiplier')->nullable();
             $table->boolean('is_safe_zone')->default(true);
             $table->timestamps();
         });

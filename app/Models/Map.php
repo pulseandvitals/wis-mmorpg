@@ -10,6 +10,7 @@ class Map extends Model
         'map_id',
         'name',
         'description',
+        'exp_multiplier',
         'level_requirement',
         'is_safe_zone',
     ];

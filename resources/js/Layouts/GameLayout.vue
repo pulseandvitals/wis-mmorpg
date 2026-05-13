@@ -112,7 +112,14 @@ onUnmounted(() => {
     border-radius: 50%;
     animation: spin 1s linear infinite;
 }
-
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
 .loading-text {
     margin-top: 20px;
     color: #67e8f9;

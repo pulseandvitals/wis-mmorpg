@@ -17,6 +17,7 @@ return new class extends Migration
             $table->unsignedBigInteger('item_id');
             $table->string('item_type'); // 'gear', 'potion', 'material
             $table->integer('quantity')->default(1);
+            $table->json('random_stat')->nullable();
             $table->boolean('is_equipped')->default(false);
             $table->foreign('player_id')->references('id')->on('players')->onDelete('cascade');
             $table->timestamps();

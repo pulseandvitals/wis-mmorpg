@@ -1,5 +1,5 @@
 <script setup>
-import { reactive, computed, onMounted, ref } from "vue";
+import { reactive, computed, onMounted, ref, watch } from "vue";
 import PlayerStat from "./GameComponents/PlayerStat.vue";
 import PlayerSkill from "./GameComponents/PlayerSkill.vue";
 import WorldChat from "./GameComponents/WorldChat.vue";
@@ -13,8 +13,9 @@ import GameLayout from "@/Layouts/GameLayout.vue";
 const props = defineProps({
     playerData: Object,
     playerSkills: Object,
-    skills: Object,
+    classSkills: Object,
     all_maps: Object,
+    monsters: Object,
     current_map: Object,
     map_tiles: Array,
 });
@@ -33,7 +34,7 @@ const hoverBlocked = reactive({
 const map = props.map_tiles;
 const mapHeight = map.length;
 const mapWidth = map[0].length;
-
+const monsters = reactive([]);
 const flatMap = computed(() => map.flat());
 
 const player = reactive({
@@ -50,41 +51,40 @@ const player = reactive({
     mp: props.playerData.data.current_mana,
     maxMp: props.playerData.data.max_mana,
 });
+function loadMonsters() {
+    const dbMonsters = Array.isArray(props.monsters)
+        ? props.monsters
+        : Object.values(props.monsters || {});
 
-const monsters = reactive([
-    {
-        id: 1,
-        name: "Orc Warrior",
-        hp: 50,
-        maxHp: 50,
-        attack: 10,
-        x: 7,
-        y: 4,
-        renderX: 7 * tileSize,
-        renderY: 4 * tileSize,
-        dir: 1,
+    dbMonsters.forEach((monster) => {
+        for (let i = 0; i < 4; i++) {
+            const x = Math.floor(Math.random() * 20);
+            const y = Math.floor(Math.random() * 15);
 
-        // NEW
-        moving: false,
-        direction: "down",
-    },
-    {
-        id: 2,
-        name: "Orc Zombie",
-        hp: 50,
-        maxHp: 50,
-        attack: 10,
-        x: 9,
-        y: 6,
-        renderX: 9 * tileSize,
-        renderY: 6 * tileSize,
-        dir: -1,
+            monsters.push({
+                ...monster,
+                hp: monster.max_hp,
+                maxHp: monster.max_hp,
+                skill:
+                    typeof monster.skill === "string"
+                        ? JSON.parse(monster.skill)
+                        : monster.skill,
 
-        // NEW
-        moving: false,
-        direction: "down",
-    },
-]);
+                drops:
+                    typeof monster.drops === "string"
+                        ? JSON.parse(monster.drops)
+                        : monster.drops,
+
+                x,
+                y,
+                renderX: x * tileSize,
+                renderY: y * tileSize,
+                moving: false,
+                direction: "down",
+            });
+        }
+    });
+}
 
 function handleMouseMove(e) {
     const rect = e.currentTarget.getBoundingClientRect();
@@ -300,9 +300,15 @@ function moveMonsters() {
 }
 onMounted(() => {
     window.addEventListener("keydown", handleKey);
-
     moveMonsters();
 });
+watch(
+    () => props.monsters,
+    () => {
+        loadMonsters();
+    },
+    { immediate: true },
+);
 </script>
 <template>
     <Head title="Elfaria Online" />
@@ -339,18 +345,18 @@ onMounted(() => {
             <Player :player="player" :tileSize="tileSize" />
 
             <!-- HUD COMPONENTS -->
-            <Menu />
+            <Menu :classSkills="classSkills.data" />
             <PlayerStat :playerData="playerData.data" />
             <TownSquareNPC
                 v-if="current_map.name === 'Town Square'"
                 :all_maps="all_maps.data"
             />
-            <PlayerSkill :playerSkills="playerSkills" />
+            <PlayerSkill :playerSkills="playerSkills.data" />
             <WorldChat />
             <PvE
                 :playerData="playerData.data"
                 :monsters="monsters"
-                :playerSkills="playerSkills"
+                :playerSkills="playerSkills.data"
                 :tileSize="tileSize"
             />
         </div>

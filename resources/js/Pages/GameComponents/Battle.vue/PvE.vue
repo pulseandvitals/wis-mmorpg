@@ -1,7 +1,7 @@
 <script setup>
 import { ref, computed } from "vue";
 import Monster from "./Monster.vue";
-
+import "./skill_animations.css";
 const props = defineProps({
     playerData: {
         type: Object,
@@ -63,6 +63,7 @@ const attackingMonsterId = ref(null);
 const playerShout = ref("");
 const monsterShouts = ref({});
 const skillEffect = ref(null);
+const skillTargets = ref([]);
 const logs = ref([]);
 
 /* =========================================
@@ -104,7 +105,8 @@ function openBattle(monster) {
             name: monster.name,
             hp: randomHp,
             maxHp: randomHp,
-            attack: monster.attack,
+            attack: monster.skill.damage,
+            skill_name: monster.skill.name,
             battle_gif: `/monster_sprites/${monster.name}/idle-left.gif`,
             attack_gif: `/monster_sprites/${monster.name}/attack.gif`,
             dead_gif: `/monster_sprites/${monster.name}/dead.gif`,
@@ -145,7 +147,7 @@ function useSkill(skill, selectedMonster = null) {
         /* MULTI TARGET */
         targets = aliveMonsters.value.slice(0, skill.targets);
     }
-
+    skillTargets.value = targets.map((t) => t.id);
     player.value.mp -= skill.mana;
 
     attackAnimation();
@@ -207,7 +209,7 @@ function skillShout(skill) {
     }, 1000);
 }
 function monsterSkillShout(monster) {
-    monsterShouts.value[monster.id] = "Attack!!";
+    monsterShouts.value[monster.id] = `${monster.skill_name}!!`;
 
     setTimeout(() => {
         delete monsterShouts.value[monster.id];
@@ -387,6 +389,11 @@ function randomDamage(min, max) {
                 <!-- MONSTERS -->
                 <div class="monsters-section">
                     <div
+                        v-if="skillEffect"
+                        class="skill-effect"
+                        :class="skillEffect"
+                    ></div>
+                    <div
                         v-for="monster in battleMonsters"
                         :key="monster.id"
                         class="monster-card"
@@ -397,11 +404,6 @@ function randomDamage(min, max) {
                         >
                             {{ monsterShouts[monster.id] }}
                         </div>
-                        <div
-                            v-if="skillEffect"
-                            :class="skillEffect"
-                            class="skill-effect"
-                        ></div>
                         <img
                             :src="
                                 monster.hp <= 0
@@ -469,7 +471,7 @@ function randomDamage(min, max) {
                     <div class="target-buttons">
                         <template v-if="skill.targets === 1">
                             <button
-                                v-for="monster in aliveMonsters"
+                                v-for="(monster, index) in aliveMonsters"
                                 :key="monster.id"
                                 class="target-btn skill-btn"
                                 :disabled="!playerTurn || battleEnded"
@@ -526,7 +528,7 @@ OVERLAY
     display: flex;
     align-items: center;
     justify-content: center;
-
+    overflow: hidden;
     z-index: 9999;
 
     backdrop-filter: blur(2px);
@@ -623,7 +625,7 @@ BODY
     display: flex;
 
     overflow: hidden;
-
+    position: relative;
     padding: 10px 0;
 }
 
@@ -708,7 +710,7 @@ PLAYER SIDE
 
     backdrop-filter: blur(4px);
 
-    margin-top: -5px;
+    margin-top: -10px;
 }
 
 .player-name {
@@ -768,7 +770,8 @@ MONSTERS
 
     gap: 8px;
 
-    overflow-y: auto;
+    position: relative;
+    overflow: hidden;
 }
 
 .monster-card {
@@ -1206,7 +1209,7 @@ MONSTER SELECT
 .shout-text {
     position: absolute;
 
-    top: 210px;
+    top: 195px;
     left: 50%;
 
     transform: translate(-50%, -120%);
@@ -1250,5 +1253,77 @@ MONSTER SELECT
     position: absolute;
     pointer-events: none;
     z-index: 50;
+}
+
+/* ELECTRA DASH */
+.electra-dash {
+    position: absolute;
+
+    width: 180px;
+    height: 6px;
+
+    border-radius: 999px;
+
+    background: white;
+
+    filter: blur(1px) drop-shadow(0 0 8px #38bdf8) drop-shadow(0 0 18px #60a5fa);
+
+    animation: electricStrike 0.35s linear forwards;
+}
+
+/* ELECTRIC BRANCHES */
+.electric-skill::before,
+.electric-skill::after {
+    content: "";
+
+    position: absolute;
+
+    width: 100%;
+    height: 100%;
+
+    border-radius: 999px;
+
+    background: #93c5fd;
+
+    opacity: 0.8;
+}
+
+.electric-skill::before {
+    transform: translateY(-6px) rotate(4deg);
+
+    filter: blur(2px);
+}
+
+.electric-skill::after {
+    transform: translateY(6px) rotate(-4deg);
+
+    filter: blur(2px);
+}
+
+/* LIGHTNING FLASH */
+@keyframes electricStrike {
+    0% {
+        transform: scaleX(0.2) skewX(-25deg);
+
+        opacity: 0;
+    }
+
+    20% {
+        opacity: 1;
+    }
+
+    40% {
+        transform: scaleX(1) skewX(20deg);
+    }
+
+    60% {
+        transform: scaleX(0.9) skewX(-15deg);
+    }
+
+    100% {
+        transform: scaleX(1.2) skewX(10deg);
+
+        opacity: 0;
+    }
 }
 </style>
