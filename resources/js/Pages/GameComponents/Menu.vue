@@ -31,7 +31,7 @@ const handleMenuClick = (item) => {
         window.open("https://discord.com", "_blank");
     }
     if (item.id === 6) {
-        form.get(route("world.map", 32784528));
+        form.get(route("world.map", 77126219));
     }
 };
 </script>

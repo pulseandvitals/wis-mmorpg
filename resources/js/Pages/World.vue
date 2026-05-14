@@ -247,13 +247,17 @@ function handleKey(e) {
 let nextMoveTime = 0;
 
 function moveMonsters() {
-    function loop(timestamp) {
-        if (nextMoveTime === 0) {
-            nextMoveTime = timestamp + 3000;
-        }
+    // each monster gets its own next move delay
+    monsters.forEach((monster) => {
+        monster.nextMoveTime = performance.now() + Math.random() * 3000;
+    });
 
-        if (timestamp >= nextMoveTime) {
-            monsters.forEach((monster) => {
+    function loop(timestamp) {
+        monsters.forEach((monster) => {
+            // skip if still moving
+            if (monster.moving) return;
+
+            if (timestamp >= monster.nextMoveTime) {
                 const directions = [
                     { dx: 0, dy: -1 },
                     { dx: 0, dy: 1 },
@@ -287,11 +291,11 @@ function moveMonsters() {
                         },
                     );
                 }
-            });
 
-            // reset timer cleanly (no backlog buildup)
-            nextMoveTime = timestamp + 3000;
-        }
+                // random next move interval
+                monster.nextMoveTime = timestamp + 1000 + Math.random() * 4000;
+            }
+        });
 
         requestAnimationFrame(loop);
     }

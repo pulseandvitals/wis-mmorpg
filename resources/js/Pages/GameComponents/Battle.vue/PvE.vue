@@ -2,6 +2,7 @@
 import { ref, computed } from "vue";
 import Monster from "./Monster.vue";
 import "./skill_animations.css";
+import LootDrops from "./LootDrops.vue";
 const props = defineProps({
     playerData: {
         type: Object,
@@ -64,6 +65,8 @@ const playerShout = ref("");
 const monsterShouts = ref({});
 const skillEffect = ref(null);
 const skillTargets = ref([]);
+const lootDrops = ref([]);
+const showLootModal = ref(false);
 const logs = ref([]);
 
 /* =========================================
@@ -98,7 +101,12 @@ function openBattle(monster) {
     const monsterCount = Math.random() < 0.5 ? 2 : 3;
 
     battleMonsters.value = Array.from({ length: monsterCount }, (_, index) => {
-        const randomHp = monster.maxHp + Math.floor(Math.random() * 25);
+        const variance = 0.1; // 10% up or down
+        const randomHp =
+            monster.maxHp +
+            Math.floor(
+                monster.maxHp * (Math.random() * variance * 2 - variance),
+            );
 
         return {
             id: index + 1,
@@ -107,6 +115,7 @@ function openBattle(monster) {
             maxHp: randomHp,
             attack: monster.skill.damage,
             skill_name: monster.skill.name,
+            drops: monster.drops,
             battle_gif: `/monster_sprites/${monster.name}/idle-left.gif`,
             attack_gif: `/monster_sprites/${monster.name}/attack.gif`,
             dead_gif: `/monster_sprites/${monster.name}/dead.gif`,
@@ -291,13 +300,40 @@ function checkBattle() {
     if (aliveMonsters.value.length === 0) {
         battleEnded.value = true;
 
+        const drops = generateDrops();
+
+        lootDrops.value = drops;
+
+        if (Object.keys(lootDrops.value).length > 0) {
+            showLootModal.value = true;
+        }
+
         logs.value.unshift("Victory!");
         setTimeout(() => {
+            showLootModal.value = false;
             closeBattle();
         }, 3000);
     }
 }
+function generateDrops() {
+    const result = {};
 
+    battleMonsters.value.forEach((monster) => {
+        monster.drops.forEach((drop) => {
+            const roll = Math.random() * 100;
+
+            if (roll <= drop.chance) {
+                if (!result[drop.item]) {
+                    result[drop.item] = 0;
+                }
+
+                result[drop.item] += 1;
+            }
+        });
+    });
+
+    return result;
+}
 /* =========================================
 HELPERS
 ========================================= */
@@ -316,7 +352,6 @@ function randomDamage(min, max) {
             <!-- HEADER -->
             <div class="modal-header">
                 <h2 class="battle-title">⚔️ BATTLE</h2>
-
                 <button @click="closeBattle" class="close-btn">✕</button>
             </div>
             <!-- BODY -->
@@ -506,7 +541,7 @@ function randomDamage(min, max) {
             </div>
         </div>
     </div>
-
+    <LootDrops :lootDrops="lootDrops" v-if="showLootModal" />
     <Monster
         :monsters="monsters"
         :tileSize="tileSize"
