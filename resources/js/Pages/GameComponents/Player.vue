@@ -20,9 +20,7 @@ const props = defineProps({
         }"
     >
         <!-- NAME -->
-        <div class="player-name">
-            {{ player.name }}
-        </div>
+        <div class="player-name">{{ player.name }}</div>
 
         <img
             class="sprite"
@@ -37,7 +35,10 @@ const props = defineProps({
                     <div
                         class="stat-fill hp-fill"
                         :style="{
-                            width: (player.hp / player.maxHp) * 100 + '%',
+                            width:
+                                (player.current_health / player.max_health) *
+                                    100 +
+                                '%',
                         }"
                     />
                 </div>
@@ -49,7 +50,9 @@ const props = defineProps({
                     <div
                         class="stat-fill mp-fill"
                         :style="{
-                            width: (player.mp / player.maxMp) * 100 + '%',
+                            width:
+                                (player.current_mana / player.max_mana) * 100 +
+                                '%',
                         }"
                     />
                 </div>
@@ -95,11 +98,10 @@ const props = defineProps({
     max-width: 55px;
     display: flex;
     flex-direction: column;
-    gap: 2px;
-    background: #f1f1f1;
+    gap: 1px;
     padding: 0.5px;
     border-radius: 3px;
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    border: 1px solid #f1f1f1;
 }
 
 .stat-row {
@@ -110,8 +112,8 @@ const props = defineProps({
 
 .stat-bar {
     flex: 1;
-    height: 3px;
-    background: rgba(0, 0, 0, 0.8);
+    height: 5px;
+    background: #f1f1f1;
     border: 1px solid rgba(255, 255, 255, 0.15);
     border-radius: 0px;
     overflow: hidden;

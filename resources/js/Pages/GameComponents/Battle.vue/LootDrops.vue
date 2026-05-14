@@ -6,7 +6,7 @@ defineProps({
 <template>
     <div class="loot-modal">
         <div class="loot-box">
-            <h3>🎁 Rewards</h3>
+            <h3>🎁 Loots</h3>
 
             <div class="loot-grid">
                 <div

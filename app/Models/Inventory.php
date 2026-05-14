@@ -13,4 +13,9 @@ class Inventory extends Model
         'quantity',
         'is_equipped',
     ];
+
+    public function item()
+    {
+        return $this->belongsTo(Material::class, 'item_id');
+    }
 }

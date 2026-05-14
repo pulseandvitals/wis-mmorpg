@@ -3,8 +3,9 @@ import { ref, computed } from "vue";
 import Monster from "./Monster.vue";
 import "./skill_animations.css";
 import LootDrops from "./LootDrops.vue";
+
 const props = defineProps({
-    playerData: {
+    player: {
         type: Object,
         required: true,
     },
@@ -26,30 +27,6 @@ const props = defineProps({
     },
 });
 
-const player = ref({
-    name: props.playerData.name,
-    hp: props.playerData.current_health,
-    maxHp: props.playerData.max_health,
-    mp: props.playerData.current_mana,
-    maxMp: props.playerData.max_mana,
-    attack: props.playerData.total_attack,
-
-    battle_gif: `/sprites/${props.playerData.class_type}/idle-right.gif`,
-    attack_gif: `/sprites/${props.playerData.class_type}/attack.gif`,
-    dead_gif: `/sprites/${props.playerData.class_type}/dead.gif`,
-
-    skills: props.playerSkills.map((skill) => ({
-        id: skill.id,
-        name: skill.name,
-        description: skill.description,
-        damage: skill.damage,
-        mana: skill.mana_cost,
-        targets: skill.target,
-        element: skill.element,
-        icon: skill.icon_path,
-    })),
-});
-
 /* =========================================
 BATTLE STATE
 ========================================= */
@@ -68,6 +45,16 @@ const skillTargets = ref([]);
 const lootDrops = ref([]);
 const showLootModal = ref(false);
 const logs = ref([]);
+
+/* CRIT CHECK */
+function isCritical(critRate) {
+    return Math.random() * 100 < critRate;
+}
+
+/* EVA CHECK */
+function isEvade(evaRate) {
+    return Math.random() * 100 < evaRate;
+}
 
 /* =========================================
 ALIVE MONSTERS
@@ -94,14 +81,10 @@ function openBattle(monster) {
 
     logs.value = [];
 
-    player.value.hp = player.value.maxHp;
-
-    player.value.mp = player.value.maxMp;
-
     const monsterCount = Math.random() < 0.5 ? 2 : 3;
 
     battleMonsters.value = Array.from({ length: monsterCount }, (_, index) => {
-        const variance = 0.1; // 10% up or down
+        const variance = 0.1;
         const randomHp =
             monster.maxHp +
             Math.floor(
@@ -114,6 +97,7 @@ function openBattle(monster) {
             hp: randomHp,
             maxHp: randomHp,
             attack: monster.skill.damage,
+            eva: randomEva(5, 10),
             skill_name: monster.skill.name,
             drops: monster.drops,
             battle_gif: `/monster_sprites/${monster.name}/idle-left.gif`,
@@ -133,15 +117,13 @@ function useSkill(skill, selectedMonster = null) {
 
     if (battleEnded.value) return;
 
-    if (player.value.mp < skill.mana) {
+    if (props.player.current_mana < skill.mana) {
         logs.value.unshift("Not enough mana");
-
         return;
     }
 
     let targets = [];
 
-    /* SINGLE TARGET */
     if (skill.targets === 1) {
         if (!selectedMonster) return;
 
@@ -153,21 +135,42 @@ function useSkill(skill, selectedMonster = null) {
 
         targets = [target];
     } else {
-        /* MULTI TARGET */
         targets = aliveMonsters.value.slice(0, skill.targets);
     }
+
     skillTargets.value = targets.map((t) => t.id);
-    player.value.mp -= skill.mana;
+
+    props.player.current_mana -= skill.mana;
 
     attackAnimation();
     triggerSkillEffect(skill);
     skillShout(skill);
 
     targets.forEach((monster) => {
-        const totalDamage = player.value.attack + skill.damage;
-        const damage = randomDamage(totalDamage - 4, totalDamage + 4);
-        /* SHOW DAMAGE */
-        monsterDamages.value[monster.id] = damage;
+        if (isEvade(monster.eva)) {
+            monsterDamages.value[monster.id] = "MISS";
+
+            logs.value.unshift(`${monster.name} evaded the attack`);
+
+            setTimeout(() => {
+                delete monsterDamages.value[monster.id];
+            }, 800);
+
+            return;
+        }
+
+        const totalDamage = props.player.attack + skill.damage;
+
+        let damage = randomDamage(totalDamage - 4, totalDamage + 4);
+
+        const crit = isCritical(props.player.crit);
+
+        if (crit) {
+            damage = Math.floor(damage * 1.5);
+            logs.value.unshift("CRITICAL HIT!");
+        }
+
+        monsterDamages.value[monster.id] = crit ? `${damage} CRIT` : damage;
 
         setTimeout(() => {
             delete monsterDamages.value[monster.id];
@@ -175,12 +178,10 @@ function useSkill(skill, selectedMonster = null) {
 
         monster.hp -= damage;
 
-        if (monster.hp < 0) {
-            monster.hp = 0;
-        }
+        if (monster.hp < 0) monster.hp = 0;
 
         logs.value.unshift(
-            `${player.value.name} used ${skill.name} on ${monster.name} for ${damage}`,
+            `${props.player.name} used ${skill.name} on ${monster.name} for ${damage}`,
         );
 
         if (monster.hp <= 0) {
@@ -198,11 +199,16 @@ function useSkill(skill, selectedMonster = null) {
         }, 1000);
     }
 }
+
+/* =========================================
+SKILL EFFECT
+========================================= */
 function triggerSkillEffect(skill) {
     const skillName = skill.name
         .toLowerCase()
-        .replace(/\s+/g, "-") // "Double Strike" → "double-strike"
-        .replace(/[^a-z-]/g, ""); // clean special chars
+        .replace(/\s+/g, "-")
+        .replace(/[^a-z-]/g, "");
+
     skillEffect.value = skillName;
 
     setTimeout(() => {
@@ -217,6 +223,7 @@ function skillShout(skill) {
         playerShout.value = "";
     }, 1000);
 }
+
 function monsterSkillShout(monster) {
     monsterShouts.value[monster.id] = `${monster.skill_name}!!`;
 
@@ -248,23 +255,21 @@ function monsterTurn() {
 
             const damage = randomDamage(monster.attack - 2, monster.attack + 2);
 
-            /* SHOW PLAYER DAMAGE */
             playerDamage.value = damage;
 
             setTimeout(() => {
                 playerDamage.value = null;
             }, 800);
 
-            player.value.hp -= damage;
+            props.player.current_health -= damage;
 
-            if (player.value.hp < 0) {
-                player.value.hp = 0;
-            }
+            if (props.player.current_health < 0)
+                props.player.current_health = 0;
 
             logs.value.unshift(`${monster.name} attacked for ${damage}`);
 
-            /* STOP ATTACK */
             monsterSkillShout(monster);
+
             setTimeout(() => {
                 attackingMonsterId.value = null;
             }, 700);
@@ -287,11 +292,12 @@ function monsterTurn() {
 /* =========================================
 CHECK BATTLE
 ========================================= */
-function checkBattle() {
-    if (player.value.hp <= 0) {
+async function checkBattle() {
+    if (props.player.current_health <= 0) {
         battleEnded.value = true;
 
         logs.value.unshift("You were defeated");
+
         setTimeout(() => {
             closeBattle();
         }, 3000);
@@ -308,13 +314,21 @@ function checkBattle() {
             showLootModal.value = true;
         }
 
+        try {
+            await battleSave();
+        } catch (err) {
+            console.error("battleSave failed:", err);
+        }
+
         logs.value.unshift("Victory!");
+
         setTimeout(() => {
             showLootModal.value = false;
             closeBattle();
         }, 3000);
     }
 }
+
 function generateDrops() {
     const result = {};
 
@@ -334,6 +348,25 @@ function generateDrops() {
 
     return result;
 }
+
+async function battleSave() {
+    try {
+        const response = await axios.post("/battle/save", {
+            monsters: battleMonsters.value,
+            drops: lootDrops.value,
+            player: props.player,
+        });
+
+        Object.assign(props.player, response.data.player);
+
+        logs.value.unshift(
+            `Level ${response.data.level} (${response.data.exp} EXP)`,
+        );
+    } catch (error) {
+        console.error(error);
+    }
+}
+
 /* =========================================
 HELPERS
 ========================================= */
@@ -343,6 +376,10 @@ function closeBattle() {
 
 function randomDamage(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+function randomEva(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + max;
 }
 </script>
 
@@ -394,7 +431,8 @@ function randomDamage(min, max) {
                                             class="stat-fill hp-fill"
                                             :style="{
                                                 width:
-                                                    (player.hp / player.maxHp) *
+                                                    (player.current_health /
+                                                        player.max_health) *
                                                         100 +
                                                     '%',
                                             }"
@@ -409,7 +447,8 @@ function randomDamage(min, max) {
                                             class="stat-fill mp-fill"
                                             :style="{
                                                 width:
-                                                    (player.mp / player.maxMp) *
+                                                    (player.current_mana /
+                                                        player.max_mana) *
                                                         100 +
                                                     '%',
                                             }"
@@ -573,8 +612,8 @@ OVERLAY
 MODAL
 ========================================= */
 .pve-modal {
-    width: 92%;
-    height: 88%;
+    width: 100%;
+    height: 100%;
 
     /* TRANSPARENT GLASS EFFECT */
     background: rgba(15, 15, 15, 0.38);
@@ -726,68 +765,6 @@ PLAYER SIDE
     image-rendering: pixelated;
 
     filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.08));
-}
-
-/* PLAYER UI */
-.player-ui {
-    position: relative;
-
-    bottom: unset;
-    left: unset;
-
-    transform: none;
-
-    width: 90px;
-
-    padding: 5px;
-
-    background: rgba(255, 255, 255, 0.03);
-
-    backdrop-filter: blur(4px);
-
-    margin-top: -10px;
-}
-
-.player-name {
-    color: #f1f1f1;
-
-    font-size: 10px;
-
-    text-align: center;
-
-    margin-bottom: 3px;
-
-    opacity: 0.9;
-}
-
-/* =========================================
-HP / MP
-========================================= */
-.player-stats {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-}
-
-.stat-bar {
-    width: 100%;
-    height: 4px;
-
-    background: rgba(0, 0, 0, 0.45);
-    overflow: hidden;
-}
-
-.stat-fill {
-    height: 100%;
-    transition: width 0.25s ease;
-}
-
-.hp-fill {
-    background: green;
-}
-
-.mp-fill {
-    background: blue;
 }
 
 /* =========================================
@@ -1290,75 +1267,66 @@ MONSTER SELECT
     z-index: 50;
 }
 
-/* ELECTRA DASH */
-.electra-dash {
-    position: absolute;
-
-    width: 180px;
-    height: 6px;
-
-    border-radius: 999px;
-
-    background: white;
-
-    filter: blur(1px) drop-shadow(0 0 8px #38bdf8) drop-shadow(0 0 18px #60a5fa);
-
-    animation: electricStrike 0.35s linear forwards;
-}
-
-/* ELECTRIC BRANCHES */
-.electric-skill::before,
-.electric-skill::after {
-    content: "";
-
-    position: absolute;
-
+.player-ui {
+    position: relative;
     width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+}
+
+.player-name {
+    font-size: 10px;
+    color: #f1f1f1;
+    opacity: 0.9;
+}
+
+/* STATS CONTAINER (your compact style kept) */
+.player-stats {
+    width: 55px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+/* ROW */
+.stat-row {
+    display: flex;
+    align-items: center;
+}
+
+/* BAR */
+.stat-bar {
+    flex: 1;
+    height: 5px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+/* FILL */
+.stat-fill {
     height: 100%;
-
-    border-radius: 999px;
-
-    background: #93c5fd;
-
-    opacity: 0.8;
+    transition: width 0.25s ease;
 }
 
-.electric-skill::before {
-    transform: translateY(-6px) rotate(4deg);
-
-    filter: blur(2px);
+/* HP */
+.hp-bar {
+    border-color: rgba(231, 76, 60, 0.6);
 }
 
-.electric-skill::after {
-    transform: translateY(6px) rotate(-4deg);
-
-    filter: blur(2px);
+.hp-fill {
+    background: linear-gradient(to right, #e74c3c, #c0392b);
 }
 
-/* LIGHTNING FLASH */
-@keyframes electricStrike {
-    0% {
-        transform: scaleX(0.2) skewX(-25deg);
+/* MP */
+.mp-bar {
+    border-color: rgba(52, 152, 219, 0.6);
+}
 
-        opacity: 0;
-    }
-
-    20% {
-        opacity: 1;
-    }
-
-    40% {
-        transform: scaleX(1) skewX(20deg);
-    }
-
-    60% {
-        transform: scaleX(0.9) skewX(-15deg);
-    }
-
-    100% {
-        transform: scaleX(1.2) skewX(10deg);
-
-        opacity: 0;
-    }
+.mp-fill {
+    background: linear-gradient(to right, #3498db, #2980b9);
 }
 </style>

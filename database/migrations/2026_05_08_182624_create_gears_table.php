@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->string('type');
-            $table->json('basic_stats')->default(0);
+            $table->json('basic_stats')->nullable();
             $table->integer('requirement_level')->default(1);
             $table->timestamps();
         });

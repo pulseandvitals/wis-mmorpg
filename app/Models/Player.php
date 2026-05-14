@@ -53,6 +53,18 @@ class Player extends Model
         return $this->hasMany(Inventory::class);
     }
 
+    public function getExpPercentage()
+    {
+        $requiredExp = Experience::where('level', $this->current_level)
+            ->value('required_experience');
+
+        if (!$requiredExp) {
+            return 0;
+        }
+
+        return (int) (($this->current_experience / $requiredExp) * 100);
+    }
+
     public function registerPlayer($name, $class_type, $user_id)
     {
         $this->name = $name;

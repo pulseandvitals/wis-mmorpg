@@ -43,13 +43,36 @@ const player = reactive({
     className: props.playerData.data.class_type,
     renderX: props.playerData.data.x * tileSize,
     renderY: props.playerData.data.y * tileSize,
-    name: props.playerData.data.name,
     direction: "down",
     moving: false,
-    hp: props.playerData.data.current_health,
-    maxHp: props.playerData.data.max_health,
-    mp: props.playerData.data.current_mana,
-    maxMp: props.playerData.data.max_mana,
+
+    name: props.playerData.data.name,
+    class_type: props.playerData.data.class_type,
+    current_health: props.playerData.data.current_health,
+    max_health: props.playerData.data.max_health,
+    current_mana: props.playerData.data.current_mana,
+    max_mana: props.playerData.data.max_mana,
+    current_level: props.playerData.data.current_level,
+    current_experience: props.playerData.data.current_experience,
+    attack: props.playerData.data.total_attack,
+    def: props.playerData.data.total_defense,
+    crit: props.playerData.data.total_critical_percentage,
+    eva: props.playerData.data.total_evasion_percentage,
+
+    battle_gif: `/sprites/${props.playerData.data.class_type}/idle-right.gif`,
+    attack_gif: `/sprites/${props.playerData.data.class_type}/attack.gif`,
+    dead_gif: `/sprites/${props.playerData.data.class_type}/dead.gif`,
+
+    skills: props.playerSkills.data.map((skill) => ({
+        id: skill.id,
+        name: skill.name,
+        description: skill.description,
+        damage: skill.damage,
+        mana: skill.mana_cost,
+        targets: skill.target,
+        element: skill.element,
+        icon: skill.icon_path,
+    })),
 });
 function loadMonsters() {
     const dbMonsters = Array.isArray(props.monsters)
@@ -244,20 +267,16 @@ function handleKey(e) {
     }
 }
 
-let nextMoveTime = 0;
-
 function moveMonsters() {
-    // each monster gets its own next move delay
-    monsters.forEach((monster) => {
-        monster.nextMoveTime = performance.now() + Math.random() * 3000;
-    });
-
     function loop(timestamp) {
         monsters.forEach((monster) => {
-            // skip if still moving
-            if (monster.moving) return;
+            // create unique timer for each monster
+            if (!monster.nextMoveTime) {
+                monster.nextMoveTime = timestamp + 1000 + Math.random() * 3000;
+            }
 
-            if (timestamp >= monster.nextMoveTime) {
+            // only move THIS monster when its timer is ready
+            if (timestamp >= monster.nextMoveTime && !monster.moving) {
                 const directions = [
                     { dx: 0, dy: -1 },
                     { dx: 0, dy: 1 },
@@ -292,8 +311,8 @@ function moveMonsters() {
                     );
                 }
 
-                // random next move interval
-                monster.nextMoveTime = timestamp + 1000 + Math.random() * 4000;
+                // random next move time PER monster
+                monster.nextMoveTime = timestamp + 1000 + Math.random() * 3000;
             }
         });
 
@@ -315,11 +334,11 @@ watch(
 );
 </script>
 <template>
-    <Head title="Elfaria Online" />
+    <Head title="Wis Online" />
     <GameLayout>
         <div
             class="game-map"
-            @click="handleMapClick"
+            @click.self="handleMapClick"
             @mousemove="handleMouseMove"
             :style="{
                 width: mapWidth * tileSize + 'px',
@@ -349,20 +368,16 @@ watch(
             <Player :player="player" :tileSize="tileSize" />
 
             <!-- HUD COMPONENTS -->
-            <Menu :classSkills="classSkills.data" />
-            <PlayerStat :playerData="playerData.data" />
+            <Menu :classSkills="classSkills.data" :all_maps="all_maps.data" />
+            <PlayerStat :player="player" />
             <TownSquareNPC
                 v-if="current_map.name === 'Town Square'"
                 :all_maps="all_maps.data"
+                :player="player"
             />
             <PlayerSkill :playerSkills="playerSkills.data" />
             <WorldChat />
-            <PvE
-                :playerData="playerData.data"
-                :monsters="monsters"
-                :playerSkills="playerSkills.data"
-                :tileSize="tileSize"
-            />
+            <PvE :player="player" :monsters="monsters" :tileSize="tileSize" />
         </div>
     </GameLayout>
 </template>

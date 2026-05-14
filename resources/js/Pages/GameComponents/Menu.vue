@@ -4,13 +4,17 @@ import { ref } from "vue";
 import PlayerSkillModal from "./PlayerSkillModal.vue";
 import PlayerInventoryModal from "./PlayerInventoryModal.vue";
 
-defineProps({
+const props = defineProps({
     classSkills: Object,
+    all_maps: Object,
 });
 
 const form = useForm({});
 const isSkillOpen = ref(false);
 const isInventoryOpen = ref(false);
+
+const mapId = props.all_maps.find((map) => map.name === "Town Square")?.map_id;
+
 const menuItems = [
     { id: 1, label: "Inventory", icon: "🎒" },
     { id: 2, label: "Party", icon: "✨" },
@@ -31,7 +35,7 @@ const handleMenuClick = (item) => {
         window.open("https://discord.com", "_blank");
     }
     if (item.id === 6) {
-        form.get(route("world.map", 77126219));
+        form.get(route("world.map", mapId));
     }
 };
 </script>

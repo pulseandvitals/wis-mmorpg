@@ -25,29 +25,31 @@
                         </div>
                         <div class="grid grid-cols-4 gap-2">
                             <div
-                                v-for="item in materials"
-                                :key="item.name"
+                                v-for="item in getInventory"
+                                :key="item.id"
                                 class="bg-gray-800 border border-gray-700 rounded-lg p-2 hover:bg-gray-700 transition"
                             >
                                 <!-- ICON -->
                                 <div
                                     class="w-12 h-12 mx-auto rounded bg-gray-900 border border-gray-600 flex items-center justify-center text-xl"
                                 >
-                                    {{ item.icon }}
+                                    <img
+                                        :src="`/materials/${item.item.name}.png`"
+                                    />
                                 </div>
 
                                 <!-- NAME -->
                                 <div
                                     class="text-[11px] text-white text-center mt-2 truncate"
                                 >
-                                    {{ item.name }}
+                                    {{ item.item.name }}
                                 </div>
 
                                 <!-- QTY -->
                                 <div
                                     class="text-[10px] text-gray-400 text-center"
                                 >
-                                    x{{ item.amount }}
+                                    x{{ item.quantity }}
                                 </div>
                             </div>
                         </div>
@@ -125,6 +127,20 @@
 </template>
 
 <script setup>
+import { onMounted, ref } from "vue";
+const getInventory = ref([]);
+const loading = ref(false);
+async function openInventory() {
+    try {
+        const response = await axios.get("/open-inventory");
+        getInventory.value = response.data.inventory;
+    } catch (error) {
+        console.error(error);
+    }
+}
+onMounted(() => {
+    openInventory();
+});
 const materials = [
     {
         name: "Iron Ore",

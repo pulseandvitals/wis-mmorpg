@@ -1,8 +1,10 @@
 <script setup>
 import { ref, computed } from "vue";
 import DungeonMaps from "./DungeonMaps.vue";
+import Healer from "./Healer.vue";
 const props = defineProps({
     all_maps: Object,
+    player: Object,
 });
 
 const isPortalOpen = ref(false);
@@ -13,11 +15,13 @@ const isArmorHouseOpen = ref(false);
 const isEventOrgOpen = ref(false);
 const isMarketOpen = ref(false);
 const isGeneralStoreOpen = ref(false);
+const isHealerOpen = ref(false);
 const currentNpc = ref();
+
 const npcData = {
     blacksmith: {
         name: "Blacksmith",
-        x: 350,
+        x: 335,
         y: 100,
         icon: "⚒️",
         color: "from-stone-700 to-stone-900",
@@ -26,8 +30,8 @@ const npcData = {
 
     potion: {
         name: "Potion House",
-        x: 1005,
-        y: 75,
+        x: 990,
+        y: 70,
         icon: "🧪",
         color: "from-emerald-700 to-green-900",
         services: ["Buy Potions", "Mana Elixirs", "Revive Scrolls"],
@@ -35,7 +39,7 @@ const npcData = {
 
     weapon: {
         name: "Weapon House",
-        x: 685,
+        x: 680,
         y: 10,
         icon: "🗡️",
         color: "from-red-700 to-red-950",
@@ -53,8 +57,8 @@ const npcData = {
 
     event: {
         name: "Event Org",
-        x: 1170,
-        y: 235,
+        x: 1160,
+        y: 230,
         icon: "✨",
         color: "from-purple-700 to-indigo-950",
         services: ["Learn Skills", "Magic Scrolls", "Enchant Gear"],
@@ -70,7 +74,7 @@ const npcData = {
 
     general: {
         name: "General Store",
-        x: 1275,
+        x: 1265,
         y: 450,
         icon: "✨",
         color: "from-purple-700 to-indigo-950",
@@ -83,6 +87,14 @@ const npcData = {
         icon: "✨",
         color: "from-purple-700 to-indigo-950",
         services: isPortalOpen,
+    },
+    healer: {
+        name: "Healer",
+        x: 750,
+        y: 300,
+        icon: "✨",
+        color: "from-purple-700 to-indigo-950",
+        services: isHealerOpen,
     },
 };
 const npc = computed(() => npcData[currentNpc.value]);
@@ -120,7 +132,9 @@ function openNpc(key) {
         case "general":
             isGeneralStoreOpen.value = true;
             break;
-
+        case "healer":
+            isHealerOpen.value = true;
+            break;
         default:
             break;
     }
@@ -128,28 +142,31 @@ function openNpc(key) {
 </script>
 
 <template>
-    <div class="relative w-full h-screen overflow-hidden">
-        <!-- NPCS -->
-        <button
-            v-for="(data, key) in npcData"
-            :key="key"
-            @click="openNpc(key)"
-            class="absolute px-6 py-2 bg-gray-800 hover:bg-gray-700 text-white text-xs rounded-lg border border-gray-600"
-            :style="{
-                left: data.x + 'px',
-                top: data.y + 'px',
-            }"
-        >
-            {{ data.icon }} {{ data.name }}
-        </button>
-        {{ isPortalOpen }}
-        <DungeonMaps
-            v-if="isPortalOpen"
-            :all_maps="all_maps"
-            :npc="npc"
-            @close="isPortalOpen = false"
-        />
-    </div>
+    <!-- NPCS -->
+    <button
+        v-for="(data, key) in npcData"
+        :key="key"
+        @click="openNpc(key)"
+        class="absolute px-10 py-3 bg-gray-800 hover:bg-gray-700 text-white text-xs rounded-lg border border-gray-600"
+        :style="{
+            left: data.x + 'px',
+            top: data.y + 'px',
+        }"
+    >
+        {{ data.icon }} {{ data.name }}
+    </button>
+    <DungeonMaps
+        v-if="isPortalOpen"
+        :all_maps="all_maps"
+        :npc="npc"
+        @close="isPortalOpen = false"
+    />
+    <Healer
+        v-if="isHealerOpen"
+        :player="player"
+        :npc="npc"
+        @close="isHealerOpen = false"
+    />
 </template>
 <style scoped>
 .npc-wrapper {
@@ -157,10 +174,6 @@ function openNpc(key) {
     inset: 0;
 
     z-index: 999999999;
-}
-
-/* BUTTON AREA */
-.npc-wrapper > div {
 }
 
 /* MODAL BOX */

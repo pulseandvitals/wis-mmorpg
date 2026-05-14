@@ -17,5 +17,6 @@ class DatabaseSeeder extends Seeder
         $this->call(MonsterSeeder::class);
         $this->call(SkillSeeder::class);
         $this->call(MapSeeder::class);
+        $this->call(MaterialSeeder::class);
     }
 }

@@ -107,7 +107,7 @@ class WorldMapController extends Controller
             'current_map' => $map,
             'all_maps' => MapResource::collection(Map::all()),
             'map_tiles' => $mapTiles,
-            'monsters' => $this->getMonsterByMap($map),
+            'monsters' => $this->getMonsterByMap($map->name),
             ...$this->getPlayerData()
         ]);
     }
@@ -139,8 +139,9 @@ class WorldMapController extends Controller
 
         return Inertia::render('World',[
             'current_map' => $map,
+            'all_maps' => MapResource::collection(Map::all()),
             'map_tiles' => $mapTiles,
-            'monsters' => $this->getMonsterByMap($map),
+            'monsters' => $this->getMonsterByMap($map->name),
             ...$this->getPlayerData()
         ]);
     }
@@ -171,8 +172,9 @@ class WorldMapController extends Controller
         ];
         return Inertia::render('World',[
             'current_map' => $map,
+            'all_maps' => MapResource::collection(Map::all()),
             'map_tiles' => $mapTiles,
-            'monsters' => $this->getMonsterByMap($map),
+            'monsters' => $this->getMonsterByMap($map->name),
             ...$this->getPlayerData()
         ]);
     }
@@ -204,8 +206,9 @@ class WorldMapController extends Controller
 
         return Inertia::render('World',[
             'current_map' => $map,
+            'all_maps' => MapResource::collection(Map::all()),
             'map_tiles' => $mapTiles,
-            'monsters' => $this->getMonsterByMap($map),
+            'monsters' => $this->getMonsterByMap($map->name),
             ...$this->getPlayerData()
         ]);
     }
@@ -237,15 +240,16 @@ class WorldMapController extends Controller
         ];
         return Inertia::render('World',[
             'current_map' => $map,
+            'all_maps' => MapResource::collection(Map::all()),
             'map_tiles' => $mapTiles,
-            'monsters' => $this->getMonsterByMap($map),
+            'monsters' => $this->getMonsterByMap($map->name),
             ...$this->getPlayerData()
         ]);
     }
 
     private function getMonsterByMap($map)
     {
-        return Monster::whereMap('Valdora Grassland')->get() ?: null;
+        return Monster::whereMap($map)->get() ?: null;
     }
 
     private function getPlayerData()
