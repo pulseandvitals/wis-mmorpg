@@ -3,6 +3,7 @@ import { ref, computed } from "vue";
 import Monster from "./Monster.vue";
 import "./skill_animations.css";
 import LootDrops from "./LootDrops.vue";
+import LevelUp from "./LevelUp.vue";
 
 const props = defineProps({
     player: {
@@ -44,6 +45,7 @@ const skillEffect = ref(null);
 const skillTargets = ref([]);
 const lootDrops = ref([]);
 const showLootModal = ref(false);
+const isLevelUp = ref(false);
 const logs = ref([]);
 
 /* CRIT CHECK */
@@ -358,6 +360,7 @@ async function battleSave() {
         });
 
         Object.assign(props.player, response.data.player);
+        isLevelUp.value = response.data.level_up;
 
         logs.value.unshift(
             `Level ${response.data.level} (${response.data.exp} EXP)`,
@@ -585,6 +588,11 @@ function randomEva(min, max) {
         :monsters="monsters"
         :tileSize="tileSize"
         @select-monster="handleSelectMonster"
+    />
+    <LevelUp
+        :levelUp="isLevelUp"
+        :level="player.current_level"
+        @cleared="isLevelUp = false"
     />
 </template>
 

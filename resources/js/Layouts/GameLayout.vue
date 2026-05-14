@@ -58,6 +58,26 @@ onUnmounted(() => {
 </template>
 
 <style scoped>
+/* Disable dragging visuals + selection globally */
+img,
+video,
+canvas {
+    -webkit-user-drag: none;
+    user-drag: none;
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+/* Kill text + UI selection (blue highlight box) */
+* {
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+/* Prevent drag ghost on most elements */
+[draggable="true"] {
+    -webkit-user-drag: none;
+}
 .game-wrapper {
     width: 100vw;
     height: 100vh;
