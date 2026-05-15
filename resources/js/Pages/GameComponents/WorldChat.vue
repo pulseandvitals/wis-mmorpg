@@ -1,48 +1,63 @@
 <script setup>
 import { useForm } from "@inertiajs/vue3";
-import { reactive } from "vue";
-
+import { onBeforeMount, onBeforeUnmount, onMounted, reactive, ref } from "vue";
 const form = useForm({
     msg_value: "",
 });
+const messages = ref([]);
+const isSending = ref(false);
+const isLoading = ref(true);
+let eventSource = null;
+onMounted(() => {
+    eventSource = new EventSource("/streams/get-world-chat");
 
-const worldMessages = reactive([
-    {
-        name: "System",
-        text: "Welcome to Elfaria MMORPG.",
-    },
-    {
-        name: "KnightZero",
-        text: "Anyone farming slimes?",
-    },
-    {
-        name: "MageX",
-        text: "Selling potions!",
-    },
-]);
+    eventSource.onmessage = (event) => {
+        messages.value = JSON.parse(event.data);
+        isLoading.value = false;
+    };
+    eventSource.onerror = (err) => {
+        console.log("SSE error:", err);
+    };
+});
+onBeforeUnmount(() => {
+    if (eventSource) {
+        eventSource.close();
+    }
+});
+async function sendMessage() {
+    if (!form.msg_value.trim() || isSending.value) return;
 
-function sendMessage() {
-    if (!form.msg_value.trim()) return;
-    form.post(route("npc.send-message"), {
-        onSuccess: () => {
-            form.msg_value = "";
-        },
-    });
+    isSending.value = true;
+
+    try {
+        await axios.post("/send-message", {
+            msg_value: form.msg_value,
+        });
+
+        form.msg_value = ""; // clear input after send
+    } catch (err) {
+        console.error(err);
+    } finally {
+        isSending.value = false;
+    }
 }
 </script>
 
 <template>
     <div class="world-chat">
         <div class="chat-header">WORLD CHAT</div>
-
-        <div class="chat-messages">
+        <div v-if="isLoading" class="chat-loading">
+            <div class="spinner"></div>
+            <span>Connecting to world chat...</span>
+        </div>
+        <div v-else class="chat-messages">
             <div
-                v-for="(message, index) in worldMessages"
+                v-for="(message, index) in messages"
                 :key="index"
                 class="chat-message"
             >
-                <span class="chat-name">{{ message.name }}:</span>
-                <span class="chat-text">{{ message.text }}</span>
+                <span class="chat-name">{{ message.player.name }}: </span>
+                <span class="chat-text">{{ message.message }}</span>
             </div>
         </div>
 
@@ -55,18 +70,63 @@ function sendMessage() {
                 @keydown.enter="sendMessage"
             />
 
-            <button class="chat-button" @click="sendMessage">Send</button>
+            <button
+                @click="sendMessage"
+                :disabled="isSending"
+                class="chat-button"
+            >
+                <div v-if="isSending" class="chat-loading">
+                    <div class="spinner"></div>
+                </div>
+                <div v-else>Send</div>
+            </button>
         </div>
     </div>
 </template>
 <style scoped>
+.chat-loading {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px;
+    color: #aaa;
+    font-size: 12px;
+}
+
+.spinner {
+    width: 14px;
+    height: 14px;
+    border: 2px solid #ccc;
+    border-top: 2px solid transparent;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+.spinner {
+    width: 14px;
+    height: 14px;
+    border: 2px solid #fff;
+    border-top: 2px solid transparent;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
 .world-chat {
     position: absolute;
     left: 5px;
     bottom: 5px;
 
     max-width: 90vw;
-
     width: 420px;
     height: 260px;
 
@@ -77,8 +137,15 @@ function sendMessage() {
     flex-direction: column;
 
     overflow: hidden;
-
     z-index: 999;
+}
+
+/* 👇 ADD THIS */
+.world-chat-messages {
+    flex: 1;
+    display: flex;
+    flex-direction: column-reverse;
+    overflow-y: auto;
 }
 
 .chat-header {
@@ -106,7 +173,7 @@ function sendMessage() {
 
     color: white;
 
-    font-size: 10px;
+    font-size: 12px;
 }
 
 .chat-message {

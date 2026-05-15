@@ -10,4 +10,9 @@ class WorldChat extends Model
         'player_id',
         'message',
     ];
+
+    public function player()
+    {
+        return $this->belongsTo(Player::class);
+    }
 }

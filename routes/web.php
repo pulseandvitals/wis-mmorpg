@@ -18,18 +18,17 @@ Route::prefix('world')->group(function () {
     Route::get('/map/{map_id}', [\App\Http\Controllers\WorldMapController::class, 'worldMap'])->name('world.map');
 });
 
-Route::prefix('npc')->name('npc.')->group(function () {
-    Route::post('/', [WorldChatController::class, 'sendMessage'])->name('send-message');
-});
 
-Route::post('/battle/save',[BattleController::class,'saveBattle']);
-Route::post('/heal', [PlayerController::class,'healPlayer']);
-Route::get('/open-inventory', [InventoryController::class,'openInventory']);
+    Route::post('/battle/save',[BattleController::class,'saveBattle']);
+    Route::post('/heal', [PlayerController::class,'healPlayer']);
+    Route::get('/open-inventory', [InventoryController::class,'openInventory']);
 
-Route::prefix('streams')->group(function () {
-    Route::get('/get-players', [\App\Http\Controllers\PlayerController::class, 'getPlayers'])->name('stream.players');
-    Route::get('/get-world-chat', [\App\Http\Controllers\WorldChatController::class, 'worldChat'])->name('stream.world-chat');
-});
+    Route::prefix('streams')->group(function () {
+        Route::get('/get-players', [\App\Http\Controllers\PlayerController::class, 'getPlayers'])->name('stream.players');
+        Route::get('/get-world-chat', [\App\Http\Controllers\WorldChatController::class, 'getworldChat']);
+    });
+
+    Route::post('/send-message', [WorldChatController::class, 'sendMessage']);
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
