@@ -1,13 +1,12 @@
 <script setup>
 import { router } from "@inertiajs/vue3";
 import { ref, onMounted, onUnmounted } from "vue";
-
+import GlobalAlert from "@/Pages/GameComponents/GlobalAlert.vue";
 const loading = ref(false);
 
 let removeStart;
 let removeFinish;
 const currentImage = ref("");
-
 const loadingImages = [
     "/loading_screens/Loading1.png",
     "/loading_screens/Loading2.png",
@@ -19,6 +18,17 @@ function getRandomImage() {
     const index = Math.floor(Math.random() * loadingImages.length);
     currentImage.value = loadingImages[index];
 }
+
+onMounted(() => {
+    removeStart = router.on("start", () => {
+        loading.value = true;
+        getRandomImage();
+    });
+
+    removeFinish = router.on("finish", () => {
+        loading.value = false;
+    });
+});
 
 onMounted(() => {
     removeStart = router.on("start", () => {
@@ -50,6 +60,7 @@ onUnmounted(() => {
                     </div>
                 </div>
             </transition>
+            <global-alert />
             <main class="game-stage" v-if="!loading">
                 <slot />
             </main>
@@ -86,16 +97,31 @@ canvas {
     display: flex;
     justify-content: center;
     align-items: center;
+
+    overflow: hidden; /* important for mobile */
 }
 
-/* 👇 THIS is your actual game size container */
 .game-area {
     position: relative;
 
     width: calc(24 * 64px);
     height: calc(13 * 64px);
 
-    overflow: hidden;
+    transform-origin: center;
+    will-change: transform;
+}
+
+/* MOBILE SAFE */
+@media (max-width: 768px) {
+    .loading-text {
+        font-size: 12px;
+        letter-spacing: 0.2em;
+    }
+
+    .spinner {
+        width: 48px;
+        height: 48px;
+    }
 }
 
 /* 👇 loading now matches GAME AREA ONLY */

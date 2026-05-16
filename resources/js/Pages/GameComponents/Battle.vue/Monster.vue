@@ -9,6 +9,13 @@ const props = defineProps({
         required: true,
     },
 });
+const elementIcons = {
+    water: "💧",
+    wind: "🌪️",
+    fire: "🔥",
+    earth: "🪨",
+    electric: "⚡",
+};
 
 const emit = defineEmits(["selectMonster"]);
 function selectMonster(monster) {
@@ -31,6 +38,11 @@ function selectMonster(monster) {
         <div class="monster-label">
             <div class="monster-name">
                 {{ monster.name }}
+
+                <!-- ELEMENT ICON -->
+                <span class="monster-element" :class="monster.element">
+                    {{ elementIcons[monster.element] }}
+                </span>
             </div>
         </div>
 
@@ -75,27 +87,43 @@ function selectMonster(monster) {
     background-color: rgb(0, 0, 0, 0.5);
 }
 
+.monster-name {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
 .monster-element {
-    margin-top: 2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 12px;
+    height: 15px;
+    border-radius: 50%;
+    font-size: 13px;
+    color: white;
 }
 
-.element-icon {
-    width: 10px;
-    height: 10px;
-
-    image-rendering: pixelated;
+/* ELEMENT COLORS */
+.monster-element.water {
+    background: #3498db;
 }
-/* SPRITE BASE */
-.monster-sprite {
-    width: 100%;
-    height: 100%;
 
-    object-fit: contain;
-    image-rendering: pixelated;
+.monster-element.wind {
+    background: #2ecc71;
+}
 
-    transition:
-        transform 0.15s ease,
-        filter 0.15s ease;
+.monster-element.fire {
+    background: #e74c3c;
+}
+
+.monster-element.earth {
+    background: #8e6e53;
+}
+
+.monster-element.electric {
+    background: #f1c40f;
+    color: black;
 }
 
 /* 🔥 HOVER / FOCUS EFFECT */

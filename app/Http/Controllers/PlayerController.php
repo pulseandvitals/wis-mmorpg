@@ -22,4 +22,19 @@ class PlayerController extends Controller
             'player' => PlayerResource::make($player),
         ]);
     }
+
+    public function getPlayerRanking()
+    {
+        $players = Player::query()
+            ->select('name','current_level','class_type')
+            ->orderByDesc('current_level')
+            ->orderByDesc('current_experience')
+            ->limit(5)
+            ->get();
+
+        return response()->json([
+            'status' => 'success',
+            'rankings' => $players
+        ]);
+    }
 }

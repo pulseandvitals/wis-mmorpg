@@ -3,6 +3,7 @@ import { useForm } from "@inertiajs/vue3";
 import { ref } from "vue";
 import PlayerSkillModal from "./PlayerSkillModal.vue";
 import PlayerInventoryModal from "./PlayerInventoryModal.vue";
+import Ranking from "./Npc/Ranking.vue";
 
 const props = defineProps({
     classSkills: Object,
@@ -12,6 +13,7 @@ const props = defineProps({
 const form = useForm({});
 const isSkillOpen = ref(false);
 const isInventoryOpen = ref(false);
+const isRankingOpen = ref(false);
 
 const mapId = props.all_maps.find((map) => map.name === "Town Square")?.map_id;
 
@@ -22,6 +24,7 @@ const menuItems = [
     { id: 4, label: "Ranking", icon: "🏆" },
     { id: 5, label: "Discord", icon: "💬" },
     { id: 6, label: "Town Square", icon: "💬" },
+    { id: 7, label: "Settings", icon: "💬" },
 ];
 
 const handleMenuClick = (item) => {
@@ -30,6 +33,9 @@ const handleMenuClick = (item) => {
     }
     if (item.id === 3) {
         isSkillOpen.value = true;
+    }
+    if (item.id === 4) {
+        isRankingOpen.value = true;
     }
     if (item.id === 5) {
         window.open("https://discord.com", "_blank");
@@ -66,6 +72,7 @@ const handleMenuClick = (item) => {
         v-if="isSkillOpen"
         @close="isSkillOpen = false"
     />
+    <Ranking v-if="isRankingOpen" @close="isRankingOpen = false" />
 </template>
 <style scoped>
 .hud-menu {

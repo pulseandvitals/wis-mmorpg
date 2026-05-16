@@ -33,8 +33,8 @@ class BattleController extends Controller
         $neededExp = Experience::whereLevel($this->player->current_level)->value('required_experience');
         if ($this->player->current_experience >= $neededExp) {
             $this->player->current_level += 1;
-
             $this->player->current_experience -= $neededExp;
+
             $this->player->total_attack += 3;
             $this->player->total_defense += 3;
             $this->player->max_health += 10;

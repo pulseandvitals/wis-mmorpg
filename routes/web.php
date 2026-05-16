@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\BattleController;
+use App\Http\Controllers\GearController;
 use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\PlayerController;
 use App\Http\Controllers\ProfileController;
@@ -29,6 +30,9 @@ Route::prefix('world')->group(function () {
     });
 
     Route::post('/send-message', [WorldChatController::class, 'sendMessage']);
+    Route::get('/get-ranking',[PlayerController::class,'getPlayerRanking']);
+    Route::get('/get-weapons',[GearController::class,'getWeapons']);
+    Route::get('/get-armors',[GearController::class,'getArmors']);
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');

@@ -10,7 +10,20 @@ class MaterialSeeder extends Seeder
     public function run(): void
     {
         $materials = [
-
+            [
+                'name' => 'Seleri Gem',
+                'type' => 'material',
+                'rarity' => 'rare',
+                'description' => 'A glowing green crystal that can Upgrade armors.',
+                // Drops from: Forest Guardian
+            ],
+            [
+                'name' => 'Celebeam Gem',
+                'type' => 'material',
+                'rarity' => 'epic',
+                'description' => 'A radiant gem that emits celestial light that can Upgrade weapons.',
+                // Drops from: Celestial Beast
+            ],
             // =========================
             // ❄️ Frost Revenant (Valdora Grassland)
             // =========================

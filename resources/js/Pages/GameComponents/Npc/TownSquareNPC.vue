@@ -2,6 +2,8 @@
 import { ref, computed } from "vue";
 import DungeonMaps from "./DungeonMaps.vue";
 import Healer from "./Healer.vue";
+import BlackSmith from "./BlackSmith.vue";
+import WeaponHouse from "./WeaponHouse.vue";
 const props = defineProps({
     all_maps: Object,
     player: Object,
@@ -155,6 +157,8 @@ function openNpc(key) {
     >
         {{ data.icon }} {{ data.name }}
     </button>
+    <BlackSmith v-if="isBlacksmithOpen" @close="isBlacksmithOpen = false" />
+    <WeaponHouse v-if="isWeaponHouseOpen" @close="isWeaponHouseOpen = false" />
     <DungeonMaps
         v-if="isPortalOpen"
         :all_maps="all_maps"

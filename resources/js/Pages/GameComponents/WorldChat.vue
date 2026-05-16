@@ -1,12 +1,20 @@
 <script setup>
 import { useForm } from "@inertiajs/vue3";
-import { onBeforeMount, onBeforeUnmount, onMounted, reactive, ref } from "vue";
+import {
+    nextTick,
+    onBeforeMount,
+    onBeforeUnmount,
+    onMounted,
+    reactive,
+    ref,
+} from "vue";
 const form = useForm({
     msg_value: "",
 });
 const messages = ref([]);
 const isSending = ref(false);
 const isLoading = ref(true);
+const chatBox = ref(null);
 let eventSource = null;
 onMounted(() => {
     eventSource = new EventSource("/streams/get-world-chat");
@@ -41,6 +49,15 @@ async function sendMessage() {
         isSending.value = false;
     }
 }
+import { watch } from "vue";
+
+watch(messages, async () => {
+    await nextTick();
+
+    if (chatBox.value) {
+        chatBox.value.scrollTop = chatBox.value.scrollHeight;
+    }
+});
 </script>
 
 <template>
@@ -50,7 +67,7 @@ async function sendMessage() {
             <div class="spinner"></div>
             <span>Connecting to world chat...</span>
         </div>
-        <div v-else class="chat-messages">
+        <div v-else class="chat-messages" ref="chatBox">
             <div
                 v-for="(message, index) in messages"
                 :key="index"
@@ -138,14 +155,6 @@ async function sendMessage() {
 
     overflow: hidden;
     z-index: 999;
-}
-
-/* 👇 ADD THIS */
-.world-chat-messages {
-    flex: 1;
-    display: flex;
-    flex-direction: column-reverse;
-    overflow-y: auto;
 }
 
 .chat-header {

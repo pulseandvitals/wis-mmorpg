@@ -18,5 +18,7 @@ class DatabaseSeeder extends Seeder
         $this->call(SkillSeeder::class);
         $this->call(MapSeeder::class);
         $this->call(MaterialSeeder::class);
+        $this->call(GearSeeder::class);
+        $this->call(WeaponSeeder::class);
     }
 }

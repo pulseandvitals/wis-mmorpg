@@ -25,7 +25,7 @@
                         </div>
                         <div class="grid grid-cols-4 gap-2">
                             <div
-                                v-for="item in getInventory"
+                                v-for="item in paginatedInventory"
                                 :key="item.id"
                                 class="bg-gray-800 border border-gray-700 rounded-lg p-2 hover:bg-gray-700 transition"
                             >
@@ -52,6 +52,29 @@
                                     x{{ item.quantity }}
                                 </div>
                             </div>
+                        </div>
+                        <div
+                            class="flex items-center justify-center gap-3 mt-3 text-white text-sm"
+                        >
+                            <button
+                                class="px-3 py-1 bg-gray-800 border border-gray-600 rounded disabled:opacity-40"
+                                @click="prevPage"
+                                :disabled="currentPage === 1"
+                            >
+                                Prev
+                            </button>
+
+                            <div class="text-gray-300">
+                                Page {{ currentPage }} / {{ totalPages }}
+                            </div>
+
+                            <button
+                                class="px-3 py-1 bg-gray-800 border border-gray-600 rounded disabled:opacity-40"
+                                @click="nextPage"
+                                :disabled="currentPage === totalPages"
+                            >
+                                Next
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -127,7 +150,7 @@
 </template>
 
 <script setup>
-import { onMounted, ref } from "vue";
+import { onMounted, ref, computed } from "vue";
 const getInventory = ref([]);
 const loading = ref(false);
 async function openInventory() {
@@ -138,51 +161,39 @@ async function openInventory() {
         console.error(error);
     }
 }
+
+const currentPage = ref(1);
+const perPage = 12; // 4 x 4 grid
+
+const paginatedInventory = computed(() => {
+    const items = getInventory.value ?? getInventory;
+
+    const start = (currentPage.value - 1) * perPage;
+    const end = start + perPage;
+
+    return items.slice(start, end);
+});
+
+const totalPages = computed(() => {
+    const items = getInventory.value ?? getInventory;
+    return Math.ceil(items.length / perPage);
+});
+
+function nextPage() {
+    if (currentPage.value < totalPages.value) {
+        currentPage.value++;
+    }
+}
+
+function prevPage() {
+    if (currentPage.value > 1) {
+        currentPage.value--;
+    }
+}
+
 onMounted(() => {
     openInventory();
 });
-const materials = [
-    {
-        name: "Iron Ore",
-        amount: 24,
-        icon: "⛏️",
-    },
-    {
-        name: "Wolf Fur",
-        amount: 12,
-        icon: "🧶",
-    },
-    {
-        name: "Crystal",
-        amount: 5,
-        icon: "💎",
-    },
-    {
-        name: "Herbs",
-        amount: 31,
-        icon: "🌿",
-    },
-    {
-        name: "Dark Stone",
-        amount: 7,
-        icon: "🪨",
-    },
-    {
-        name: "Bone Fragment",
-        amount: 14,
-        icon: "🦴",
-    },
-    {
-        name: "Magic Dust",
-        amount: 18,
-        icon: "✨",
-    },
-    {
-        name: "Goblin Ear",
-        amount: 3,
-        icon: "👂",
-    },
-];
 
 const armory = [
     {

@@ -1204,7 +1204,7 @@ MONSTER SELECT
 .shout-text {
     position: absolute;
 
-    top: 210px;
+    top: 270px;
     left: 50%;
 
     transform: translate(-50%, -120%);
@@ -1229,7 +1229,7 @@ MONSTER SELECT
 .shout-text {
     position: absolute;
 
-    top: 195px;
+    top: 240px;
     left: 50%;
 
     transform: translate(-50%, -120%);

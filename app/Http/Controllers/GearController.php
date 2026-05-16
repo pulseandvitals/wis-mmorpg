@@ -2,64 +2,35 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\GearResource;
 use App\Models\Gear;
 use Illuminate\Http\Request;
 
 class GearController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function getWeapons()
     {
-        //
+        $weapons = Gear::query()
+            ->where('type', 'weapon')
+            ->orderBy('requirement_level')
+            ->get();
+
+        return response()->json([
+            'status' => 'success',
+            'weapons' => GearResource::collection($weapons)
+        ]);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function getArmors()
     {
-        //
-    }
+        $armors = Gear::query()
+            ->whereIn('type',['boots','helmet','armor','gloves','ring','shield','pants'])
+            ->orderBy('requirement_level')
+            ->get();
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(Gear $gear)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Gear $gear)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Gear $gear)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Gear $gear)
-    {
-        //
+        return response()->json([
+            'status' => 'success',
+            'armors' => $armors
+        ]);
     }
 }

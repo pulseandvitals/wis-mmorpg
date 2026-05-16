@@ -1,14 +1,17 @@
 <script setup>
 import { useForm, usePage } from "@inertiajs/vue3";
+import { pushAlert } from "@/Stores/GlobalAlert";
 const props = defineProps({
     npc: Object,
     player: Object,
 });
-
+const emit = defineEmits(["close"]);
 async function healPlayer() {
     try {
         const response = await axios.post("/heal");
+        emit("close");
         Object.assign(props.player, response.data.player);
+        pushAlert("Divine Restoration!", "success");
     } catch (error) {
         console.error(error);
     }

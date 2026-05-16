@@ -170,131 +170,57 @@ const submit = () => {
 
 <style scoped>
 /* =========================================
-PAGE
+PAGE (OLD MMORPG STYLE)
 ========================================= */
 .mmorpg-register {
     min-height: 100vh;
-
     display: flex;
     align-items: center;
     justify-content: center;
-
     position: relative;
-
     overflow: hidden;
 
     background:
-        radial-gradient(
-            circle at top,
-            rgba(251, 191, 36, 0.08),
-            transparent 30%
-        ),
+        radial-gradient(circle at top, rgba(0, 0, 0, 0.2), transparent 40%),
         url("/images/mmorpg-bg.jpg") center center / cover no-repeat;
 }
 
-/* FLOATING PARTICLES */
-.mmorpg-register::before,
-.mmorpg-register::after {
-    content: "";
-
-    position: absolute;
-
-    width: 500px;
-    height: 500px;
-
-    border-radius: 999px;
-
-    background: rgba(251, 191, 36, 0.05);
-
-    filter: blur(120px);
-
-    animation: floatGlow 8s ease-in-out infinite;
-}
-
-.mmorpg-register::before {
-    top: -150px;
-    left: -100px;
-}
-
-.mmorpg-register::after {
-    bottom: -150px;
-    right: -100px;
-
-    animation-delay: 4s;
-}
-
-/* =========================================
-OVERLAY
-========================================= */
+/* DARK OVERLAY (STRONGER RPG FEEL) */
 .register-overlay {
     position: absolute;
     inset: 0;
-
-    background: linear-gradient(
-        to bottom,
-        rgba(0, 0, 0, 0.45),
-        rgba(0, 0, 0, 0.82)
-    );
-
-    backdrop-filter: blur(4px);
+    background: rgba(0, 0, 0, 0.78);
 }
 
 /* =========================================
-CARD
+CARD (STONE / METAL PANEL STYLE)
 ========================================= */
 .register-card {
-    width: 460px;
-
+    width: 440px;
     position: relative;
     z-index: 10;
 
-    padding: 38px;
+    padding: 32px;
 
-    border-radius: 28px;
+    border-radius: 10px;
 
-    background: linear-gradient(
-        to bottom,
-        rgba(20, 20, 25, 0.82),
-        rgba(10, 10, 15, 0.88)
-    );
+    background: linear-gradient(to bottom, #1a1a1f, #0d0d10);
 
-    border: 1px solid rgba(251, 191, 36, 0.15);
-
-    backdrop-filter: blur(16px);
+    border: 2px solid #3a3a44;
 
     box-shadow:
-        0 0 60px rgba(0, 0, 0, 0.65),
-        0 0 25px rgba(251, 191, 36, 0.08),
-        inset 0 0 18px rgba(255, 255, 255, 0.02);
+        0 0 0 1px rgba(0, 0, 0, 0.8),
+        inset 0 0 10px rgba(255, 255, 255, 0.03);
 
     overflow: hidden;
 }
 
-/* GOLDEN BORDER EFFECT */
+/* FRAME EDGE (RPG PANEL BORDER) */
 .register-card::before {
     content: "";
-
     position: absolute;
     inset: 0;
-
-    border-radius: inherit;
-
-    padding: 1px;
-
-    background: linear-gradient(
-        135deg,
-        rgba(251, 191, 36, 0.5),
-        transparent,
-        rgba(251, 191, 36, 0.25)
-    );
-
-    -webkit-mask:
-        linear-gradient(#fff 0 0) content-box,
-        linear-gradient(#fff 0 0);
-
-    -webkit-mask-composite: xor;
-    mask-composite: exclude;
-
+    border: 1px solid rgba(255, 255, 255, 0.05);
     pointer-events: none;
 }
 
@@ -305,206 +231,101 @@ TOP
     display: flex;
     flex-direction: column;
     align-items: center;
-
-    margin-bottom: 30px;
+    margin-bottom: 26px;
 }
 
 .game-logo {
-    width: 95px;
-    height: 95px;
-
-    object-fit: contain;
-
-    margin-bottom: 16px;
-
-    filter: drop-shadow(0 0 12px rgba(251, 191, 36, 0.35));
+    width: 80px;
+    height: 80px;
+    margin-bottom: 10px;
+    filter: drop-shadow(0 0 6px rgba(0, 0, 0, 0.6));
 }
 
 .game-title {
-    font-size: 34px;
+    font-size: 28px;
     font-weight: 900;
-
-    letter-spacing: 3px;
-
-    background: linear-gradient(to bottom, #fde68a, #fbbf24);
-
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-
-    text-shadow: 0 0 14px rgba(251, 191, 36, 0.25);
-
-    margin-bottom: 6px;
+    letter-spacing: 2px;
+    color: #e5e5e5;
+    text-shadow: 0 1px 0 #000;
 }
 
 .game-subtitle {
-    color: rgba(255, 255, 255, 0.62);
-
-    font-size: 14px;
-
-    letter-spacing: 1px;
-}
-
-/* =========================================
-FORM
-========================================= */
-.register-form {
-    display: flex;
-    flex-direction: column;
-
-    gap: 18px;
-}
-
-.input-group {
-    display: flex;
-    flex-direction: column;
-}
-
-.input-label {
-    color: rgba(255, 255, 255, 0.78);
-
-    margin-bottom: 8px;
-
+    color: rgba(255, 255, 255, 0.55);
     font-size: 12px;
-
-    letter-spacing: 1px;
-
-    text-transform: uppercase;
 }
 
 /* =========================================
-INPUT
+INPUTS (GAME UI STYLE)
 ========================================= */
 .mmorpg-input {
     width: 100%;
-    height: 54px;
+    height: 46px;
 
-    padding: 0 18px;
+    padding: 0 14px;
 
-    border-radius: 16px;
+    border-radius: 6px;
 
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    border: 1px solid #2f2f38;
 
-    background: linear-gradient(
-        to bottom,
-        rgba(255, 255, 255, 0.04),
-        rgba(255, 255, 255, 0.02)
-    );
+    background: #0f0f14;
 
-    color: white;
-
-    font-size: 14px;
-
-    transition: 0.25s;
-
-    backdrop-filter: blur(8px);
-}
-
-/* SELECT STYLE */
-select.mmorpg-input {
-    appearance: none;
-
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='gold' viewBox='0 0 20 20'%3E%3Cpath d='M5.25 7.5L10 12.25 14.75 7.5'/%3E%3C/svg%3E");
-
-    background-repeat: no-repeat;
-
-    background-position: right 16px center;
-
-    background-size: 18px;
-
-    padding-right: 50px;
-}
-
-.mmorpg-input:focus {
-    border-color: rgba(251, 191, 36, 0.45);
-
-    background: linear-gradient(
-        to bottom,
-        rgba(255, 255, 255, 0.06),
-        rgba(255, 255, 255, 0.03)
-    );
-
-    box-shadow:
-        0 0 0 4px rgba(251, 191, 36, 0.08),
-        0 0 20px rgba(251, 191, 36, 0.08);
-}
-
-/* =========================================
-ACTIONS
-========================================= */
-.register-actions {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-
-    margin-top: 14px;
-}
-
-.login-link {
-    color: rgba(255, 255, 255, 0.72);
+    color: #e5e5e5;
 
     font-size: 13px;
+
+    outline: none;
 
     transition: 0.2s;
 }
 
-.login-link:hover {
-    color: #fde047;
+.mmorpg-input:focus {
+    border-color: #6b7280;
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.05);
+}
+
+/* SELECT */
+select.mmorpg-input {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%23aaa' viewBox='0 0 20 20'%3E%3Cpath d='M5.25 7.5L10 12.25 14.75 7.5'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 14px;
+}
+
+/* LABEL */
+.input-label {
+    color: #bdbdbd;
+    font-size: 11px;
+    letter-spacing: 1px;
+    margin-bottom: 6px;
 }
 
 /* =========================================
-BUTTON
+BUTTON (MMORPG START BUTTON)
 ========================================= */
 .register-btn {
-    position: relative;
+    height: 44px;
+    padding: 0 18px;
 
-    height: 52px;
+    border-radius: 6px;
 
-    padding: 0 26px;
+    border: 1px solid #3a3a44;
 
-    border: none;
-    border-radius: 16px;
+    background: linear-gradient(to bottom, #2b2b33, #14141a);
 
-    background: linear-gradient(to bottom, #fde047, #f59e0b);
+    color: #e5e5e5;
 
-    color: #111827;
-
-    font-weight: 800;
-
-    letter-spacing: 1px;
+    font-weight: bold;
 
     cursor: pointer;
 
-    overflow: hidden;
-
-    transition: 0.25s;
-}
-
-.register-btn::before {
-    content: "";
-
-    position: absolute;
-    inset: 0;
-
-    background: linear-gradient(
-        120deg,
-        transparent,
-        rgba(255, 255, 255, 0.35),
-        transparent
-    );
-
-    transform: translateX(-100%);
-}
-
-.register-btn:hover::before {
-    animation: shine 1s linear;
+    transition: 0.2s;
 }
 
 .register-btn:hover {
-    transform: translateY(-2px);
-
-    box-shadow:
-        0 10px 24px rgba(251, 191, 36, 0.35),
-        0 0 18px rgba(251, 191, 36, 0.2);
+    border-color: #6b7280;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.4);
 }
 
 .register-btn:disabled {
@@ -512,45 +333,42 @@ BUTTON
     cursor: not-allowed;
 }
 
-/* =========================================
-ANIMATIONS
-========================================= */
-@keyframes shine {
-    100% {
-        transform: translateX(100%);
-    }
+/* LINK */
+.login-link {
+    color: #9ca3af;
+    font-size: 12px;
 }
 
-@keyframes floatGlow {
-    0% {
-        transform: translateY(0px);
-    }
-
-    50% {
-        transform: translateY(30px);
-    }
-
-    100% {
-        transform: translateY(0px);
-    }
+.login-link:hover {
+    color: #ffffff;
 }
 
 /* =========================================
-MOBILE
+LAYOUT
 ========================================= */
+.register-form {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.register-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 10px;
+}
+
+/* MOBILE */
 @media (max-width: 640px) {
     .register-card {
         width: 92%;
-        padding: 24px;
-    }
-
-    .game-title {
-        font-size: 26px;
+        padding: 22px;
     }
 
     .register-actions {
         flex-direction: column;
-        gap: 16px;
+        gap: 10px;
     }
 
     .register-btn {
