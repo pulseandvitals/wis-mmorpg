@@ -47,7 +47,7 @@ const lootDrops = ref([]);
 const showLootModal = ref(false);
 const isLevelUp = ref(false);
 const logs = ref([]);
-
+const emit = defineEmits(["click-monster"]);
 /* CRIT CHECK */
 function isCritical(critRate) {
     return Math.random() * 100 < critRate;
@@ -71,7 +71,7 @@ OPEN BATTLE
 function handleSelectMonster(monster) {
     if (showBattleModal.value) return;
 
-    openBattle(monster);
+    emit("click-monster", monster);
 }
 
 function openBattle(monster) {
@@ -110,7 +110,9 @@ function openBattle(monster) {
 
     logs.value.unshift(`${monster.name} and allies appeared`);
 }
-
+defineExpose({
+    openBattle,
+});
 /* =========================================
 USE SKILL
 ========================================= */
@@ -358,7 +360,6 @@ async function battleSave() {
             drops: lootDrops.value,
             player: props.player,
         });
-
         Object.assign(props.player, response.data.player);
         isLevelUp.value = response.data.level_up;
 

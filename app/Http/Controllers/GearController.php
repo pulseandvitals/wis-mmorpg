@@ -30,7 +30,7 @@ class GearController extends Controller
 
         return response()->json([
             'status' => 'success',
-            'armors' => $armors
+            'armors' => GearResource::collection($armors)
         ]);
     }
 }

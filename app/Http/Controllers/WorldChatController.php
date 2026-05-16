@@ -27,11 +27,10 @@ class WorldChatController extends Controller
     public function getWorldChat()
     {
         return response()->stream(function () {
-
         while (true) {
-            $messages = WorldChat::with('player')
+            $messages = WorldChat::with('player:id,name')
                 ->latest()
-                ->limit(30)
+                ->limit(10)
                 ->get()
                 ->reverse()
                 ->values();
@@ -40,9 +39,10 @@ class WorldChatController extends Controller
 
                 ob_flush();
                 flush();
-                sleep(1);
-            }
 
+                usleep(15000);
+
+            }
         }, 200, [
             'Content-Type' => 'text/event-stream',
             'Cache-Control' => 'no-cache',

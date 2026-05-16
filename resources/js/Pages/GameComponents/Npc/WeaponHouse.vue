@@ -176,17 +176,9 @@ onMounted(() => {
                                         }}%
                                     </p>
 
-                                    <p
-                                        v-if="
-                                            selectedWeapon.basic_stats
-                                                ?.attack_speed
-                                        "
-                                    >
+                                    <p v-if="selectedWeapon.basic_stats?.speed">
                                         ⚡ Attack Speed:
-                                        {{
-                                            selectedWeapon.basic_stats
-                                                .attack_speed
-                                        }}
+                                        {{ selectedWeapon.basic_stats.speed }}
                                     </p>
 
                                     <p

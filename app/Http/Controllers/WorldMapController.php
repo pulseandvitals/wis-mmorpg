@@ -15,7 +15,6 @@ class WorldMapController extends Controller
 {
     public function worldMap($map_id)
     {
-        sleep(3); // 3 seconds loading
         $map = Map::where('map_id', $map_id)->firstOrFail();
 
         switch($map->name) {

@@ -27,12 +27,9 @@ class WeaponSeeder extends Seeder
             'Dagger',
         ];
 
-        function randStat(float|int $value, float $variance = 0.1): int
+        function randStat(float|int $value): int
         {
-            $min = $value * (1 - $variance);
-            $max = $value * (1 + $variance);
-
-            return (int) random_int((int) $min, (int) $max);
+            return (int) $value + random_int(1, 5);
         }
 
 
@@ -41,9 +38,9 @@ class WeaponSeeder extends Seeder
             foreach ($weaponTypes as $weaponType) {
 
                 $stats = [
-                    'attack' => randStat($level * 1.2, 0.12),
-                    'crit_rate' => randStat($level / 10, 0.15),
-                    'attack_speed' => randStat($level / 10, 0.12),
+                    'attack' => randStat($level * 2),
+                    'crit_rate' => randStat($level * 0.3),
+                    'speed' => randStat($level * 0.4),
                 ];
 
                 $weapons[] = [

@@ -1,5 +1,12 @@
 <script setup>
-import { reactive, computed, onMounted, ref, watch } from "vue";
+import {
+    reactive,
+    computed,
+    onMounted,
+    ref,
+    watch,
+    onBeforeUnmount,
+} from "vue";
 import PlayerStat from "./GameComponents/PlayerStat.vue";
 import PlayerSkill from "./GameComponents/PlayerSkill.vue";
 import WorldChat from "./GameComponents/WorldChat.vue";
@@ -9,6 +16,7 @@ import Menu from "./GameComponents/Menu.vue";
 import TownSquareNPC from "./GameComponents/Npc/TownSquareNPC.vue";
 import { Head } from "@inertiajs/vue3";
 import GameLayout from "@/Layouts/GameLayout.vue";
+import Players from "./GameComponents/Players.vue";
 
 const props = defineProps({
     playerData: Object,
@@ -74,6 +82,52 @@ const player = reactive({
         icon: skill.icon_path,
     })),
 });
+
+const selectedMonster = ref(null);
+const pveRef = ref(null);
+function handleAttackMonster(monster) {
+    selectedMonster.value = monster;
+
+    moveToMonster(monster);
+}
+
+function getAdjacentTile(monster) {
+    const options = [
+        { x: monster.x + 1, y: monster.y },
+        { x: monster.x - 1, y: monster.y },
+        { x: monster.x, y: monster.y + 1 },
+        { x: monster.x, y: monster.y - 1 },
+    ];
+
+    return options.find((t) => !isBlocked(t.x, t.y)) || null;
+}
+
+function moveToMonster(monster) {
+    const target = getAdjacentTile(monster);
+
+    if (!target) return;
+
+    moveQueue.length = 0;
+
+    let x = player.x;
+    let y = player.y;
+
+    while (x !== target.x || y !== target.y) {
+        if (x < target.x) x++;
+        else if (x > target.x) x--;
+        else if (y < target.y) y++;
+        else if (y > target.y) y--;
+
+        moveQueue.push({ x, y });
+    }
+
+    processQueue(() => {
+        startBattle(monster);
+    });
+}
+function startBattle(monster) {
+    pveRef.value.openBattle(monster);
+}
 function loadMonsters() {
     const dbMonsters = Array.isArray(props.monsters)
         ? props.monsters
@@ -148,16 +202,15 @@ function handleMapClick(e) {
     processQueue();
 }
 
-function processQueue() {
+function processQueue(onFinish = null) {
     if (player.moving) return;
-    if (moveQueue.length === 0) return;
 
-    const next = moveQueue.shift();
-
-    if (isBlocked(next.x, next.y)) {
-        moveQueue.length = 0;
+    if (moveQueue.length === 0) {
+        onFinish?.(); // ✅ ALWAYS trigger when empty
         return;
     }
+
+    const next = moveQueue.shift();
 
     const dx = next.x - player.x;
     const dy = next.y - player.y;
@@ -167,14 +220,15 @@ function processQueue() {
     if (dy > 0) player.direction = "down";
     if (dy < 0) player.direction = "up";
 
-    player.x = next.x;
-    player.y = next.y;
-
     player.moving = true;
 
     smoothMove(player, next.x * tileSize, next.y * tileSize, () => {
+        player.x = next.x;
+        player.y = next.y;
+
         player.moving = false;
-        processQueue();
+        updatePlayerMovement(player.x, player.y, player.direction, false);
+        processQueue(onFinish); // ✅ IMPORTANT: keep passing callback
     });
 }
 
@@ -321,9 +375,150 @@ function moveMonsters() {
 
     requestAnimationFrame(loop);
 }
+let eventSource = null;
+const players = ref([]);
+let lastSentMove = { x: null, y: null, dir: null };
+function updatePlayerMovement(x, y, dir, isMoving) {
+    if (isMoving) {
+        lastSentMove = { x, y, dir };
+        return;
+    }
+
+    axios.post("/update-player-move", { x, y, dir });
+}
+
+/**
+ * GET PLAYERS STREAM
+ */
+let playersInterval = null;
+
+function getPlayers() {
+    // prevent duplicate intervals
+    if (playersInterval) {
+        clearInterval(playersInterval);
+    }
+
+    playersInterval = setInterval(async () => {
+        try {
+            const res = await axios.get("/streams/get-players");
+
+            const data = res.data.players;
+
+            data.forEach((p) => updatePlayerPosition(p));
+        } catch (err) {
+            console.log("getPlayers error:", err);
+        }
+    }, 5000); // adjust: 500–1000ms for smoother movement
+}
+
+/**
+ * CREATE / UPDATE PLAYER
+ */
+function updatePlayerPosition(data) {
+    let p = players.value.find((x) => x.id === data.id);
+
+    if (!p) {
+        p = {
+            ...data,
+            x: data.x,
+            y: data.y,
+            renderX: data.x * tileSize,
+            renderY: data.y * tileSize,
+            targetX: data.x * tileSize,
+            targetY: data.y * tileSize,
+            walking: false,
+            direction: data.direction ?? "down",
+        };
+
+        players.value.push(p);
+        return;
+    }
+
+    if (p.x === data.x && p.y === data.y) return;
+
+    // ✅ IMPORTANT: store previous position FIRST
+    const prevX = p.x;
+    const prevY = p.y;
+
+    const dx = data.x - prevX;
+    const dy = data.y - prevY;
+
+    if (Math.abs(dx) > Math.abs(dy)) {
+        p.direction = dx > 0 ? "right" : "left";
+    } else if (dy !== 0) {
+        p.direction = dy > 0 ? "down" : "up";
+    }
+
+    // update AFTER direction calc
+    p.x = data.x;
+    p.y = data.y;
+
+    p.targetX = data.x * tileSize;
+    p.targetY = data.y * tileSize;
+
+    p.walking = true;
+
+    smoothMovePlayers(p, p.targetX, p.targetY, () => {
+        p.walking = false;
+    });
+}
+
+function smoothMovePlayers(entity, targetX, targetY, callback = null) {
+    const baseSpeed = 2.2;
+
+    let vx = 0;
+    let vy = 0;
+    let cancelled = false;
+
+    entity._moveToken = Symbol(); // unique movement ID
+    const token = entity._moveToken;
+
+    function animate() {
+        // 🚨 cancel old movement if new one started
+        if (entity._moveToken !== token) return;
+
+        if (document.hidden) {
+            requestAnimationFrame(animate);
+            return;
+        }
+
+        const dx = targetX - entity.renderX;
+        const dy = targetY - entity.renderY;
+
+        const distance = Math.sqrt(dx * dx + dy * dy);
+
+        if (distance <= 1) {
+            entity.renderX = targetX;
+            entity.renderY = targetY;
+
+            callback?.();
+            return;
+        }
+
+        const nx = dx / distance;
+        const ny = dy / distance;
+
+        vx += (nx * baseSpeed - vx) * 0.25;
+        vy += (ny * baseSpeed - vy) * 0.25;
+
+        entity.renderX += vx;
+        entity.renderY += vy;
+
+        requestAnimationFrame(animate);
+    }
+
+    animate();
+}
+
 onMounted(() => {
     window.addEventListener("keydown", handleKey);
     moveMonsters();
+    getPlayers();
+});
+onBeforeUnmount(() => {
+    if (eventSource) {
+        eventSource.close();
+    }
 });
 watch(
     () => props.monsters,
@@ -366,7 +561,7 @@ watch(
 
             <!-- PLAYER -->
             <Player :player="player" :tileSize="tileSize" />
-
+            <Players :players="players" :tileSize="tileSize" />
             <!-- HUD COMPONENTS -->
             <Menu :classSkills="classSkills.data" :all_maps="all_maps.data" />
             <PlayerStat :player="player" />
@@ -377,7 +572,13 @@ watch(
             />
             <PlayerSkill :playerSkills="playerSkills.data" />
             <WorldChat />
-            <PvE :player="player" :monsters="monsters" :tileSize="tileSize" />
+            <PvE
+                ref="pveRef"
+                :player="player"
+                :monsters="monsters"
+                :tileSize="tileSize"
+                @click-monster="handleAttackMonster"
+            />
         </div>
     </GameLayout>
 </template>

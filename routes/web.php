@@ -25,7 +25,7 @@ Route::prefix('world')->group(function () {
     Route::get('/open-inventory', [InventoryController::class,'openInventory']);
 
     Route::prefix('streams')->group(function () {
-        Route::get('/get-players', [\App\Http\Controllers\PlayerController::class, 'getPlayers'])->name('stream.players');
+        Route::get('/get-players', [\App\Http\Controllers\PlayerController::class, 'getPlayers']);
         Route::get('/get-world-chat', [\App\Http\Controllers\WorldChatController::class, 'getworldChat']);
     });
 
@@ -33,6 +33,7 @@ Route::prefix('world')->group(function () {
     Route::get('/get-ranking',[PlayerController::class,'getPlayerRanking']);
     Route::get('/get-weapons',[GearController::class,'getWeapons']);
     Route::get('/get-armors',[GearController::class,'getArmors']);
+    Route::post('/update-player-move',[PlayerController::class,'updatePlayerMove']);
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');

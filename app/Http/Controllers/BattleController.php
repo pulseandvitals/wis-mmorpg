@@ -44,8 +44,8 @@ class BattleController extends Controller
 
         $this->player->current_health = $request->player['current_health'];
         $this->player->current_mana = $request->player['current_mana'];
-        $this->player->total_attack += 3;
-        $this->player->total_defense += 3;
+        $this->player->x = $request->player['x'];
+        $this->player->y = $request->player['y'];
         $this->player->save();
 
         return response()->json([

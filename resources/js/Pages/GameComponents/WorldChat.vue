@@ -1,13 +1,6 @@
 <script setup>
 import { useForm } from "@inertiajs/vue3";
-import {
-    nextTick,
-    onBeforeMount,
-    onBeforeUnmount,
-    onMounted,
-    reactive,
-    ref,
-} from "vue";
+import { nextTick, onBeforeUnmount, onMounted, ref, watch } from "vue";
 const form = useForm({
     msg_value: "",
 });
@@ -49,7 +42,6 @@ async function sendMessage() {
         isSending.value = false;
     }
 }
-import { watch } from "vue";
 
 watch(messages, async () => {
     await nextTick();

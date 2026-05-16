@@ -30,12 +30,9 @@ class GearSeeder extends Seeder
             50 => 'Celestium',
         ];
 
-        function randStats(float|int $value, float $variance = 0.1): int
+        function randStats(float|int $value): int
         {
-            $min = $value * (1 - $variance);
-            $max = $value * (1 + $variance);
-
-            return (int) random_int((int) $min, (int) $max);
+            return (int) $value + random_int(1, 5);
         }
 
         for ($level = 1; $level <= 50; $level += ($level == 1 ? 9 : 10)) {
@@ -44,53 +41,47 @@ class GearSeeder extends Seeder
 
                 $stats = match ($type) {
 
-                    // DAMAGE
-                    'weapon' => [
-                        'attack' => randStats($level * 1.2, 0.12),
-                        'crit_rate' => randStats($level / 10, 0.15),
-                    ],
-
                     // MEDIUM DEFENSE
                     'helmet' => [
-                        'hp' => randStats($level * 4, 0.10),
-                        'defense' => randStats($level * 0.4, 0.12),
+                        'hp' => randStats($level * 1.3),
+                        'defense' => randStats($level * 0.4),
                     ],
 
                     // MAIN TANK ITEM
                     'armor' => [
-                        'hp' => randStats($level * 8, 0.12),
-                        'defense' => randStats($level * 0.8, 0.10),
+                        'hp' => randStats($level * 1.6),
+                        'defense' => randStats($level * 0.8),
                     ],
 
                     // LOWER BODY DEFENSE
                     'pants' => [
-                        'hp' => randStats($level * 5, 0.10),
-                        'defense' => randStats($level * 0.5, 0.12),
+                        'hp' => randStats($level * 1.5),
+                        'defense' => randStats($level * 0.6),
                     ],
 
                     // DPS UTILITY
                     'gloves' => [
-                        'attack' => randStats($level * 0.4, 0.12),
-                        'attack_speed' => randStats($level / 10, 0.20),
+                        'attack' => randStats($level * 0.4),
+                        'attack_speed' => randStats($level * 0.6),
                     ],
 
                     // MOBILITY
                     'boots' => [
-                        'speed' => randStats($level * 0.1, 0.15),
-                        'evasion' => randStats($level * 0.2, 0.15),
+                        'speed' => randStats($level * 0.4),
+                        'evasion' => randStats($level * 0.2),
                     ],
 
                     // DEFENSIVE ITEM
                     'shield' => [
-                        'defense' => randStats($level * 1.0, 0.10),
-                        'block_rate' => randStats($level * 0.3, 0.15),
+                        'defense' => randStats($level * 0.8),
+                        'evasion' => randStats($level * 0.25),
                     ],
 
                     // ACCESSORY / HYBRID BONUS
                     'ring' => [
-                        'crit_rate' => randStats($level * 0.2, 0.20),
-                        'attack' => randStats($level * 0.3, 0.15),
-                        'hp' => randStats($level * 2, 0.10),
+                        'crit_rate' => randStats($level * 0.1),
+                        'attack' => randStats($level * 0.2),
+                        'hp' => randStats($level * 0.8),
                     ],
 
                     default => [],

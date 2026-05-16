@@ -37,4 +37,25 @@ class PlayerController extends Controller
             'rankings' => $players
         ]);
     }
+
+    public function updatePlayerMove(Request $request)
+    {
+        $player = auth()->user()->player;
+        $player->x = $request->x;
+        $player->y = $request->y;
+        $player->direction = $request->dir;
+        $player->save();
+    }
+
+    public function getPlayers()
+    {
+        $players = Player::where('current_map_id',auth()->user()->player->current_map_id)
+                    ->where('name', '!=', auth()->user()->player->name)
+                    ->select('id', 'x', 'y', 'direction', 'name','class_type','current_health','max_health')
+                    ->get();
+
+        return response()->json([
+            'players' => $players,
+        ]);
+    }
 }
