@@ -1,30 +1,30 @@
 <script setup>
 import { useForm } from "@inertiajs/vue3";
-import { nextTick, onBeforeUnmount, onMounted, ref, watch } from "vue";
+import { nextTick, onUnmounted, onMounted, ref, watch } from "vue";
 const form = useForm({
     msg_value: "",
 });
 const messages = ref([]);
 const isSending = ref(false);
 const isLoading = ref(true);
-const chatBox = ref(null);
-let eventSource = null;
-onMounted(() => {
-    eventSource = new EventSource("/streams/get-world-chat");
 
-    eventSource.onmessage = (event) => {
-        messages.value = JSON.parse(event.data);
-        isLoading.value = false;
-    };
-    eventSource.onerror = (err) => {
-        console.log("SSE error:", err);
-    };
+onMounted(async () => {
+    getMessages();
+    window.Echo.channel("world-chat").listen(".message.sent", (e) => {
+        console.log(e);
+        messages.value.push(e);
+
+        if (messages.value.length > 30) {
+            messages.value.shift();
+        }
+    });
 });
-onBeforeUnmount(() => {
-    if (eventSource) {
-        eventSource.close();
-    }
-});
+
+async function getMessages() {
+    const res = await axios.get("/streams/get-world-chat");
+    messages.value = res.data;
+    isLoading.value = false;
+}
 async function sendMessage() {
     if (!form.msg_value.trim() || isSending.value) return;
 
@@ -42,14 +42,6 @@ async function sendMessage() {
         isSending.value = false;
     }
 }
-
-watch(messages, async () => {
-    await nextTick();
-
-    if (chatBox.value) {
-        chatBox.value.scrollTop = chatBox.value.scrollHeight;
-    }
-});
 </script>
 
 <template>

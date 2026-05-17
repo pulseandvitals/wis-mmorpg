@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\WorldChatMessage;
 use App\Models\WorldChat;
 use Illuminate\Http\Request;
 
@@ -19,6 +20,8 @@ class WorldChatController extends Controller
         $worldChat->message = $request->msg_value;
         $worldChat->save();
 
+        // trigger reverb broadcast
+        broadcast(new WorldChatMessage($worldChat, $player));
         return response()->json([
             'status' => 202,
         ]);
@@ -26,27 +29,13 @@ class WorldChatController extends Controller
 
     public function getWorldChat()
     {
-        return response()->stream(function () {
-        while (true) {
-            $messages = WorldChat::with('player:id,name')
-                ->latest()
-                ->limit(10)
-                ->get()
-                ->reverse()
-                ->values();
+        $messages = WorldChat::with('player:id,name')
+            ->latest()
+            ->limit(10)
+            ->get()
+            ->reverse()
+            ->values();
 
-                echo "data: " . json_encode($messages) . "\n\n";
-
-                ob_flush();
-                flush();
-
-                usleep(15000);
-
-            }
-        }, 200, [
-            'Content-Type' => 'text/event-stream',
-            'Cache-Control' => 'no-cache',
-            'Connection' => 'keep-alive',
-        ]);
+        return response()->json($messages);
     }
 }

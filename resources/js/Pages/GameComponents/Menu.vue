@@ -4,6 +4,7 @@ import { ref } from "vue";
 import PlayerSkillModal from "./PlayerSkillModal.vue";
 import PlayerInventoryModal from "./PlayerInventoryModal.vue";
 import Ranking from "./Npc/Ranking.vue";
+import PartyRoom from "./Npc/PartyRoom.vue";
 
 const props = defineProps({
     classSkills: Object,
@@ -14,6 +15,7 @@ const form = useForm({});
 const isSkillOpen = ref(false);
 const isInventoryOpen = ref(false);
 const isRankingOpen = ref(false);
+const isPartyOpen = ref(false);
 
 const mapId = props.all_maps.find((map) => map.name === "Town Square")?.map_id;
 
@@ -30,6 +32,9 @@ const menuItems = [
 const handleMenuClick = (item) => {
     if (item.id === 1) {
         isInventoryOpen.value = true;
+    }
+    if (item.id === 2) {
+        isPartyOpen.value = true;
     }
     if (item.id === 3) {
         isSkillOpen.value = true;
@@ -67,6 +72,7 @@ const handleMenuClick = (item) => {
         v-if="isInventoryOpen"
         @close="isInventoryOpen = false"
     />
+    <PartyRoom v-if="isPartyOpen" @close="isPartyOpen = false" />
     <PlayerSkillModal
         :classSkills="classSkills"
         v-if="isSkillOpen"

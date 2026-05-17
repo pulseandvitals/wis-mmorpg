@@ -6,6 +6,7 @@ import {
     ref,
     watch,
     onBeforeUnmount,
+    onUnmounted,
 } from "vue";
 import PlayerStat from "./GameComponents/PlayerStat.vue";
 import PlayerSkill from "./GameComponents/PlayerSkill.vue";
@@ -14,7 +15,7 @@ import Player from "./GameComponents/Player.vue";
 import PvE from "./GameComponents/Battle.vue/PvE.vue";
 import Menu from "./GameComponents/Menu.vue";
 import TownSquareNPC from "./GameComponents/Npc/TownSquareNPC.vue";
-import { Head } from "@inertiajs/vue3";
+import { Head, usePage } from "@inertiajs/vue3";
 import GameLayout from "@/Layouts/GameLayout.vue";
 import Players from "./GameComponents/Players.vue";
 
@@ -375,40 +376,39 @@ function moveMonsters() {
 
     requestAnimationFrame(loop);
 }
-let eventSource = null;
 const players = ref([]);
-let lastSentMove = { x: null, y: null, dir: null };
-function updatePlayerMovement(x, y, dir, isMoving) {
-    if (isMoving) {
-        lastSentMove = { x, y, dir };
-        return;
-    }
+const page = usePage();
+const myPlayerId = page.props.auth?.player?.id;
+let lastSent = { x: null, y: null, dir: null };
 
-    axios.post("/update-player-move", { x, y, dir });
+async function updatePlayerMovement(x, y, dir) {
+    // prevent spamming same position
+    if (lastSent.x === x && lastSent.y === y && lastSent.dir === dir) return;
+
+    lastSent = { x, y, dir };
+
+    try {
+        await axios.post("/update-player-move", {
+            x,
+            y,
+            dir,
+        });
+    } catch (err) {
+        console.error("Movement update failed:", err);
+    }
 }
 
-/**
- * GET PLAYERS STREAM
- */
-let playersInterval = null;
+async function getPlayers() {
+    const res = await axios.get("/streams/get-players");
 
-function getPlayers() {
-    // prevent duplicate intervals
-    if (playersInterval) {
-        clearInterval(playersInterval);
-    }
-
-    playersInterval = setInterval(async () => {
-        try {
-            const res = await axios.get("/streams/get-players");
-
-            const data = res.data.players;
-
-            data.forEach((p) => updatePlayerPosition(p));
-        } catch (err) {
-            console.log("getPlayers error:", err);
-        }
-    }, 5000); // adjust: 500–1000ms for smoother movement
+    players.value = res.data.map((p) => ({
+        ...p,
+        renderX: p.x * tileSize,
+        renderY: p.y * tileSize,
+        targetX: p.x * tileSize,
+        targetY: p.y * tileSize,
+        walking: false,
+    }));
 }
 
 /**
@@ -514,12 +514,22 @@ onMounted(() => {
     window.addEventListener("keydown", handleKey);
     moveMonsters();
     getPlayers();
+    window.Echo.channel("world").listen(".player.moved", (e) => {
+        const id = Number(e.player_id);
+        if (id === myPlayerId) return;
+        if (e.current_map_id === props.current_map?.map_id)
+            updatePlayerPosition({
+                id,
+                x: Number(e.x),
+                y: Number(e.y),
+                direction: e.direction,
+                class_type: e.class_type,
+                name: e.name,
+                current_map_id: e.current_map_id,
+            });
+    });
 });
-onBeforeUnmount(() => {
-    if (eventSource) {
-        eventSource.close();
-    }
-});
+
 watch(
     () => props.monsters,
     () => {
@@ -558,7 +568,6 @@ watch(
                     top: Math.floor(index / mapWidth) * tileSize + 'px',
                 }"
             /> -->
-
             <!-- PLAYER -->
             <Player :player="player" :tileSize="tileSize" />
             <Players :players="players" :tileSize="tileSize" />

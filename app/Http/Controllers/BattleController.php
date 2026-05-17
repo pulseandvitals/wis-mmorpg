@@ -6,6 +6,7 @@ use App\Http\Resources\PlayerResource;
 use App\Models\Experience;
 use App\Models\Inventory;
 use App\Models\Material;
+use App\Models\PartyRoom;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -27,9 +28,12 @@ class BattleController extends Controller
         foreach ($monsters as $monster) {
             $totalExp += $monster['exp'] ?? 10;
         }
+        $this->sharedPartyExp($totalExp);
+
+
+        /* SIMPLE LEVEL SYSTEM */
         $this->player->current_experience += $totalExp;
         $levelUp = false;
-        /* SIMPLE LEVEL SYSTEM */
         $neededExp = Experience::whereLevel($this->player->current_level)->value('required_experience');
         if ($this->player->current_experience >= $neededExp) {
             $this->player->current_level += 1;
@@ -37,8 +41,8 @@ class BattleController extends Controller
 
             $this->player->total_attack += 3;
             $this->player->total_defense += 3;
-            $this->player->max_health += 10;
-            $this->player->max_mana += 10;
+            $this->player->max_health += 5;
+            $this->player->max_mana += 5;
             $levelUp = true;
         }
 
@@ -70,6 +74,26 @@ class BattleController extends Controller
                     'quantity' => DB::raw("COALESCE(quantity, 0) + {$qty}")
                 ]
             );
+        }
+    }
+
+    public function sharedPartyExp($totalExp = null)
+    {
+        $player = $this->player;
+        $room = PartyRoom::whereHas('members', function ($q) use ($player) {
+                $q->where('player_id', $player->id);
+            })->with('members.player')->first();
+
+        $sharedExp = intval($totalExp * 0.10);
+
+        if ($room) {
+            foreach ($room->members as $member) {
+
+                $memberPlayer = $member->player;
+
+                $memberPlayer->current_experience += $sharedExp;
+                $memberPlayer->save();
+            }
         }
     }
 }

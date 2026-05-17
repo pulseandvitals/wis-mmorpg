@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\PlayerMoved;
 use App\Http\Resources\PlayerResource;
 use App\Models\Player;
 use Illuminate\Http\Request;
@@ -45,17 +46,23 @@ class PlayerController extends Controller
         $player->y = $request->y;
         $player->direction = $request->dir;
         $player->save();
+
+        broadcast(new PlayerMoved($player))->toOthers();
     }
 
     public function getPlayers()
     {
-        $players = Player::where('current_map_id',auth()->user()->player->current_map_id)
-                    ->where('name', '!=', auth()->user()->player->name)
-                    ->select('id', 'x', 'y', 'direction', 'name','class_type','current_health','max_health')
-                    ->get();
+        $players = Player::select(
+            'id',
+            'name',
+            'x',
+            'y',
+            'direction',
+            'class_type'
+        )->where('id', '!=', auth()->user()->player->id)
+        ->where('current_map_id','=',auth()->user()->player->current_map_id)
+        ->get();
 
-        return response()->json([
-            'players' => $players,
-        ]);
+        return response()->json($players);
     }
 }

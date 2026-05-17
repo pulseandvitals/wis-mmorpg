@@ -3,6 +3,8 @@
 use App\Http\Controllers\BattleController;
 use App\Http\Controllers\GearController;
 use App\Http\Controllers\InventoryController;
+use App\Http\Controllers\MapController;
+use App\Http\Controllers\PartyRoomController;
 use App\Http\Controllers\PlayerController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\WorldChatController;
@@ -10,16 +12,12 @@ use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
-Route::get('/', function () {
-    return Inertia::render('Welcome');
-});
+Route::get('/',[MapController::class,'index']);
 
 Route::middleware('auth')->group(function () {
 Route::prefix('world')->group(function () {
     Route::get('/map/{map_id}', [\App\Http\Controllers\WorldMapController::class, 'worldMap'])->name('world.map');
 });
-
-
     Route::post('/battle/save',[BattleController::class,'saveBattle']);
     Route::post('/heal', [PlayerController::class,'healPlayer']);
     Route::get('/open-inventory', [InventoryController::class,'openInventory']);
@@ -34,6 +32,11 @@ Route::prefix('world')->group(function () {
     Route::get('/get-weapons',[GearController::class,'getWeapons']);
     Route::get('/get-armors',[GearController::class,'getArmors']);
     Route::post('/update-player-move',[PlayerController::class,'updatePlayerMove']);
+
+    Route::post('/party-room/create',[PartyRoomController::class,'createRoom']);
+    Route::get('/get-party',[PartyRoomController::class,'getParty']);
+    Route::post('/party-room/leave/{room_id}',[PartyRoomController::class,'leaveRoom']);
+    Route::post('/party-room/join/{code}',[PartyRoomController::class,'joinRoom']);
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
