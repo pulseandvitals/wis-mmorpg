@@ -21,12 +21,12 @@ const mapId = props.all_maps.find((map) => map.name === "Town Square")?.map_id;
 
 const menuItems = [
     { id: 1, label: "Inventory", icon: "🎒" },
-    { id: 2, label: "Party", icon: "✨" },
-    { id: 3, label: "Skills", icon: "✨" },
+    { id: 2, label: "Party", icon: "👥" },
+    { id: 3, label: "Skills", icon: "⚔️" },
     { id: 4, label: "Ranking", icon: "🏆" },
     { id: 5, label: "Discord", icon: "💬" },
-    { id: 6, label: "Town Square", icon: "💬" },
-    { id: 7, label: "Settings", icon: "💬" },
+    { id: 6, label: "Town Square", icon: "🏘" },
+    { id: 7, label: "Settings", icon: "⚙" },
 ];
 
 const handleMenuClick = (item) => {

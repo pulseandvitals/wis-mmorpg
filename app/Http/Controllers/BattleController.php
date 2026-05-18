@@ -25,14 +25,19 @@ class BattleController extends Controller
         $this->insertDropstoInventory($request->drops);
 
         $totalExp = 0;
+        $totalGold = 0;
         foreach ($monsters as $monster) {
             $totalExp += $monster['exp'] ?? 10;
+            $totalGold += $monster['exp'] * 0.20 ?? 10;
         }
-        $this->sharedPartyExp($totalExp);
+
+        $this->sharedPartyExpAndGold($totalExp, $totalGold);
 
 
         /* SIMPLE LEVEL SYSTEM */
         $this->player->current_experience += $totalExp;
+        $this->player->current_gold += $totalGold;
+
         $levelUp = false;
         $neededExp = Experience::whereLevel($this->player->current_level)->value('required_experience');
         if ($this->player->current_experience >= $neededExp) {
@@ -77,7 +82,7 @@ class BattleController extends Controller
         }
     }
 
-    public function sharedPartyExp($totalExp = null)
+    public function sharedPartyExpAndGold($totalExp = null, $totalGold = null)
     {
         $player = $this->player;
 
@@ -88,6 +93,7 @@ class BattleController extends Controller
             ->first();
 
         $sharedExp = intval($totalExp * 0.10);
+        $sharedGold = intval($totalGold * 0.10);
 
         if ($room) {
             foreach ($room->members as $member) {
@@ -100,6 +106,7 @@ class BattleController extends Controller
                 }
 
                 $memberPlayer->current_experience += $sharedExp;
+                $memberPlayer->current_gold += $sharedGold;
                 $memberPlayer->save();
             }
         }

@@ -94,7 +94,7 @@
                                     </p>
 
                                     <p class="text-xs text-gray-400">
-                                        Adventurer
+                                        {{ member.player.class_type }}
                                     </p>
                                 </div>
                             </div>

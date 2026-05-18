@@ -101,7 +101,9 @@ function openBattle(monster) {
             attack: monster.skill.damage,
             eva: randomEva(5, 10),
             skill_name: monster.skill.name,
+            element: monster.element,
             drops: monster.drops,
+            exp: monster.exp,
             battle_gif: `/monster_sprites/${monster.name}/idle-left.gif`,
             attack_gif: `/monster_sprites/${monster.name}/attack.gif`,
             dead_gif: `/monster_sprites/${monster.name}/dead.gif`,
@@ -174,7 +176,23 @@ function useSkill(skill, selectedMonster = null) {
             logs.value.unshift("CRITICAL HIT!");
         }
 
+        // ELEMENT CALCULATION
+        const result = applyElementalDamage(
+            damage,
+            skill.element,
+            monster.element,
+        );
+
+        damage = result.damage;
+
+        // UI DISPLAY (NOW CORRECT)
         monsterDamages.value[monster.id] = crit ? `${damage} CRIT` : damage;
+
+        if (result.multiplier > 1) {
+            logs.value.unshift("It's super effective!");
+        } else if (result.multiplier < 1) {
+            logs.value.unshift("It's not very effective...");
+        }
 
         setTimeout(() => {
             delete monsterDamages.value[monster.id];
@@ -202,6 +220,67 @@ function useSkill(skill, selectedMonster = null) {
             monsterTurn();
         }, 1000);
     }
+}
+
+function applyElementalDamage(damage, attackerElement, defenderElement) {
+    const elementChart = {
+        fire: {
+            earth: 1.2,
+            water: 0.9,
+            wind: 1.1,
+            electric: 1.0,
+            fire: 1.0,
+        },
+
+        water: {
+            fire: 1.2,
+            earth: 0.9,
+            electric: 0.8,
+            wind: 1.1,
+            water: 1.0,
+        },
+
+        earth: {
+            water: 1.2,
+            fire: 0.9,
+            electric: 1.1,
+            wind: 0.9,
+            earth: 1.0,
+        },
+
+        electric: {
+            water: 1.3,
+            wind: 1.2,
+            earth: 0.8,
+            fire: 1.0,
+            electric: 1.0,
+        },
+
+        wind: {
+            earth: 1.2,
+            fire: 0.9,
+            electric: 0.8,
+            water: 1.0,
+            wind: 1.0,
+        },
+    };
+    if (
+        !attackerElement ||
+        !defenderElement ||
+        !elementChart[attackerElement]
+    ) {
+        return {
+            damage: Math.floor(damage),
+            multiplier: 1,
+        };
+    }
+
+    const multiplier = elementChart[attackerElement][defenderElement] ?? 1;
+
+    return {
+        damage: Math.floor(damage * multiplier),
+        multiplier,
+    };
 }
 
 /* =========================================
@@ -375,7 +454,6 @@ async function battleSave() {
 HELPERS
 ========================================= */
 function closeBattle() {
-    battleSave();
     showBattleModal.value = false;
 }
 

@@ -152,7 +152,11 @@
 <script setup>
 import { onMounted, ref, computed } from "vue";
 const getInventory = ref([]);
-const loading = ref(false);
+import { usePage } from "@inertiajs/vue3";
+
+const page = usePage();
+const playerGold = page.props.auth.user.player.current_gold;
+const playerCurrentDiamond = page.props.auth.user.player.current_diamond;
 async function openInventory() {
     try {
         const response = await axios.get("/open-inventory");
