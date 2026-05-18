@@ -72,11 +72,6 @@ const groupedSets = computed(() => {
         if (!sample) return;
 
         const key = getCraftKey(sample);
-
-        console.log("KEY GENERATED:", key);
-        console.log("AVAILABLE KEYS:", Object.keys(materials.value));
-        console.log("MAT DATA:", materials.value?.[key]);
-
         group.materials = materials.value?.[key]?.materials || [];
     });
 

@@ -1,9 +1,5 @@
 <script setup>
-import GuestLayout from "@/Layouts/GuestLayout.vue";
 import InputError from "@/Components/InputError.vue";
-import InputLabel from "@/Components/InputLabel.vue";
-import PrimaryButton from "@/Components/PrimaryButton.vue";
-import TextInput from "@/Components/TextInput.vue";
 import { Head, Link, useForm } from "@inertiajs/vue3";
 
 const form = useForm({
@@ -19,360 +15,246 @@ const submit = () => {
         onFinish: () => form.reset("password", "password_confirmation"),
     });
 };
-</script>
-<template>
-    <Head title="Register" />
 
-    <div class="mmorpg-register">
+const classes = [
+    {
+        name: "Knight",
+        icon: "⚔️",
+        desc: "Frontline tank with high defense",
+    },
+    {
+        name: "Archer",
+        icon: "🏹",
+        desc: "Long range physical damage",
+    },
+    {
+        name: "Wizard",
+        icon: "🔮",
+        desc: "Master of elemental magic",
+    },
+    {
+        name: "Assassin",
+        icon: "🗡️",
+        desc: "Fast burst damage killer",
+    },
+    {
+        name: "Crusader",
+        icon: "✨",
+        desc: "Holy warrior with support power",
+    },
+];
+</script>
+
+<template>
+    <Head title="Create Adventurer" />
+
+    <div
+        class="min-h-screen flex items-center justify-center bg-[#0b1220] relative overflow-hidden py-10"
+    >
         <!-- BACKGROUND -->
-        <div class="register-overlay"></div>
+        <div
+            class="absolute inset-0 bg-[url('/images/login-bg.jpg')] bg-cover bg-center opacity-30"
+        ></div>
+
+        <!-- DARK OVERLAY -->
+        <div class="absolute inset-0 bg-black/70 backdrop-blur-[2px]"></div>
+
+        <!-- GLOW -->
+        <div
+            class="absolute w-[800px] h-[800px] bg-cyan-500/10 blur-3xl rounded-full"
+        ></div>
 
         <!-- CARD -->
-        <div class="register-card">
-            <!-- LOGO -->
-            <div class="register-top">
-                <img src="/logo.png" class="game-logo" />
+        <div
+            class="relative z-10 w-full max-w-2xl border border-white/10 bg-black/50 backdrop-blur-xl rounded-3xl shadow-2xl shadow-black/70 overflow-hidden"
+        >
+            <!-- HEADER -->
+            <div
+                class="px-8 py-7 border-b border-white/10 bg-gradient-to-r from-blue-500/10 to-cyan-500/10"
+            >
+                <div class="flex items-center gap-4">
+                    <div
+                        class="w-16 h-16 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-3xl shadow-lg"
+                    >
+                        ⚔️
+                    </div>
 
-                <h1 class="game-title">ETERNAL REALMS</h1>
+                    <div>
+                        <h1
+                            class="text-3xl font-black text-white tracking-wide"
+                        >
+                            WIS ONLINE
+                        </h1>
 
-                <p class="game-subtitle">Create your adventurer</p>
+                        <p class="text-sm text-blue-200/70">
+                            Create your legendary adventurer
+                        </p>
+                    </div>
+                </div>
             </div>
 
-            <!-- FORM -->
-            <form @submit.prevent="submit" class="register-form">
-                <!-- NAME -->
-                <div class="input-group">
-                    <InputLabel
-                        for="name"
-                        value="Character Name"
-                        class="input-label"
-                    />
+            <!-- BODY -->
+            <div class="p-8">
+                <form @submit.prevent="submit" class="space-y-5">
+                    <!-- CHARACTER NAME -->
+                    <div>
+                        <label
+                            class="block text-xs uppercase tracking-widest text-gray-400 mb-2"
+                        >
+                            Character Name
+                        </label>
 
-                    <TextInput
-                        id="name"
-                        type="text"
-                        class="mmorpg-input"
-                        v-model="form.name"
-                        required
-                        autofocus
-                        autocomplete="name"
-                    />
+                        <input
+                            v-model="form.name"
+                            type="text"
+                            required
+                            autofocus
+                            autocomplete="name"
+                            class="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-3 text-white placeholder:text-gray-500 focus:border-blue-400/50 focus:ring-0 outline-none transition"
+                            placeholder="Enter character name"
+                        />
 
-                    <InputError class="mt-2" :message="form.errors.name" />
-                </div>
+                        <InputError class="mt-2" :message="form.errors.name" />
+                    </div>
 
-                <div class="input-group">
-                    <InputLabel
-                        for="name"
-                        value="Character Class"
-                        class="input-label"
-                    />
+                    <!-- CLASS SELECTION -->
+                    <div>
+                        <label
+                            class="block text-xs uppercase tracking-widest text-gray-400 mb-3"
+                        >
+                            Choose Your Class
+                        </label>
 
-                    <select
-                        id="class"
-                        class="mmorpg-input"
-                        v-model="form.class"
-                        required
+                        <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+                            <button
+                                v-for="c in classes"
+                                :key="c.name"
+                                type="button"
+                                @click="form.class = c.name"
+                                class="rounded-2xl border p-4 text-left transition"
+                                :class="
+                                    form.class === c.name
+                                        ? 'border-cyan-400 bg-cyan-500/10 shadow-lg shadow-cyan-500/10'
+                                        : 'border-white/10 bg-black/30 hover:bg-white/5'
+                                "
+                            >
+                                <div class="text-3xl mb-2">
+                                    {{ c.icon }}
+                                </div>
+
+                                <p class="text-white font-bold">
+                                    {{ c.name }}
+                                </p>
+
+                                <p class="text-xs text-gray-400 mt-1">
+                                    {{ c.desc }}
+                                </p>
+                            </button>
+                        </div>
+
+                        <InputError class="mt-2" :message="form.errors.class" />
+                    </div>
+
+                    <!-- EMAIL -->
+                    <div>
+                        <label
+                            class="block text-xs uppercase tracking-widest text-gray-400 mb-2"
+                        >
+                            Adventurer Email
+                        </label>
+
+                        <input
+                            v-model="form.email"
+                            type="email"
+                            required
+                            autocomplete="username"
+                            class="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-3 text-white placeholder:text-gray-500 focus:border-blue-400/50 focus:ring-0 outline-none transition"
+                            placeholder="Enter your email"
+                        />
+
+                        <InputError class="mt-2" :message="form.errors.email" />
+                    </div>
+
+                    <!-- PASSWORD -->
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <div>
+                            <label
+                                class="block text-xs uppercase tracking-widest text-gray-400 mb-2"
+                            >
+                                Password
+                            </label>
+
+                            <input
+                                v-model="form.password"
+                                type="password"
+                                required
+                                autocomplete="new-password"
+                                class="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-3 text-white placeholder:text-gray-500 focus:border-blue-400/50 focus:ring-0 outline-none transition"
+                                placeholder="Create password"
+                            />
+
+                            <InputError
+                                class="mt-2"
+                                :message="form.errors.password"
+                            />
+                        </div>
+
+                        <div>
+                            <label
+                                class="block text-xs uppercase tracking-widest text-gray-400 mb-2"
+                            >
+                                Confirm Password
+                            </label>
+
+                            <input
+                                v-model="form.password_confirmation"
+                                type="password"
+                                required
+                                autocomplete="new-password"
+                                class="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-3 text-white placeholder:text-gray-500 focus:border-blue-400/50 focus:ring-0 outline-none transition"
+                                placeholder="Confirm password"
+                            />
+
+                            <InputError
+                                class="mt-2"
+                                :message="form.errors.password_confirmation"
+                            />
+                        </div>
+                    </div>
+
+                    <!-- ACTIONS -->
+                    <div
+                        class="flex flex-col md:flex-row items-center justify-between gap-4 pt-2"
                     >
-                        <option disabled value="">Select Class</option>
+                        <Link
+                            :href="route('login')"
+                            class="text-sm text-blue-300 hover:text-blue-200 transition"
+                        >
+                            Already have an account?
+                        </Link>
 
-                        <option value="Knight">⚔️ Knight</option>
+                        <button
+                            type="submit"
+                            :disabled="form.processing"
+                            class="w-full md:w-auto px-8 py-3 rounded-xl bg-gradient-to-r from-blue-500 to-cyan-500 text-white font-bold tracking-wide shadow-lg shadow-blue-500/20 hover:scale-[1.02] hover:shadow-blue-500/40 active:scale-[0.99] transition disabled:opacity-50"
+                        >
+                            <span v-if="form.processing">
+                                Creating Adventurer...
+                            </span>
 
-                        <option value="Archer">🏹 Archer</option>
+                            <span v-else> Enter The World </span>
+                        </button>
+                    </div>
+                </form>
 
-                        <option value="Wizard">🔮 Wizard</option>
-
-                        <option value="Assassin">🗡️ Assassin</option>
-
-                        <option value="Crusader">✨ Crusader</option>
-                    </select>
-
-                    <InputError class="mt-2" :message="form.errors.class" />
+                <!-- FOOTER -->
+                <div
+                    class="mt-8 pt-5 border-t border-white/10 text-center text-xs text-gray-500"
+                >
+                    Begin your journey through dungeons, guild wars, legendary
+                    raids, and mythical treasures.
                 </div>
-
-                <!-- EMAIL -->
-                <div class="input-group">
-                    <InputLabel for="email" value="Email" class="input-label" />
-
-                    <TextInput
-                        id="email"
-                        type="email"
-                        class="mmorpg-input"
-                        v-model="form.email"
-                        required
-                        autocomplete="username"
-                    />
-
-                    <InputError class="mt-2" :message="form.errors.email" />
-                </div>
-
-                <!-- PASSWORD -->
-                <div class="input-group">
-                    <InputLabel
-                        for="password"
-                        value="Password"
-                        class="input-label"
-                    />
-
-                    <TextInput
-                        id="password"
-                        type="password"
-                        class="mmorpg-input"
-                        v-model="form.password"
-                        required
-                        autocomplete="new-password"
-                    />
-
-                    <InputError class="mt-2" :message="form.errors.password" />
-                </div>
-
-                <!-- CONFIRM -->
-                <div class="input-group">
-                    <InputLabel
-                        for="password_confirmation"
-                        value="Confirm Password"
-                        class="input-label"
-                    />
-
-                    <TextInput
-                        id="password_confirmation"
-                        type="password"
-                        class="mmorpg-input"
-                        v-model="form.password_confirmation"
-                        required
-                        autocomplete="new-password"
-                    />
-
-                    <InputError
-                        class="mt-2"
-                        :message="form.errors.password_confirmation"
-                    />
-                </div>
-
-                <!-- ACTIONS -->
-                <div class="register-actions">
-                    <Link :href="route('login')" class="login-link">
-                        Already registered?
-                    </Link>
-
-                    <button
-                        type="submit"
-                        class="register-btn"
-                        :disabled="form.processing"
-                    >
-                        Enter World
-                    </button>
-                </div>
-            </form>
+            </div>
         </div>
     </div>
 </template>
-
-<style scoped>
-/* =========================================
-PAGE (OLD MMORPG STYLE)
-========================================= */
-.mmorpg-register {
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: relative;
-    overflow: hidden;
-
-    background:
-        radial-gradient(circle at top, rgba(0, 0, 0, 0.2), transparent 40%),
-        url("/images/mmorpg-bg.jpg") center center / cover no-repeat;
-}
-
-/* DARK OVERLAY (STRONGER RPG FEEL) */
-.register-overlay {
-    position: absolute;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.78);
-}
-
-/* =========================================
-CARD (STONE / METAL PANEL STYLE)
-========================================= */
-.register-card {
-    width: 440px;
-    position: relative;
-    z-index: 10;
-
-    padding: 32px;
-
-    border-radius: 10px;
-
-    background: linear-gradient(to bottom, #1a1a1f, #0d0d10);
-
-    border: 2px solid #3a3a44;
-
-    box-shadow:
-        0 0 0 1px rgba(0, 0, 0, 0.8),
-        inset 0 0 10px rgba(255, 255, 255, 0.03);
-
-    overflow: hidden;
-}
-
-/* FRAME EDGE (RPG PANEL BORDER) */
-.register-card::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    pointer-events: none;
-}
-
-/* =========================================
-TOP
-========================================= */
-.register-top {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin-bottom: 26px;
-}
-
-.game-logo {
-    width: 80px;
-    height: 80px;
-    margin-bottom: 10px;
-    filter: drop-shadow(0 0 6px rgba(0, 0, 0, 0.6));
-}
-
-.game-title {
-    font-size: 28px;
-    font-weight: 900;
-    letter-spacing: 2px;
-    color: #e5e5e5;
-    text-shadow: 0 1px 0 #000;
-}
-
-.game-subtitle {
-    color: rgba(255, 255, 255, 0.55);
-    font-size: 12px;
-}
-
-/* =========================================
-INPUTS (GAME UI STYLE)
-========================================= */
-.mmorpg-input {
-    width: 100%;
-    height: 46px;
-
-    padding: 0 14px;
-
-    border-radius: 6px;
-
-    border: 1px solid #2f2f38;
-
-    background: #0f0f14;
-
-    color: #e5e5e5;
-
-    font-size: 13px;
-
-    outline: none;
-
-    transition: 0.2s;
-}
-
-.mmorpg-input:focus {
-    border-color: #6b7280;
-    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.05);
-}
-
-/* SELECT */
-select.mmorpg-input {
-    appearance: none;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%23aaa' viewBox='0 0 20 20'%3E%3Cpath d='M5.25 7.5L10 12.25 14.75 7.5'/%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: right 12px center;
-    background-size: 14px;
-}
-
-/* LABEL */
-.input-label {
-    color: #bdbdbd;
-    font-size: 11px;
-    letter-spacing: 1px;
-    margin-bottom: 6px;
-}
-
-/* =========================================
-BUTTON (MMORPG START BUTTON)
-========================================= */
-.register-btn {
-    height: 44px;
-    padding: 0 18px;
-
-    border-radius: 6px;
-
-    border: 1px solid #3a3a44;
-
-    background: linear-gradient(to bottom, #2b2b33, #14141a);
-
-    color: #e5e5e5;
-
-    font-weight: bold;
-
-    cursor: pointer;
-
-    transition: 0.2s;
-}
-
-.register-btn:hover {
-    border-color: #6b7280;
-    transform: translateY(-1px);
-    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.4);
-}
-
-.register-btn:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-}
-
-/* LINK */
-.login-link {
-    color: #9ca3af;
-    font-size: 12px;
-}
-
-.login-link:hover {
-    color: #ffffff;
-}
-
-/* =========================================
-LAYOUT
-========================================= */
-.register-form {
-    display: flex;
-    flex-direction: column;
-    gap: 14px;
-}
-
-.register-actions {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-top: 10px;
-}
-
-/* MOBILE */
-@media (max-width: 640px) {
-    .register-card {
-        width: 92%;
-        padding: 22px;
-    }
-
-    .register-actions {
-        flex-direction: column;
-        gap: 10px;
-    }
-
-    .register-btn {
-        width: 100%;
-    }
-}
-</style>

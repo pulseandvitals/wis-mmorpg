@@ -48,7 +48,7 @@
                     </div>
 
                     <!-- ACTIONS -->
-                    <div class="flex gap-3 mb-6">
+                    <div class="flex gap-3 mb-6" v-if="!room?.members">
                         <button
                             @click="createRoom"
                             class="px-4 py-2 rounded-lg bg-purple-500/20 border border-purple-400/30 text-purple-300 hover:bg-purple-500/30 transition"
@@ -147,7 +147,6 @@ import { pushAlert } from "@/Stores/GlobalAlert";
 const room = ref(null);
 const code = ref("");
 const page = usePage();
-const form = useForm({});
 
 const playerId = page.props.auth.user.player.id;
 

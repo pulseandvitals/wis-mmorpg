@@ -74,7 +74,7 @@ class WorldMapController extends Controller
         return Inertia::render('World',[
             'current_map' => $map,
             'map_tiles' => $mapTiles,
-            'all_maps' => MapResource::collection(Map::all()),
+            'all_maps' => $this->getAllMaps(),
             ...$this->getPlayerData()
         ]);
     }
@@ -106,7 +106,7 @@ class WorldMapController extends Controller
 
         return Inertia::render('World',[
             'current_map' => $map,
-            'all_maps' => MapResource::collection(Map::all()),
+            'all_maps' => $this->getAllMaps(),
             'map_tiles' => $mapTiles,
             'monsters' => $this->getMonsterByMap($map->name),
             ...$this->getPlayerData()
@@ -142,7 +142,7 @@ class WorldMapController extends Controller
 
         return Inertia::render('World',[
             'current_map' => $map,
-            'all_maps' => MapResource::collection(Map::all()),
+            'all_maps' => $this->getAllMaps(),
             'map_tiles' => $mapTiles,
             'monsters' => $this->getMonsterByMap($map->name),
             ...$this->getPlayerData()
@@ -177,7 +177,7 @@ class WorldMapController extends Controller
         ];
         return Inertia::render('World',[
             'current_map' => $map,
-            'all_maps' => MapResource::collection(Map::all()),
+            'all_maps' => $this->getAllMaps(),
             'map_tiles' => $mapTiles,
             'monsters' => $this->getMonsterByMap($map->name),
             ...$this->getPlayerData()
@@ -213,7 +213,7 @@ class WorldMapController extends Controller
 
         return Inertia::render('World',[
             'current_map' => $map,
-            'all_maps' => MapResource::collection(Map::all()),
+            'all_maps' => $this->getAllMaps(),
             'map_tiles' => $mapTiles,
             'monsters' => $this->getMonsterByMap($map->name),
             ...$this->getPlayerData()
@@ -249,7 +249,7 @@ class WorldMapController extends Controller
         ];
         return Inertia::render('World',[
             'current_map' => $map,
-            'all_maps' => MapResource::collection(Map::all()),
+            'all_maps' => $this->getAllMaps(),
             'map_tiles' => $mapTiles,
             'monsters' => $this->getMonsterByMap($map->name),
             ...$this->getPlayerData()
@@ -259,6 +259,32 @@ class WorldMapController extends Controller
     private function getMonsterByMap($map)
     {
         return Monster::whereMap($map)->get() ?: null;
+    }
+
+    private function getAllMaps()
+    {
+        return MapResource::collection(
+            Map::query()
+                ->whereIn('name', [
+                    'Town Square',
+                    'Valdora Grassland',
+                    'Dark Forest',
+                    'Crystal Cave',
+                    'Volcanic Wasteland',
+                    'Sky Islands',
+                ])
+                ->orderByRaw("
+                    FIELD(
+                        name,
+                        'Valdora Grassland',
+                        'Dark Forest',
+                        'Crystal Cave',
+                        'Volcanic Wasteland',
+                        'Sky Islands'
+                    )
+                ")
+                ->get()
+        );
     }
 
     private function getPlayerData()

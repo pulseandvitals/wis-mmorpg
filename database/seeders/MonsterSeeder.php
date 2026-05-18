@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
 
 class MonsterSeeder extends Seeder
 {
@@ -263,5 +264,6 @@ class MonsterSeeder extends Seeder
 
             $monsters[] = $u;
         }
+        DB::table('monsters')->insert($monsters);
     }
 }

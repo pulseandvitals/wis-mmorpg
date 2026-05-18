@@ -80,9 +80,12 @@ class BattleController extends Controller
     public function sharedPartyExp($totalExp = null)
     {
         $player = $this->player;
+
         $room = PartyRoom::whereHas('members', function ($q) use ($player) {
                 $q->where('player_id', $player->id);
-            })->with('members.player')->first();
+            })
+            ->with('members.player')
+            ->first();
 
         $sharedExp = intval($totalExp * 0.10);
 
@@ -90,6 +93,11 @@ class BattleController extends Controller
             foreach ($room->members as $member) {
 
                 $memberPlayer = $member->player;
+
+                // ❌ SKIP SELF
+                if ($memberPlayer->id === $player->id) {
+                    continue;
+                }
 
                 $memberPlayer->current_experience += $sharedExp;
                 $memberPlayer->save();
