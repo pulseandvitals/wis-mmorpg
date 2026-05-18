@@ -23,26 +23,26 @@ const turnTimer = ref(5);
 
 const selectedSkill = ref(null);
 
-const enemySelectedSkill = ref(null);
-
 const logs = ref([]);
 
 const playerDamage = ref(null);
 const enemyDamage = ref(null);
 
-let interval = null;
+const battleId = ref(null);
 
 const battleEnded = ref(false);
 
+let interval = null;
+
 /* =========================
-SELECT PLAYER IN WORLD
+SELECT PLAYER
 ========================= */
 function selectPlayer(player) {
     selectedTarget.value = player;
 }
 
 /* =========================
-START HOSTILE PvP
+START PvP
 ========================= */
 function initiateHostile() {
     if (!selectedTarget.value) return;
@@ -57,169 +57,115 @@ function initiateHostile() {
 }
 
 /* =========================
-LOAD BATTLE
+OPEN BATTLE (SERVER DRIVEN)
 ========================= */
-function openBattle(battleId) {
-    axios.get(`/pvp/battle/${battleId}`).then((res) => {
+function openBattle(id) {
+    battleId.value = id;
+
+    axios.get(`/pvp/battle/${id}`).then((res) => {
         const battle = res.data;
 
         enemyPlayer.value = battle.enemy;
+        logs.value = battle.logs || [];
 
-        logs.value = [];
+        showBattleModal.value = true;
 
-        logs.value.push("PvP Duel Started!");
-
-        startTurn();
+        startLockPhase(battle.lock_ends_at);
     });
-
-    showBattleModal.value = true;
 }
 
 /* =========================
-TURN SYSTEM (5s LOCK)
+LOCK PHASE TIMER (SERVER CONTROLLED)
 ========================= */
-function startTurn() {
+function startLockPhase(lockEndsAt) {
     isLockPhase.value = true;
-    turnTimer.value = 5;
     selectedSkill.value = null;
 
-    enemySelectedSkill.value =
-        enemyPlayer.value.skills[
-            Math.floor(Math.random() * enemyPlayer.value.skills.length)
-        ];
+    clearInterval(interval);
 
     interval = setInterval(() => {
-        turnTimer.value--;
+        const now = Date.now();
+        const end = new Date(lockEndsAt).getTime();
+
+        turnTimer.value = Math.max(0, Math.ceil((end - now) / 1000));
 
         if (turnTimer.value <= 0) {
             clearInterval(interval);
-            resolveTurn();
+            lockPhaseEnd();
         }
     }, 1000);
 }
 
 /* =========================
-LOCK SKILL
+LOCK SKILL (SEND TO BACKEND)
 ========================= */
 function lockSkill(skill) {
     if (!isLockPhase.value) return;
 
     selectedSkill.value = skill;
+
+    axios.post(`/pvp/battle/${battleId.value}/lock`, {
+        skill_id: skill.id,
+    });
 }
 
 /* =========================
-RESOLVE TURN (SPEED ORDER)
+END LOCK PHASE
 ========================= */
-function resolveTurn() {
+function lockPhaseEnd() {
     isLockPhase.value = false;
 
-    const pSpeed = props.player.current_speed;
-    const eSpeed = enemyPlayer.value.current_speed;
+    resolveTurn();
+}
 
-    const first = pSpeed >= eSpeed ? "player" : "enemy";
+/* =========================
+RESOLVE TURN (SERVER ONLY LOGIC)
+========================= */
+function resolveTurn() {
+    axios.post(`/pvp/battle/${battleId.value}/resolve`).then((res) => {
+        applyBattleResult(res.data);
 
-    if (first === "player") {
-        executePlayerAttack();
-        setTimeout(executeEnemyAttack, 400);
-    } else {
-        executeEnemyAttack();
-        setTimeout(executePlayerAttack, 400);
-    }
+        if (!res.data.finished) {
+            startLockPhase(res.data.lock_ends_at);
+        } else {
+            battleEnded.value = true;
 
-    setTimeout(() => {
-        checkBattle();
-
-        if (!battleEnded.value) {
-            setTimeout(startTurn, 800);
+            setTimeout(() => {
+                showBattleModal.value = false;
+            }, 2000);
         }
-    }, 1200);
+    });
 }
 
 /* =========================
-DAMAGE SYSTEM
+APPLY SERVER RESULT
 ========================= */
-function randomDamage(min, max) {
-    return Math.floor(Math.random() * (max - min + 1)) + min;
-}
+function applyBattleResult(data) {
+    logs.value = data.logs;
 
-function isCritical(rate = 0) {
-    return Math.random() * 100 < rate;
-}
+    playerDamage.value = null;
+    enemyDamage.value = null;
 
-/* =========================
-PLAYER ATTACK
-========================= */
-function executePlayerAttack() {
-    const skill = selectedSkill.value || props.player.skills[0];
+    data.events.forEach((event) => {
+        if (event.type === "damage") {
+            if (event.target === "player") {
+                enemyDamage.value = event.value;
+            } else {
+                playerDamage.value = event.value;
+            }
+        }
 
-    let damage = randomDamage(
-        props.player.attack + skill.damage - 4,
-        props.player.attack + skill.damage + 4,
-    );
-
-    if (isCritical(props.player.crit)) {
-        damage = Math.floor(damage * 1.5);
-        playerDamage.value = `${damage} CRIT`;
-    } else {
-        playerDamage.value = damage;
-    }
-
-    enemyPlayer.value.current_health -= damage;
-
-    if (enemyPlayer.value.current_health < 0)
-        enemyPlayer.value.current_health = 0;
-
-    logs.value.unshift(`${props.player.name} used ${skill.name}`);
-
-    setTimeout(() => {
-        playerDamage.value = null;
-    }, 800);
+        if (event.type === "crit") {
+            logs.value.unshift("CRITICAL HIT!");
+        }
+    });
 }
 
 /* =========================
-ENEMY ATTACK
+CLEANUP
 ========================= */
-function executeEnemyAttack() {
-    const skill = enemySelectedSkill.value;
-
-    let damage = randomDamage(
-        enemyPlayer.value.attack + skill.damage - 4,
-        enemyPlayer.value.attack + skill.damage + 4,
-    );
-
-    if (isCritical(enemyPlayer.value.crit)) {
-        damage = Math.floor(damage * 1.5);
-        enemyDamage.value = `${damage} CRIT`;
-    } else {
-        enemyDamage.value = damage;
-    }
-
-    props.player.current_health -= damage;
-
-    if (props.player.current_health < 0) props.player.current_health = 0;
-
-    logs.value.unshift(`${enemyPlayer.value.name} used ${skill.name}`);
-
-    setTimeout(() => {
-        enemyDamage.value = null;
-    }, 800);
-}
-
-/* =========================
-CHECK BATTLE END
-========================= */
-function checkBattle() {
-    if (props.player.current_health <= 0) {
-        battleEnded.value = true;
-        logs.value.unshift("You Lost");
-        setTimeout(() => (showBattleModal.value = false), 2000);
-    }
-
-    if (enemyPlayer.value.current_health <= 0) {
-        battleEnded.value = true;
-        logs.value.unshift("You Win!");
-        setTimeout(() => (showBattleModal.value = false), 2000);
-    }
+function resetBattle() {
+    clearInterval(interval);
 }
 </script>
 <template>
