@@ -375,6 +375,7 @@ async function battleSave() {
 HELPERS
 ========================================= */
 function closeBattle() {
+    battleSave();
     showBattleModal.value = false;
 }
 

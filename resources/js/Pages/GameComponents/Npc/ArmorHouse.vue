@@ -1,32 +1,94 @@
 <script setup>
-import { useForm, usePage } from "@inertiajs/vue3";
 import { computed, onMounted, ref } from "vue";
 
 const armors = ref([]);
+const materials = ref({});
+
+/**
+ * FETCH ARMORS
+ */
 async function getArmors() {
-    let resp = await axios.get("/get-armors");
-    armors.value = resp.data.armors;
+    const resp = await axios.get("/get-armors");
+    armors.value = resp.data.armors || [];
 }
 
+/**
+ * FETCH MATERIALS
+ */
+async function getCraftingMaterials() {
+    const resp = await axios.get("/get-crafting-materials");
+
+    let data = resp.data || [];
+
+    // ALWAYS normalize to object map
+    const map = {};
+
+    data.forEach((row) => {
+        const level = Number(row.requirement_level);
+        map[`level_${level}`] = {
+            materials: row.materials || [],
+        };
+    });
+
+    materials.value = map;
+}
+
+/**
+ * SAFE LEVEL EXTRACTOR
+ */
+function getLevel(gear) {
+    return Number(gear.requirement_level ?? gear.level ?? 0);
+}
+
+/**
+ * CRAFT KEY (MATCH BACKEND)
+ */
+function getCraftKey(gear) {
+    return `level_${getLevel(gear)}`;
+}
+
+/**
+ * GROUP + ATTACH MATERIALS
+ */
 const groupedSets = computed(() => {
     const groups = {};
 
     armors.value.forEach((gear) => {
-        // "Ashen Helmet" => "Ashen"
         const setName = gear.name.split(" ")[0];
 
         if (!groups[setName]) {
-            groups[setName] = [];
+            groups[setName] = {
+                name: setName,
+                items: [],
+                materials: [],
+            };
         }
 
-        groups[setName].push(gear);
+        groups[setName].items.push(gear);
+    });
+
+    Object.values(groups).forEach((group) => {
+        const sample = group.items[0];
+        if (!sample) return;
+
+        const key = getCraftKey(sample);
+
+        console.log("KEY GENERATED:", key);
+        console.log("AVAILABLE KEYS:", Object.keys(materials.value));
+        console.log("MAT DATA:", materials.value?.[key]);
+
+        group.materials = materials.value?.[key]?.materials || [];
     });
 
     return groups;
 });
 
-onMounted(() => {
-    getArmors();
+/**
+ * INIT
+ */
+onMounted(async () => {
+    await getArmors();
+    await getCraftingMaterials();
 });
 </script>
 <template>
@@ -49,8 +111,8 @@ onMounted(() => {
             <div class="space-y-[4px]">
                 <!-- SET GROUP -->
                 <div
-                    v-for="(setItems, setName) in groupedSets"
-                    :key="setName"
+                    v-for="group in groupedSets"
+                    :key="group.name"
                     class="rounded-md border border-white/10 bg-black/20 p-[4px]"
                 >
                     <!-- HEADER -->
@@ -62,14 +124,14 @@ onMounted(() => {
                         </div>
 
                         <p class="text-[12px] text-white font-bold">
-                            {{ setName }} Set
+                            {{ group.name }} Set
                         </p>
                     </div>
 
                     <!-- GRID -->
                     <div class="grid grid-cols-12 gap-[3px] px-[2px] pb-[2px]">
                         <div
-                            v-for="gear in setItems"
+                            v-for="gear in group.items"
                             :key="gear.id"
                             class="relative group w-11 h-11 rounded-md border border-white/10 bg-black/40 flex items-center justify-center cursor-pointer hover:bg-blue-500/10"
                         >
@@ -116,6 +178,31 @@ onMounted(() => {
                                         ⚔ Evasion:
                                         {{ gear.basic_stats.evasion }}
                                     </p>
+                                    <div>
+                                        <p class="text-yellow-500">
+                                            Materials:
+                                        </p>
+                                        <div class="flex flex-wrap gap-2">
+                                            <div
+                                                v-for="mat in group.materials"
+                                                :key="mat.item"
+                                                class="flex flex-col items-center text-xs text-gray-300"
+                                            >
+                                                <!-- MATERIAL IMAGE -->
+                                                <img
+                                                    :src="`/materials/${mat.item}.png`"
+                                                    class="w-8 h-8 object-contain"
+                                                />
+
+                                                <!-- QUANTITY -->
+                                                <span
+                                                    class="text-yellow-300 text-[10px] font-semibold"
+                                                >
+                                                    x{{ mat.qty }}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
 
                                 <button

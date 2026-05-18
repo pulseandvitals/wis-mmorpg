@@ -47,7 +47,9 @@ class WorldMapController extends Controller
         $player = auth()->user()->player;
 
         if($map->level_requirement > $player->current_level) {
-            return redirect()->back();
+            return back()->withErrors([
+                'message' => 'Level not met.'
+            ]);
         };
 
         $this->saveMap($map->map_id);
@@ -115,7 +117,9 @@ class WorldMapController extends Controller
         $player = auth()->user()->player;
 
         if($map->level_requirement > $player->current_level) {
-            return redirect()->back();
+            return back()->withErrors([
+                'message' => 'Level not met.'
+            ]);
         };
 
         $this->saveMap($map->map_id);
@@ -149,7 +153,9 @@ class WorldMapController extends Controller
         $player = auth()->user()->player;
 
         if($map->level_requirement > $player->current_level) {
-            return redirect()->back();
+            return back()->withErrors([
+                'message' => 'Level not met.'
+            ]);
         };
 
         $this->saveMap($map->map_id);
@@ -182,7 +188,9 @@ class WorldMapController extends Controller
         $player = auth()->user()->player;
 
         if($map->level_requirement > $player->current_level) {
-            return redirect()->back();
+            return back()->withErrors([
+                'message' => 'Level not met.'
+            ]);
         };
 
         $this->saveMap($map->map_id);
@@ -217,7 +225,9 @@ class WorldMapController extends Controller
         $player = auth()->user()->player;
 
         if($map->level_requirement > $player->current_level) {
-            return redirect()->back();
+            return back()->withErrors([
+                'message' => 'Level not met.'
+            ]);
         };
 
         $this->saveMap($map->map_id);

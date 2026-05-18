@@ -511,7 +511,7 @@ function smoothMovePlayers(entity, targetX, targetY, callback = null) {
 }
 
 onMounted(() => {
-    window.addEventListener("keydown", handleKey);
+    // window.addEventListener("keydown", handleKey);
     moveMonsters();
     getPlayers();
     window.Echo.channel("world").listen(".player.moved", (e) => {

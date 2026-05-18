@@ -28,13 +28,20 @@ const props = defineProps({
             />
 
             <!-- HP BAR -->
-            <div class="hp-bar">
-                <div
-                    class="hp-fill"
-                    :style="{
-                        width: (p.current_health / p.max_health) * 100 + '%',
-                    }"
-                />
+            <div class="player-stats">
+                <!-- HP -->
+                <div class="stat-row">
+                    <div class="stat-bar hp-bar">
+                        <div
+                            class="stat-fill hp-fill"
+                            :style="{
+                                width:
+                                    (p.current_health / p.max_health) * 100 +
+                                    '%',
+                            }"
+                        />
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -72,17 +79,53 @@ const props = defineProps({
     background-color: rgb(0, 0, 0, 0.5);
 }
 
-/* HP BAR */
-.hp-bar {
+.player-stats {
+    position: absolute;
+    bottom: -20%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 90%;
+    max-width: 55px;
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    padding: 0.5px;
+    border: 1px solid #f1f1f1;
+}
+
+.stat-row {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+}
+
+.stat-bar {
     flex: 1;
     height: 5px;
     background: #f1f1f1;
     border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 0px;
     overflow: hidden;
 }
 
-.hp-fill {
+.stat-fill {
     height: 100%;
+    transition: width 0.2s ease;
+}
+
+.hp-bar {
+    border-color: #c0392b;
+}
+
+.hp-fill {
     background: linear-gradient(to right, #e74c3c, #c0392b);
+}
+
+.mp-bar {
+    border-color: #2980b9;
+}
+
+.mp-fill {
+    background: linear-gradient(to right, #3498db, #2980b9);
 }
 </style>

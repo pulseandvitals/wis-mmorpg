@@ -8,12 +8,21 @@ const messages = ref([]);
 const isSending = ref(false);
 const isLoading = ref(true);
 
+const chatBox = ref(null);
+
+function scrollToBottom() {
+    nextTick(() => {
+        if (!chatBox.value) return;
+
+        chatBox.value.scrollTop = chatBox.value.scrollHeight;
+    });
+}
+
 onMounted(async () => {
     getMessages();
     window.Echo.channel("world-chat").listen(".message.sent", (e) => {
-        console.log(e);
         messages.value.push(e);
-
+        scrollToBottom();
         if (messages.value.length > 30) {
             messages.value.shift();
         }
@@ -24,6 +33,7 @@ async function getMessages() {
     const res = await axios.get("/streams/get-world-chat");
     messages.value = res.data;
     isLoading.value = false;
+    scrollToBottom();
 }
 async function sendMessage() {
     if (!form.msg_value.trim() || isSending.value) return;
@@ -36,6 +46,7 @@ async function sendMessage() {
         });
 
         form.msg_value = ""; // clear input after send
+        scrollToBottom();
     } catch (err) {
         console.error(err);
     } finally {

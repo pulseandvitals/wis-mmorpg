@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Map;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 
 class MapController extends Controller
 {
@@ -11,6 +12,6 @@ class MapController extends Controller
     {
         return auth()->check()
             ? redirect(route('world.map',auth()->user()->player->current_map_id))
-            : redirect(route('Welcome'));
+            : Inertia::render('Welcome');
     }
 }

@@ -1,30 +1,79 @@
 <script setup>
-import { useForm, usePage } from "@inertiajs/vue3";
 import { computed, onMounted, ref } from "vue";
 
 const weapons = ref([]);
+const materials = ref({});
+/**
+ * UI STATE
+ */
+const weaponTabs = ["Sword", "Spear", "Bow", "Staff", "Dagger"];
+const selectedWeaponTab = ref("Sword");
 const selectedWeapon = ref(null);
+/**
+ * FETCH WEAPONS
+ */
 async function getWeapons() {
-    let resp = await axios.get("/get-weapons");
-    weapons.value = resp.data.weapons;
+    const resp = await axios.get("/get-weapons");
+    weapons.value = resp.data.weapons || [];
 }
 
-const weaponTabs = ["Sword", "Spear", "Bow", "Staff", "Dagger"];
+/**
+ * FETCH MATERIALS (SAME AS ARMOR STYLE)
+ */
+async function getCraftingMaterials() {
+    const resp = await axios.get("/get-crafting-materials");
 
-const selectedWeaponTab = ref("Sword");
+    let data = resp.data || [];
 
+    const map = {};
+
+    data.forEach((row) => {
+        const level = Number(row.requirement_level);
+
+        map[`level_${level}`] = {
+            materials: row.materials || [],
+        };
+    });
+
+    materials.value = map;
+}
+
+/**
+ * LEVEL KEY
+ */
+function getCraftKey(item) {
+    return `level_${item.requirement_level}`;
+}
+
+/**
+ * FILTER + ATTACH MATERIALS (ARMOR STYLE)
+ */
+const filteredWeapons = computed(() => {
+    return weapons.value
+        .filter((w) => getWeaponType(w.name) === selectedWeaponTab.value)
+        .map((weapon) => {
+            const key = getCraftKey(weapon);
+
+            return {
+                ...weapon,
+                materials: materials.value?.[key]?.materials || [],
+            };
+        });
+});
+/**
+ * WEAPON TYPE PARSER
+ */
 function getWeaponType(name) {
     const parts = name.split(" ");
-    return parts[parts.length - 1]; // last word = type
+    return parts[parts.length - 1]; // Sword / Bow / etc
 }
 
-const filteredWeapons = computed(() => {
-    return weapons.value.filter((w) => {
-        return getWeaponType(w.name) === selectedWeaponTab.value;
-    });
-});
-onMounted(() => {
-    getWeapons();
+/**
+ * INIT
+ */
+onMounted(async () => {
+    await getWeapons();
+    await getCraftingMaterials();
 });
 </script>
 <template>
@@ -94,18 +143,61 @@ onMounted(() => {
                             @blur="selectedWeapon = null"
                         >
                             <!-- LEFT -->
-                            <div class="flex items-center gap-4">
-                                <!-- ICON -->
-                                <img
-                                    :src="`/weapons/${weapon.name}.png`"
-                                    class="w-10 h-10 object-contain"
-                                />
+                            <div
+                                class="flex items-center justify-start w-full gap-4"
+                            >
+                                <!-- LEFT SIDE -->
+                                <div class="flex items-center gap-4 min-w-0">
+                                    <img
+                                        :src="`/weapons/${weapon.name}.png`"
+                                        class="w-10 h-10 object-contain flex-shrink-0"
+                                    />
 
-                                <!-- NAME -->
-                                <div>
-                                    <p class="text-white font-bold">
+                                    <p class="text-white font-bold truncate">
                                         {{ weapon.name }}
                                     </p>
+                                </div>
+
+                                <!-- RIGHT SIDE (FIXED ALIGNMENT) -->
+                                <div class="flex items-center">
+                                    <!-- TOOLTIP WRAPPER -->
+                                    <div class="relative group">
+                                        <button
+                                            class="px-3 py-1 text-xs rounded bg-white/10 text-white hover:bg-white/20 flex items-center gap-1"
+                                        >
+                                            📦 <span>Materials</span>
+                                        </button>
+
+                                        <!-- TOOLTIP -->
+                                        <div
+                                            class="absolute right-0 top-full mt-2 w-56 hidden group-hover:block bg-black/90 border border-white/10 rounded-lg p-3 z-50 shadow-xl"
+                                        >
+                                            <p
+                                                class="text-xs text-gray-400 mb-2"
+                                            >
+                                                Crafting Materials
+                                            </p>
+
+                                            <div class="space-y-2">
+                                                <div
+                                                    v-for="mat in weapon.materials"
+                                                    :key="mat.item"
+                                                    class="flex items-center gap-2 text-xs text-gray-300"
+                                                >
+                                                    <img
+                                                        :src="`/materials/${mat.item}.png`"
+                                                        class="w-5 h-5 object-contain"
+                                                    />
+
+                                                    <span>
+                                                        {{ mat.item }} x{{
+                                                            mat.qty
+                                                        }}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
 

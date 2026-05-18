@@ -1,4 +1,5 @@
 <script setup>
+import { pushAlert } from "@/Stores/GlobalAlert";
 import { useForm, usePage } from "@inertiajs/vue3";
 const props = defineProps({
     all_maps: Object,
@@ -11,6 +12,9 @@ const emit = defineEmits(["close"]);
 function goTo(map_id) {
     form.get(route("world.map", map_id), {
         onStart: () => emit("close"),
+        onError: (errors) => {
+            pushAlert(errors.message || "Level not met.", "error");
+        },
     });
 }
 </script>

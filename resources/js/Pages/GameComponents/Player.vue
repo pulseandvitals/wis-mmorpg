@@ -100,7 +100,6 @@ const props = defineProps({
     flex-direction: column;
     gap: 1px;
     padding: 0.5px;
-    border-radius: 3px;
     border: 1px solid #f1f1f1;
 }
 

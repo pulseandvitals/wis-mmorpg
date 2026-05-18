@@ -2,10 +2,7 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\URL;
 
 class MonsterSeeder extends Seeder
 {
@@ -14,69 +11,69 @@ class MonsterSeeder extends Seeder
      */
     public function run(): void
     {
-        $monsters = [
+        $baseMonsters = [
             [
                 'name' => 'Frost Revenant',
                 'map' => 'Valdora Grassland',
                 'element' => 'water',
                 'max_hp' => 50,
-                'skill' => json_encode(['name' => 'Frozen Soul Burst', 'damage' => 5]),
-                'drops' => json_encode([
-                    ['item' => 'Ice Crystal', 'chance' => 50],
-                    ['item' => 'Frozen Core', 'chance' => 20],
-                ]),
+                'skill' => ['name' => 'Frozen Soul Burst', 'damage' => 5],
+                'drops' => [
+                    ['item' => 'Ice Crystal', 'chance' => 12],
+                    ['item' => 'Frozen Core', 'chance' => 5],
+                ],
                 'exp' => 15
             ],
 
             [
                 'name' => 'Orc Warrior',
-                'element' => 'earth',
                 'map' => 'Valdora Grassland',
+                'element' => 'earth',
                 'max_hp' => 70,
-                'skill' => json_encode(['name' => 'War Cleave', 'damage' => 8]),
-                'drops' => json_encode([
-                    ['item' => 'Orc Axe', 'chance' => 30],
-                    ['item' => 'War Badge', 'chance' => 50],
-                ]),
+                'skill' => ['name' => 'War Cleave', 'damage' => 8],
+                'drops' => [
+                    ['item' => 'Orc Axe', 'chance' => 8],
+                    ['item' => 'War Badge', 'chance' => 10],
+                ],
                 'exp' => 18
             ],
 
             [
                 'name' => 'Rabitat',
-                'element' => 'wind',
                 'map' => 'Valdora Grassland',
+                'element' => 'wind',
                 'max_hp' => 60,
-                'skill' => json_encode(['name' => 'Feral Kick', 'damage' => 6]),
-                'drops' => json_encode([
-                    ['item' => 'Rabbit Fur', 'chance' => 70],
-                    ['item' => 'Small Meat', 'chance' => 30],
-                ]),
+                'skill' => ['name' => 'Feral Kick', 'damage' => 6],
+                'drops' => [
+                    ['item' => 'Rabbit Fur', 'chance' => 15],
+                    ['item' => 'Small Meat', 'chance' => 8],
+                ],
                 'exp' => 16
             ],
 
             [
                 'name' => 'Hellfire Behemoth',
-                'element' => 'fire',
                 'map' => 'Dark Forest',
+                'element' => 'fire',
                 'max_hp' => 130,
-                'skill' => json_encode(['name' => 'Inferno Collapse', 'damage' => 15]),
-                'drops' => json_encode([
-                    ['item' => 'Hell Core', 'chance' => 10],
-                    ['item' => 'Burning Gem', 'chance' => 25],
-                ]),
+                'skill' => ['name' => 'Inferno Collapse', 'damage' => 15],
+                'drops' => [
+                    ['item' => 'Hell Core', 'chance' => 3],
+                    ['item' => 'Burning Gem', 'chance' => 5],
+                ],
                 'exp' => 30
             ],
 
             [
                 'name' => 'Goblin Grunt',
-                'element' => 'earth',
                 'map' => 'Dark Forest',
+                'element' => 'earth',
                 'max_hp' => 140,
-                'skill' => json_encode(['name' => 'Rage Smash', 'damage' => 16]),
-                'drops' => json_encode([
-                    ['item' => 'Goblin Ear', 'chance' => 60],
-                    ['item' => 'Rusty Shield', 'chance' => 30],
-                ]),
+                'skill' => ['name' => 'Rage Smash', 'damage' => 16],
+                'drops' => [
+                    ['item' => 'Goblin Ear', 'chance' => 10],
+                    ['item' => 'Rusty Shield', 'chance' => 6],
+                ],
                 'exp' => 25
             ],
 
@@ -85,11 +82,11 @@ class MonsterSeeder extends Seeder
                 'map' => 'Dark Forest',
                 'element' => 'electric',
                 'max_hp' => 170,
-                'skill' => json_encode(['name' => 'Thunder Roar', 'damage' => 18]),
-                'drops' => json_encode([
-                    ['item' => 'Lightning Core', 'chance' => 15],
-                    ['item' => 'Dragon Scale', 'chance' => 30],
-                ]),
+                'skill' => ['name' => 'Thunder Roar', 'damage' => 18],
+                'drops' => [
+                    ['item' => 'Lightning Core', 'chance' => 3],
+                    ['item' => 'Dragon Scale', 'chance' => 6],
+                ],
                 'exp' => 27
             ],
 
@@ -98,11 +95,11 @@ class MonsterSeeder extends Seeder
                 'map' => 'Dark Forest',
                 'element' => 'wind',
                 'max_hp' => 140,
-                'skill' => json_encode(['name' => 'Rot Slam', 'damage' => 16]),
-                'drops' => json_encode([
-                    ['item' => 'Rot Flesh', 'chance' => 75],
-                    ['item' => 'Zombie Bone', 'chance' => 50],
-                ]),
+                'skill' => ['name' => 'Rot Slam', 'damage' => 16],
+                'drops' => [
+                    ['item' => 'Rot Flesh', 'chance' => 12],
+                    ['item' => 'Zombie Bone', 'chance' => 8],
+                ],
                 'exp' => 27
             ],
 
@@ -111,11 +108,11 @@ class MonsterSeeder extends Seeder
                 'map' => 'Crystal Cave',
                 'element' => 'wind',
                 'max_hp' => 215,
-                'skill' => json_encode(['name' => 'Shadow Execution', 'damage' => 22]),
-                'drops' => json_encode([
-                    ['item' => 'Dark Cloth', 'chance' => 70],
-                    ['item' => 'Shadow Dagger', 'chance' => 20],
-                ]),
+                'skill' => ['name' => 'Shadow Execution', 'damage' => 22],
+                'drops' => [
+                    ['item' => 'Dark Cloth', 'chance' => 6],
+                    ['item' => 'Shadow Dagger', 'chance' => 2],
+                ],
                 'exp' => 55
             ],
 
@@ -124,11 +121,11 @@ class MonsterSeeder extends Seeder
                 'map' => 'Crystal Cave',
                 'element' => 'electric',
                 'max_hp' => 225,
-                'skill' => json_encode(['name' => 'Storm Charge', 'damage' => 30]),
-                'drops' => json_encode([
-                    ['item' => 'Horn Fragment', 'chance' => 40],
-                    ['item' => 'Storm Essence', 'chance' => 20],
-                ]),
+                'skill' => ['name' => 'Storm Charge', 'damage' => 30],
+                'drops' => [
+                    ['item' => 'Horn Fragment', 'chance' => 5],
+                    ['item' => 'Storm Essence', 'chance' => 2],
+                ],
                 'exp' => 60
             ],
 
@@ -137,11 +134,11 @@ class MonsterSeeder extends Seeder
                 'map' => 'Crystal Cave',
                 'element' => 'fire',
                 'max_hp' => 260,
-                'skill' => json_encode(['name' => 'Lizard Flame Bite', 'damage' => 40]),
-                'drops' => json_encode([
-                    ['item' => 'Lizard Scale', 'chance' => 65],
-                    ['item' => 'Fire Sac', 'chance' => 30],
-                ]),
+                'skill' => ['name' => 'Lizard Flame Bite', 'damage' => 40],
+                'drops' => [
+                    ['item' => 'Lizard Scale', 'chance' => 8],
+                    ['item' => 'Fire Sac', 'chance' => 4],
+                ],
                 'exp' => 70
             ],
 
@@ -150,11 +147,11 @@ class MonsterSeeder extends Seeder
                 'map' => 'Crystal Cave',
                 'element' => 'earth',
                 'max_hp' => 200,
-                'skill' => json_encode(['name' => 'Frenzy Charge', 'damage' => 38]),
-                'drops' => json_encode([
-                    ['item' => 'Boar Tusks', 'chance' => 55],
-                    ['item' => 'Wild Meat', 'chance' => 70],
-                ]),
+                'skill' => ['name' => 'Frenzy Charge', 'damage' => 38],
+                'drops' => [
+                    ['item' => 'Boar Tusks', 'chance' => 7],
+                    ['item' => 'Wild Meat', 'chance' => 10],
+                ],
                 'exp' => 65
             ],
 
@@ -163,11 +160,11 @@ class MonsterSeeder extends Seeder
                 'map' => 'Sky Islands',
                 'element' => 'electric',
                 'max_hp' => 360,
-                'skill' => json_encode(['name' => 'Chaos Ram', 'damage' => 76]),
-                'drops' => json_encode([
-                    ['item' => 'Mutant Wool', 'chance' => 60],
-                    ['item' => 'Strange Meat', 'chance' => 35],
-                ]),
+                'skill' => ['name' => 'Chaos Ram', 'damage' => 76],
+                'drops' => [
+                    ['item' => 'Mutant Wool', 'chance' => 6],
+                    ['item' => 'Strange Meat', 'chance' => 4],
+                ],
                 'exp' => 110
             ],
 
@@ -176,11 +173,11 @@ class MonsterSeeder extends Seeder
                 'map' => 'Sky Islands',
                 'element' => 'water',
                 'max_hp' => 360,
-                'skill' => json_encode(['name' => 'Blood Bite', 'damage' => 65]),
-                'drops' => json_encode([
-                    ['item' => 'Vampire Fang', 'chance' => 20],
-                    ['item' => 'Blood Crystal', 'chance' => 25],
-                ]),
+                'skill' => ['name' => 'Blood Bite', 'damage' => 65],
+                'drops' => [
+                    ['item' => 'Vampire Fang', 'chance' => 3],
+                    ['item' => 'Blood Crystal', 'chance' => 4],
+                ],
                 'exp' => 100
             ],
 
@@ -189,11 +186,11 @@ class MonsterSeeder extends Seeder
                 'map' => 'Sky Islands',
                 'element' => 'fire',
                 'max_hp' => 370,
-                'skill' => json_encode(['name' => 'Flame Rush', 'damage' => 70]),
-                'drops' => json_encode([
-                    ['item' => 'Burnt Meat', 'chance' => 80],
-                    ['item' => 'Ember Core', 'chance' => 30],
-                ]),
+                'skill' => ['name' => 'Flame Rush', 'damage' => 70],
+                'drops' => [
+                    ['item' => 'Burnt Meat', 'chance' => 10],
+                    ['item' => 'Ember Core', 'chance' => 5],
+                ],
                 'exp' => 110
             ],
 
@@ -202,11 +199,11 @@ class MonsterSeeder extends Seeder
                 'map' => 'Sky Islands',
                 'element' => 'wind',
                 'max_hp' => 390,
-                'skill' => json_encode(['name' => 'Scaleborn Apocalypse', 'damage' => 85]),
-                'drops' => json_encode([
-                    ['item' => 'Ancient Scale', 'chance' => 10],
-                    ['item' => 'Dragon Heart', 'chance' => 5],
-                ]),
+                'skill' => ['name' => 'Scaleborn Apocalypse', 'damage' => 85],
+                'drops' => [
+                    ['item' => 'Ancient Scale', 'chance' => 1],
+                    ['item' => 'Dragon Heart', 'chance' => 0.5],
+                ],
                 'exp' => 130
             ],
 
@@ -215,15 +212,56 @@ class MonsterSeeder extends Seeder
                 'map' => 'Sky Islands',
                 'element' => 'wind',
                 'max_hp' => 410,
-                'skill' => json_encode(['name' => 'Moon Hunt', 'damage' => 73]),
-                'drops' => json_encode([
-                    ['item' => 'Wolf Pelt', 'chance' => 70],
-                    ['item' => 'Sharp Fang', 'chance' => 45],
-                ]),
+                'skill' => ['name' => 'Moon Hunt', 'damage' => 73],
+                'drops' => [
+                    ['item' => 'Wolf Pelt', 'chance' => 12],
+                    ['item' => 'Sharp Fang', 'chance' => 8],
+                ],
                 'exp' => 120
             ],
         ];
 
-        DB::table('monsters')->insert($monsters);
+        /* =========================================================
+        🔁 AUTO GENERATE UNDERGROUND (NO MANUAL DUPLICATION)
+        ========================================================= */
+
+        $monsters = [];
+
+        foreach ($baseMonsters as $m) {
+
+            // SURFACE
+            $m['skill'] = json_encode($m['skill']);
+            $m['drops'] = json_encode(array_merge($m['drops'], [
+                ['item' => 'Celebeam Gem', 'chance' => 2],
+                ['item' => 'Seleri Gem', 'chance' => 4],
+            ]));
+
+            $monsters[] = $m;
+
+            // UNDERGROUND COPY
+            $u = $m;
+
+            $u['name'] .= ' (Elite)';
+            $u['map'] .= ' Underground';
+            $u['max_hp'] = (int)($m['max_hp'] * 1.8);
+
+            $skill = json_decode($m['skill'], true);
+            $skill['damage'] = (int)($skill['damage'] * 1.6);
+            $skill['name'] .= '+';
+
+            $u['skill'] = json_encode($skill);
+
+            $drops = json_decode($m['drops'], true);
+
+            foreach ($drops as &$d) {
+                $d['chance'] = max(1, (int)($d['chance'] / 3));
+            }
+
+            $u['drops'] = json_encode($drops);
+
+            $u['exp'] = (int)($m['exp'] * 2);
+
+            $monsters[] = $u;
+        }
     }
 }

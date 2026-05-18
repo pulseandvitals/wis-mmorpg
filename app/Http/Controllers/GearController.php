@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\GearResource;
+use App\Models\CraftingMaterial;
 use App\Models\Gear;
 use Illuminate\Http\Request;
 
@@ -32,5 +33,15 @@ class GearController extends Controller
             'status' => 'success',
             'armors' => GearResource::collection($armors)
         ]);
+    }
+
+    public function getCraftingMaterials()
+    {
+        return CraftingMaterial::all()->map(function ($row) {
+            return [
+                'requirement_level' => $row->requirement_level,
+                'materials' => json_decode($row->materials, true),
+            ];
+        });
     }
 }
