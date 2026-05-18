@@ -11,10 +11,13 @@ class InventoryController extends Controller
     public function openInventory()
     {
         $player = auth()->user()->player;
+        $inventory = $player->inventory()
+            ->with(['gear', 'material'])
+            ->get();
 
         return response()->json([
             'status' => 'success',
-            'inventory' => InventoryResource::collection($player->inventory)
+            'inventory' => InventoryResource::collection($inventory)
         ]);
     }
 }

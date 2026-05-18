@@ -18,4 +18,24 @@ class Inventory extends Model
     {
         return $this->belongsTo(Material::class, 'item_id');
     }
+
+    public function getItemData()
+    {
+        return match ($this->item_type) {
+            'gear' => $this->gear,
+            'material' => $this->material,
+            'potion' => $this->potion,
+            default => null,
+        };
+    }
+
+    public function gear()
+    {
+        return $this->belongsTo(Gear::class, 'item_id');
+    }
+
+    public function material()
+    {
+        return $this->belongsTo(Material::class, 'item_id');
+    }
 }

@@ -21,7 +21,7 @@ class InventoryResource extends JsonResource
             'quantity' => $this->quantity,
             'random_stat' => $this->random_stat,
             'is_equipped' => $this->is_equipped,
-            'item' => $this->item,
+            'item' => $this->getItemData(),
         ];
     }
 }

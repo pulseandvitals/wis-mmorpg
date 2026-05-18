@@ -34,7 +34,7 @@
                                     class="w-12 h-12 mx-auto rounded bg-gray-900 border border-gray-600 flex items-center justify-center text-xl"
                                 >
                                     <img
-                                        :src="`/materials/${item.item.name}.png`"
+                                        :src="`/${item.item_type}s/${item.item.name}.png`"
                                     />
                                 </div>
 

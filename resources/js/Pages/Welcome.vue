@@ -6,7 +6,50 @@ const hoveredClass = ref(null);
 </script>
 
 <template>
-    <Head title="Elfaria - Epic MMORPG Adventure" />
+    <Head>
+        <title>
+            Wis Online - Free MMORPG Browser Game | Fantasy Online RPG
+        </title>
+
+        <meta
+            name="description"
+            content="Play Wis Online, a free MMORPG browser game. Explore a vast fantasy world, battle monsters, complete quests, join PvP fights, and level up your hero online."
+        />
+
+        <meta
+            name="keywords"
+            content="wis online, mmorpg browser game, free mmorpg, online rpg, fantasy browser game, 2d mmorpg, multiplayer rpg, free online rpg game"
+        />
+
+        <meta name="robots" content="index, follow" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+        <link rel="canonical" href="https://yourdomain.com" />
+
+        <!-- Open Graph -->
+        <meta
+            property="og:title"
+            content="Wis Online - Free MMORPG Browser Game"
+        />
+        <meta
+            property="og:description"
+            content="Join Wis Online, a free MMORPG browser game with dungeons, PvP battles, quests, and endless progression."
+        />
+        <meta property="og:type" content="website" />
+
+        <!-- Game Schema -->
+        <script type="application/ld+json">
+            {
+                "@context": "https://schema.org",
+                "@type": "VideoGame",
+                "name": "Wis Online",
+                "description": "Free MMORPG browser game with PvP, quests, dungeons, and class-based progression.",
+                "genre": ["MMORPG", "Fantasy", "RPG", "Browser Game"],
+                "gamePlatform": "Web Browser",
+                "applicationCategory": "Game"
+            }
+        </script>
+    </Head>
 
     <body
         class="bg-gradient-to-b from-[#0a0e27] via-[#1a1f3a] to-[#0a0e27] text-white overflow-x-hidden"

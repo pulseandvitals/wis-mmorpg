@@ -1,6 +1,6 @@
 <script setup>
 import { computed, onMounted, ref } from "vue";
-
+import { pushAlert } from "@/Stores/GlobalAlert";
 const armors = ref([]);
 const materials = ref({});
 
@@ -78,6 +78,29 @@ const groupedSets = computed(() => {
     return groups;
 });
 
+async function craftGear(gear) {
+    try {
+        // optional: show loading state
+        pushAlert("Crafting gear...", "info");
+
+        const res = await axios.post("/craft-gear", {
+            gear: gear,
+        });
+
+        // success callback
+        pushAlert(res.data.message || "Gear crafted successfully!", "success");
+
+        return res.data;
+    } catch (error) {
+        // error callback
+        pushAlert(
+            error.response?.data?.message || "Failed to craft gear.",
+            "error",
+        );
+
+        console.error("Craft Gear Error:", error);
+    }
+}
 /**
  * INIT
  */
@@ -120,6 +143,9 @@ onMounted(async () => {
 
                         <p class="text-[12px] text-white font-bold">
                             {{ group.name }} Set
+                        </p>
+                        <p class="text-[12px] text-orange-500">
+                            (With chance for extra stats)
                         </p>
                     </div>
 

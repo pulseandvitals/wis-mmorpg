@@ -1,13 +1,5 @@
 <script setup>
-import {
-    reactive,
-    computed,
-    onMounted,
-    ref,
-    watch,
-    onBeforeUnmount,
-    onUnmounted,
-} from "vue";
+import { reactive, computed, onMounted, ref, watch } from "vue";
 import PlayerStat from "./GameComponents/PlayerStat.vue";
 import PlayerSkill from "./GameComponents/PlayerSkill.vue";
 import WorldChat from "./GameComponents/WorldChat.vue";
@@ -18,6 +10,7 @@ import TownSquareNPC from "./GameComponents/Npc/TownSquareNPC.vue";
 import { Head, usePage } from "@inertiajs/vue3";
 import GameLayout from "@/Layouts/GameLayout.vue";
 import Players from "./GameComponents/Players.vue";
+import Portal from "./GameComponents/Portal.vue";
 
 const props = defineProps({
     playerData: Object,

@@ -1,6 +1,6 @@
 <script setup>
 import { computed, onMounted, ref } from "vue";
-
+import { pushAlert } from "@/Stores/GlobalAlert";
 const weapons = ref([]);
 const materials = ref({});
 /**
@@ -68,6 +68,28 @@ function getWeaponType(name) {
     return parts[parts.length - 1]; // Sword / Bow / etc
 }
 
+async function craftGear(gear) {
+    try {
+        // optional: show loading state
+        pushAlert("Crafting gear...", "info");
+
+        const res = await axios.post("/craft-gear", {
+            gear: gear,
+        });
+
+        // success callback
+        pushAlert(res.data.message || "Gear crafted successfully!", "success");
+        return res.data;
+    } catch (error) {
+        // error callback
+        pushAlert(
+            error.response?.data?.message || "Failed to craft gear.",
+            "error",
+        );
+
+        console.error("Craft Gear Error:", error);
+    }
+}
 /**
  * INIT
  */
@@ -205,7 +227,7 @@ onMounted(async () => {
                             <div class="text-right">
                                 <button
                                     class="px-4 py-2 text-xs font-bold rounded-lg border border-green-400/30 bg-green-500/10 text-green-300 hover:bg-green-500/20 hover:border-green-400/60 transition"
-                                    @click="craftWeapon(weapon)"
+                                    @click="craftGear(weapon)"
                                 >
                                     Craft
                                 </button>

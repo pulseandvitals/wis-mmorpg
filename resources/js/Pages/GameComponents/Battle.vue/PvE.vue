@@ -99,7 +99,7 @@ function openBattle(monster) {
             hp: randomHp,
             maxHp: randomHp,
             attack: monster.skill.damage,
-            eva: randomEva(5, 10),
+            eva: randomEva(3, 6),
             skill_name: monster.skill.name,
             element: monster.element,
             drops: monster.drops,
@@ -481,7 +481,7 @@ function randomEva(min, max) {
                     <div class="player-wrapper">
                         <img
                             :src="
-                                player.hp <= 0
+                                player.current_health <= 0
                                     ? player.dead_gif
                                     : isAttacking
                                       ? player.attack_gif

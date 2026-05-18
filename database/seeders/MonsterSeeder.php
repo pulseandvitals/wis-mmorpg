@@ -53,6 +53,19 @@ class MonsterSeeder extends Seeder
             ],
 
             [
+                'name' => 'Cryptshade Walker',
+                'map' => 'Valdora Grassland',
+                'element' => 'fire',
+                'max_hp' => 60,
+                'skill' => ['name' => 'Feral Kick', 'damage' => 12],
+                'drops' => [
+                    ['item' => 'Rabbit Fur', 'chance' => 15],
+                    ['item' => 'Small Meat', 'chance' => 8],
+                ],
+                'exp' => 18
+            ],
+
+            [
                 'name' => 'Hellfire Behemoth',
                 'map' => 'Dark Forest',
                 'element' => 'fire',
@@ -98,10 +111,23 @@ class MonsterSeeder extends Seeder
                 'max_hp' => 140,
                 'skill' => ['name' => 'Rot Slam', 'damage' => 16],
                 'drops' => [
-                    ['item' => 'Rot Flesh', 'chance' => 12],
+                    ['item' => 'Rot Flesh', 'chance' => 10],
                     ['item' => 'Zombie Bone', 'chance' => 8],
                 ],
                 'exp' => 27
+            ],
+
+            [
+                'name' => 'Venomspine Lurker',
+                'map' => 'Dark Forest',
+                'element' => 'wind',
+                'max_hp' => 160,
+                'skill' => ['name' => 'Rot Slam', 'damage' => 18],
+                'drops' => [
+                    ['item' => 'Rot Flesh', 'chance' => 10],
+                    ['item' => 'Zombie Bone', 'chance' => 8],
+                ],
+                'exp' => 30
             ],
 
             [
@@ -157,8 +183,21 @@ class MonsterSeeder extends Seeder
             ],
 
             [
+                'name' => 'Holloweye Warden',
+                'map' => 'Crystal Cave',
+                'element' => 'water',
+                'max_hp' => 220,
+                'skill' => ['name' => 'Frenzy Charge', 'damage' => 40],
+                'drops' => [
+                    ['item' => 'Boar Tusks', 'chance' => 7],
+                    ['item' => 'Wild Meat', 'chance' => 10],
+                ],
+                'exp' => 75
+            ],
+
+            [
                 'name' => 'Mutant Sheep',
-                'map' => 'Sky Islands',
+                'map' => 'Volcanic Wasteland',
                 'element' => 'electric',
                 'max_hp' => 360,
                 'skill' => ['name' => 'Chaos Ram', 'damage' => 76],
@@ -171,7 +210,7 @@ class MonsterSeeder extends Seeder
 
             [
                 'name' => 'Blood Fang',
-                'map' => 'Sky Islands',
+                'map' => 'Volcanic Wasteland',
                 'element' => 'water',
                 'max_hp' => 360,
                 'skill' => ['name' => 'Blood Bite', 'damage' => 65],
@@ -184,7 +223,7 @@ class MonsterSeeder extends Seeder
 
             [
                 'name' => 'Ember Hog',
-                'map' => 'Sky Islands',
+                'map' => 'Volcanic Wasteland',
                 'element' => 'fire',
                 'max_hp' => 370,
                 'skill' => ['name' => 'Flame Rush', 'damage' => 70],
@@ -197,7 +236,7 @@ class MonsterSeeder extends Seeder
 
             [
                 'name' => 'Zyrath Scaleborn',
-                'map' => 'Sky Islands',
+                'map' => 'Volcanic Wasteland',
                 'element' => 'wind',
                 'max_hp' => 390,
                 'skill' => ['name' => 'Scaleborn Apocalypse', 'damage' => 85],
@@ -210,7 +249,7 @@ class MonsterSeeder extends Seeder
 
             [
                 'name' => 'Dire Wolf',
-                'map' => 'Sky Islands',
+                'map' => 'Volcanic Wasteland',
                 'element' => 'wind',
                 'max_hp' => 410,
                 'skill' => ['name' => 'Moon Hunt', 'damage' => 73],
@@ -219,6 +258,58 @@ class MonsterSeeder extends Seeder
                     ['item' => 'Sharp Fang', 'chance' => 8],
                 ],
                 'exp' => 120
+            ],
+
+            [
+                'name' => 'Nightveil Serpent',
+                'map' => 'Volcanic Wasteland',
+                'element' => 'water',
+                'max_hp' => 410,
+                'skill' => ['name' => 'Moon Hunt', 'damage' => 75],
+                'drops' => [
+                    ['item' => 'Wolf Pelt', 'chance' => 12],
+                    ['item' => 'Sharp Fang', 'chance' => 8],
+                ],
+                'exp' => 150
+            ],
+
+
+            [
+                'name' => 'Frostbite Revenant',
+                'map' => 'Sky Islands',
+                'element' => 'water',
+                'max_hp' => 510,
+                'skill' => ['name' => 'Moon Hunt', 'damage' => 110],
+                'drops' => [
+                    ['item' => 'Ancient Scale', 'chance' => 3],
+                    ['item' => 'Dragon Heart', 'chance' => 2],
+                ],
+                'exp' => 250
+            ],
+            [
+                'name' => 'Doomclaw Titan',
+                'map' => 'Sky Islands',
+                'element' => 'water',
+                'max_hp' => 540,
+                'skill' => ['name' => 'Moon Hunt', 'damage' => 130],
+                'drops' => [
+                    ['item' => 'Ancient Scale', 'chance' => 3],
+                    ['item' => 'Dragon Heart', 'chance' => 2],
+                ],
+                'exp' => 260
+            ],
+
+            [
+                'name' => 'Grimscale Devourer',
+                'map' => 'Sky Islands',
+                'element' => 'water',
+                'max_hp' => 550,
+                'skill' => ['name' => 'Moon Hunt', 'damage' => 150],
+                'drops' => [
+                    ['item' => 'Ancient Scale', 'chance' => 3],
+                    ['item' => 'Dragon Heart', 'chance' => 2],
+                ],
+                'exp' => 280
             ],
         ];
 
@@ -233,8 +324,8 @@ class MonsterSeeder extends Seeder
             // SURFACE
             $m['skill'] = json_encode($m['skill']);
             $m['drops'] = json_encode(array_merge($m['drops'], [
-                ['item' => 'Celebeam Gem', 'chance' => 2],
-                ['item' => 'Seleri Gem', 'chance' => 4],
+                ['item' => 'Celebeam Gem', 'chance' => 0.5],
+                ['item' => 'Seleri Gem', 'chance' => 0.8],
             ]));
 
             $monsters[] = $m;

@@ -30,7 +30,7 @@ class MapSeeder extends Seeder
                 'level_requirement' => 1,
             ],
             [
-                'name' => 'Valdora Underground',
+                'name' => 'Valdora Grassland Underground',
                 'description' => 'A peaceful grassland filled with lush greenery and gentle streams.',
                 'map_id' => random_int(10000000, 99999999),
                 'is_safe_zone' => true,
