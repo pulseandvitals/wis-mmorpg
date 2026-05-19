@@ -176,28 +176,42 @@ function handleMouseMove(e) {
     hoverTile.blocked = isBlocked(x, y);
 }
 function handleMapClick(e) {
-    const rect = e.currentTarget.getBoundingClientRect();
+    const mapElement = e.currentTarget;
+    const rect = mapElement.getBoundingClientRect();
 
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
+    const actualWidth = mapWidth * tileSize;
+    const actualHeight = mapHeight * tileSize;
+    const scaleX = rect.width / actualWidth;
+    const scaleY = rect.height / actualHeight;
 
-    const targetX = Math.floor(x / tileSize);
-    const targetY = Math.floor(y / tileSize);
+    const adjustedX = (e.clientX - rect.left) / scaleX;
+    const adjustedY = (e.clientY - rect.top) / scaleY;
 
+    const targetX = Math.floor(adjustedX / tileSize);
+    const targetY = Math.floor(adjustedY / tileSize);
+
+    if (
+        targetX < 0 ||
+        targetX >= mapWidth ||
+        targetY < 0 ||
+        targetY >= mapHeight
+    )
+        return;
     if (isBlocked(targetX, targetY)) return;
 
+    // Gaya ng moveToMonster - i-clear ang queue at gumawa ng bagong path
     moveQueue.length = 0;
 
-    let x1 = player.x;
-    let y1 = player.y;
+    let x = player.x;
+    let y = player.y;
 
-    while (x1 !== targetX || y1 !== targetY) {
-        if (x1 < targetX) x1++;
-        else if (x1 > targetX) x1--;
-        else if (y1 < targetY) y1++;
-        else if (y1 > targetY) y1--;
+    while (x !== targetX || y !== targetY) {
+        if (x < targetX) x++;
+        else if (x > targetX) x--;
+        else if (y < targetY) y++;
+        else if (y > targetY) y--;
 
-        moveQueue.push({ x: x1, y: y1 });
+        moveQueue.push({ x, y });
     }
 
     processQueue();
@@ -207,7 +221,7 @@ function processQueue(onFinish = null) {
     if (player.moving) return;
 
     if (moveQueue.length === 0) {
-        onFinish?.(); // ✅ ALWAYS trigger when empty
+        onFinish?.();
         return;
     }
 
@@ -226,10 +240,9 @@ function processQueue(onFinish = null) {
     smoothMove(player, next.x * tileSize, next.y * tileSize, () => {
         player.x = next.x;
         player.y = next.y;
-
         player.moving = false;
         updatePlayerMovement(player.x, player.y, player.direction, false);
-        processQueue(onFinish); // ✅ IMPORTANT: keep passing callback
+        processQueue(onFinish);
     });
 }
 
@@ -242,27 +255,20 @@ function isBlocked(x, y) {
 }
 
 function smoothMove(entity, targetX, targetY, callback = null) {
-    const speed = 2.5; // pixels per frame (lower = smoother, slower)
-    if (document.hidden) {
-        requestAnimationFrame(animate);
-        return;
-    }
+    const speed = 2.5; // same speed ng monster movement
+
     function animate() {
         const dx = targetX - entity.renderX;
         const dy = targetY - entity.renderY;
-
         const distance = Math.sqrt(dx * dx + dy * dy);
 
-        // stop condition
         if (distance <= speed) {
             entity.renderX = targetX;
             entity.renderY = targetY;
-
             callback?.();
             return;
         }
 
-        // normalize direction (prevents diagonal “skating” speed boost)
         const nx = dx / distance;
         const ny = dy / distance;
 
@@ -650,6 +656,10 @@ watch(
 .tile {
     position: absolute;
     box-sizing: border-box;
+    pointer-events: none;
+    box-sizing: border-box;
+    border: 1px solid rgba(255, 255, 255, 0.03);
+    color: red;
 }
 .game-map {
     position: relative;
@@ -659,18 +669,13 @@ watch(
 
     border: 4px solid #374151;
     overflow: hidden;
-
+    cursor:
+        url("/move-cursor.ani") 16 16,
+        pointer;
     image-rendering: pixelated;
-    cursor: pointer;
 }
 .game-map.blocked {
     cursor: not-allowed;
-}
-
-/* COLLISION DEBUG */
-.tile {
-    box-sizing: border-box;
-    border: 1px solid rgba(255, 255, 255, 0.03);
 }
 
 .wall {

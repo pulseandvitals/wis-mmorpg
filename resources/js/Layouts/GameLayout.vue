@@ -111,7 +111,9 @@ canvas {
     display: flex;
     justify-content: center;
     align-items: center;
-
+    cursor:
+        url("/move-cursor.ani") 16 16,
+        pointer;
     background: #111827;
     overflow: hidden;
 }

@@ -130,5 +130,8 @@ function selectMonster(monster) {
 .monster:hover .monster-sprite {
     filter: drop-shadow(0 0 6px rgba(255, 0, 0, 0.9));
     transform: scale(1.08);
+    cursor:
+        url("/attack-cursor.cur") 16 16,
+        crosshair;
 }
 </style>
