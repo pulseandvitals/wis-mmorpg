@@ -176,8 +176,8 @@ async function leaveRoom() {
     pushAlert("You leave a party", "warning");
 }
 
-onMounted(() => {
-    getMyRoom();
+onMounted(async () => {
+    await getMyRoom(); // 1. load data first
 });
 </script>
 

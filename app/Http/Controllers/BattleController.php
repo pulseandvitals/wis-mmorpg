@@ -111,6 +111,7 @@ class BattleController extends Controller
                     $memberPlayer->save();
 
                     broadcast(new PartySharedReward([
+                        'room_id' => $room->id,
                         'player_id' => $memberPlayer->id,
                         'exp' => $sharedExp,
                         'gold' => $sharedGold,

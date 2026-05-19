@@ -97,10 +97,6 @@ const npc = computed(() => npcData[currentNpc.value]);
 function openNpc(key) {
     currentNpc.value = key;
     switch (key) {
-        case "portal":
-            isPortalOpen.value = true;
-            break;
-
         case "blacksmith":
             isBlacksmithOpen.value = true;
             break;

@@ -12,6 +12,7 @@ import GameLayout from "@/Layouts/GameLayout.vue";
 import Players from "./GameComponents/Players.vue";
 import Portal from "./GameComponents/Portal.vue";
 import { pushAlert } from "@/Stores/GlobalAlert";
+import PartyList from "./GameComponents/Npc/PartyList.vue";
 
 const props = defineProps({
     playerData: Object,
@@ -406,6 +407,8 @@ async function getPlayers() {
         targetX: p.x * tileSize,
         targetY: p.y * tileSize,
         walking: false,
+        current_experience: p.current_experience,
+        current_gold: p.current_gold,
     }));
 }
 
@@ -542,11 +545,13 @@ const undergroundMap = computed(() => {
         ) || null
     );
 });
+
 const portalPositions = {
     "Valdora Grassland Underground": { x: 750, y: 380 },
     "Dark Forest Underground": { x: 1100, y: 140 },
     "Crystal Cave Underground": { x: 800, y: 80 },
     "Volcanic Wasteland Underground": { x: 940, y: 60 },
+    "Sky Islands Underground": { x: 1100, y: 190 },
 };
 const getPortalPosition = (mapName) => {
     return portalPositions[mapName] || { x: 100, y: 100 };
@@ -580,6 +585,19 @@ watch(
                 cursor: hoverBlocked.value ? 'not-allowed' : 'pointer',
             }"
         >
+            <div class="weather-layer">
+                <span
+                    v-for="i in 40"
+                    :key="i"
+                    class="sparkle"
+                    :style="{
+                        left: Math.random() * 100 + '%',
+                        top: Math.random() * 100 + '%',
+                        animationDelay: Math.random() * 5 + 's',
+                        animationDuration: 3 + Math.random() * 5 + 's',
+                    }"
+                ></span>
+            </div>
             <!-- COLLISION DEBUG (OPTIONAL) -->
             <!-- <div
                 v-for="(tile, index) in flatMap"
@@ -609,6 +627,7 @@ watch(
             <!-- HUD COMPONENTS -->
             <Menu :classSkills="classSkills.data" :all_maps="filteredMaps" />
             <PlayerStat :player="player" />
+            <PartyList :players="players" />
             <TownSquareNPC
                 v-if="current_map.name === 'Town Square'"
                 :all_maps="filteredMaps"
@@ -655,5 +674,77 @@ watch(
 
 .wall {
     background: rgba(255, 0, 0, 0.2);
+}
+
+/* =========================
+   WEATHER LAYER
+========================= */
+
+.weather-layer {
+    position: absolute;
+    inset: 0;
+
+    overflow: hidden;
+    pointer-events: none;
+}
+
+/* =========================
+   MAGIC SPARKLES
+========================= */
+
+.sparkle {
+    position: absolute;
+
+    width: 4px;
+    height: 4px;
+
+    border-radius: 999px;
+
+    background: white;
+
+    box-shadow:
+        0 0 6px rgba(255, 255, 255, 0.9),
+        0 0 12px rgba(168, 85, 247, 0.8),
+        0 0 20px rgba(34, 211, 238, 0.7);
+
+    opacity: 0;
+
+    animation: glitterFloat linear infinite;
+}
+
+/* random size variation */
+.sparkle:nth-child(3n) {
+    width: 2px;
+    height: 2px;
+}
+
+.sparkle:nth-child(5n) {
+    width: 6px;
+    height: 6px;
+}
+
+/* =========================
+   FLOATING GLITTER MOTION
+========================= */
+
+@keyframes glitterFloat {
+    0% {
+        transform: translateY(20px) scale(0.6);
+        opacity: 0;
+    }
+
+    15% {
+        opacity: 1;
+    }
+
+    50% {
+        transform: translateY(-40px) translateX(10px) scale(1);
+        opacity: 0.9;
+    }
+
+    100% {
+        transform: translateY(-100px) translateX(-10px) scale(0.4);
+        opacity: 0;
+    }
 }
 </style>

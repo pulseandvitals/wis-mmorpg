@@ -58,11 +58,18 @@ class PlayerController extends Controller
             'x',
             'y',
             'direction',
-            'class_type'
+            'class_type',
+            'current_experience',
+            'current_gold',
         )->where('id', '!=', auth()->user()->player->id)
         ->where('current_map_id','=',auth()->user()->player->current_map_id)
         ->get();
 
         return response()->json($players);
+    }
+
+    public function getActivePlayer()
+    {
+
     }
 }
