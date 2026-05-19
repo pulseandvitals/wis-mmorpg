@@ -1,4 +1,5 @@
 <script setup>
+import { pushAlert } from "@/Stores/GlobalAlert";
 import { useForm, usePage } from "@inertiajs/vue3";
 import { onMounted, ref } from "vue";
 const props = defineProps({
@@ -10,6 +11,18 @@ const dialogues = [
     "But power has a price. Nothing here is free.",
     "Bring me rare materials… and I shall upgrade your gear.",
 ];
+
+async function upgradeGear() {
+    try {
+        let res = await axios.post("/upgrade-gear", {
+            gear: selectedGear.value,
+        });
+        pushAlert(res.data.message, "success");
+        res = res.data;
+    } catch (e) {
+        pushAlert(e.response?.data?.message, "error");
+    }
+}
 </script>
 <template>
     <div class="npc-modal">
@@ -77,7 +90,7 @@ const dialogues = [
                             <option value="armor">Armor</option>
                             <option value="boots">Boots</option>
                             <option value="accessory">Accessory</option>
-                            <option value="helm">Shield</option>
+                            <option value="shield">Shield</option>
                         </select>
                     </div>
 
@@ -115,6 +128,7 @@ const dialogues = [
 
                         <button
                             class="px-4 py-2 rounded-lg bg-yellow-500/20 border border-yellow-400/30 text-yellow-300 hover:bg-yellow-500/30"
+                            @click="upgradeGear"
                         >
                             🔧 Start Forging
                         </button>

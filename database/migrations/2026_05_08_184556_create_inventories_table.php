@@ -19,6 +19,7 @@ return new class extends Migration
             $table->integer('quantity')->default(1);
             $table->json('random_stat')->nullable();
             $table->boolean('is_equipped')->default(false);
+            $table->integer('enhancement_level')->default(0);
             $table->foreign('player_id')->references('id')->on('players')->onDelete('cascade');
             $table->timestamps();
         });

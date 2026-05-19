@@ -34,6 +34,7 @@ Route::prefix('world')->group(function () {
     Route::post('/update-player-move',[PlayerController::class,'updatePlayerMove']);
     Route::get('/get-crafting-materials',[GearController::class,'getCraftingMaterials']);
     Route::post('/craft-gear',[GearController::class,'craftGear']);
+    Route::post('/upgrade-gear',[GearController::class,'upgradeGear']);
 
     Route::post('/party-room/create',[PartyRoomController::class,'createRoom']);
     Route::get('/get-party',[PartyRoomController::class,'getParty']);

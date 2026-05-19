@@ -43,52 +43,52 @@ const clickPortal = () => {
 <style scoped>
 .rift-wrapper {
     position: absolute;
-    width: 150px;
+    width: 160px;
     height: 140px;
-
     cursor: pointer;
 
-    /* TRUE MMORPG FLOOR PERSPECTIVE */
-    transform: translate(-50%, -50%) perspective(800px) rotateX(65deg)
+    /* MMO FLOOR PERSPECTIVE */
+    transform: translate(-50%, -50%) perspective(900px) rotateX(65deg)
         skewX(-10deg);
     transform-origin: center;
 }
 
 /* =========================
-   GLOBAL AURA (MAGIC FIELD)
+   MOVING AURA FIELD
 ========================= */
 .rift-aura {
     position: absolute;
-    inset: -20px;
+    inset: -28px;
     border-radius: 65%;
 
     background: radial-gradient(
         ellipse at center,
-        rgba(168, 85, 247, 0.25),
-        transparent 65%
+        rgba(168, 85, 247, 0.35),
+        rgba(34, 211, 238, 0.18),
+        transparent 70%
     );
 
-    filter: blur(20px);
-    animation: auraPulse 3s infinite ease-in-out;
+    filter: blur(22px);
+    animation: auraFloat 6s ease-in-out infinite;
 }
 
 /* =========================
-   BASE GROUND TEAR
+   GROUND BASE
 ========================= */
 .rift-base {
     position: absolute;
     inset: 10px;
     border-radius: 60%;
 
-    background: linear-gradient(135deg, #05050a 0%, #1a0b2e 35%, #000000 100%);
+    background: linear-gradient(135deg, #05050a 0%, #1a0b2e 40%, #000000 100%);
 
     box-shadow:
         inset 0 0 30px rgba(0, 0, 0, 0.95),
-        0 0 25px rgba(147, 51, 234, 0.4);
+        0 0 25px rgba(147, 51, 234, 0.35);
 }
 
 /* =========================
-   CRACKED RIM (GROUND BREAK)
+   CRACKED RIM
 ========================= */
 .rift-rim {
     position: absolute;
@@ -98,12 +98,12 @@ const clickPortal = () => {
     border: 1px solid rgba(192, 132, 252, 0.25);
 
     box-shadow:
-        inset 0 0 20px rgba(168, 85, 247, 0.2),
+        inset 0 0 20px rgba(168, 85, 247, 0.25),
         0 0 15px rgba(0, 0, 0, 0.6);
 }
 
 /* =========================
-   ABYSS DEPTH (HOLE EFFECT)
+   ABYSS DEPTH (LIVING VOID)
 ========================= */
 .rift-abyss {
     position: absolute;
@@ -112,16 +112,16 @@ const clickPortal = () => {
 
     background: radial-gradient(
         ellipse at center,
-        #000000 0%,
-        #020207 40%,
+        #05050a 0%,
+        #000000 60%,
         #000000 100%
     );
 
-    box-shadow: inset 0 0 40px rgba(0, 0, 0, 1);
+    animation: abyssPulse 5s ease-in-out infinite;
 }
 
 /* =========================
-   ENERGY CORE (ACTIVE VOID)
+   ENERGY CORE
 ========================= */
 .rift-core {
     position: absolute;
@@ -130,95 +130,40 @@ const clickPortal = () => {
 
     background: radial-gradient(
         ellipse at center,
-        rgba(34, 211, 238, 0.35),
-        rgba(168, 85, 247, 0.25),
+        rgba(34, 211, 238, 0.45),
+        rgba(168, 85, 247, 0.3),
         transparent 70%
     );
 
     filter: blur(2px);
-    animation: corePulse 2.2s infinite ease-in-out;
+    animation: coreBreath 2.8s ease-in-out infinite;
 }
 
 /* =========================
-   DIMENSIONAL WAVE DISTORTION
+   ROTATING DIMENSIONAL FIELD
 ========================= */
 .rift-wave {
     position: absolute;
     inset: 0;
     border-radius: 60%;
 
-    background: radial-gradient(
-        ellipse at center,
-        rgba(255, 255, 255, 0.08),
-        transparent 60%
+    background: conic-gradient(
+        from 0deg,
+        rgba(168, 85, 247, 0),
+        rgba(168, 85, 247, 0.25),
+        rgba(34, 211, 238, 0.2),
+        rgba(168, 85, 247, 0)
     );
 
-    animation: waveExpand 3.5s infinite ease-out;
+    animation: spin 4s linear infinite;
+
+    filter: blur(1px);
+    opacity: 0.75;
 }
 
 /* =========================
-   LABEL
+   ENTER TEXT
 ========================= */
-.rift-label {
-    position: absolute;
-    top: -34px;
-    left: 50%;
-    transform: translateX(-50%) rotateX(0deg);
-
-    color: white;
-    font-size: 12px;
-    font-weight: bold;
-
-    text-shadow:
-        0 0 10px rgba(168, 85, 247, 0.8),
-        0 0 20px rgba(0, 0, 0, 0.8);
-}
-
-/* =========================
-   ANIMATIONS
-========================= */
-
-@keyframes corePulse {
-    0% {
-        transform: scale(1);
-        opacity: 0.6;
-    }
-    50% {
-        transform: scale(1.15);
-        opacity: 1;
-    }
-    100% {
-        transform: scale(1);
-        opacity: 0.6;
-    }
-}
-
-@keyframes auraPulse {
-    0% {
-        opacity: 0.4;
-        transform: scale(1);
-    }
-    50% {
-        opacity: 0.8;
-        transform: scale(1.1);
-    }
-    100% {
-        opacity: 0.4;
-        transform: scale(1);
-    }
-}
-
-@keyframes waveExpand {
-    0% {
-        transform: scale(0.9);
-        opacity: 0.5;
-    }
-    100% {
-        transform: scale(1.4);
-        opacity: 0;
-    }
-}
-
 .rift-enter {
     position: absolute;
     inset: 0;
@@ -228,7 +173,7 @@ const clickPortal = () => {
     justify-content: center;
 
     font-size: 12px;
-    font-weight: 800;
+    font-weight: 900;
     letter-spacing: 2px;
 
     color: rgba(255, 255, 255, 0.9);
@@ -240,11 +185,66 @@ const clickPortal = () => {
 
     pointer-events: none;
 
-    /* keeps it visually stable despite 3D transform */
     transform: translateZ(20px);
+
+    animation: enterPulse 2.5s ease-in-out infinite;
 }
 
-/* optional: subtle breathing glow on text */
+/* =========================
+   ANIMATIONS
+========================= */
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes auraFloat {
+    0% {
+        transform: translateY(0px) scale(1);
+        opacity: 0.4;
+    }
+    50% {
+        transform: translateY(-4px) scale(1.08);
+        opacity: 0.85;
+    }
+    100% {
+        transform: translateY(0px) scale(1);
+        opacity: 0.4;
+    }
+}
+
+@keyframes coreBreath {
+    0% {
+        transform: scale(1);
+        opacity: 0.6;
+    }
+    50% {
+        transform: scale(1.2);
+        opacity: 1;
+    }
+    100% {
+        transform: scale(1);
+        opacity: 0.6;
+    }
+}
+
+@keyframes abyssPulse {
+    0% {
+        filter: brightness(0.8);
+    }
+    50% {
+        filter: brightness(1.35);
+    }
+    100% {
+        filter: brightness(0.8);
+    }
+}
+
 @keyframes enterPulse {
     0% {
         opacity: 0.7;
@@ -252,15 +252,11 @@ const clickPortal = () => {
     }
     50% {
         opacity: 1;
-        transform: translateZ(20px) scale(1.05);
+        transform: translateZ(20px) scale(1.08);
     }
     100% {
         opacity: 0.7;
         transform: translateZ(20px) scale(1);
     }
-}
-
-.rift-enter {
-    animation: enterPulse 2.5s infinite ease-in-out;
 }
 </style>

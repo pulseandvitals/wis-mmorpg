@@ -26,8 +26,8 @@ const menuItems = [
     { id: 3, label: "Skills", icon: "📖" },
     { id: 4, label: "Ranking", icon: "🏆" },
     { id: 5, label: "Discord", icon: "💬" },
-    { id: 6, label: "Town Square", icon: "🏡" },
-    { id: 7, label: "Settings", icon: "⚙️" },
+    { id: 6, label: "Settings", icon: "⚙️" },
+    { id: 7, label: "Back to Town", icon: "🏡" },
 ];
 
 const handleMenuClick = (item) => {
@@ -43,10 +43,10 @@ const handleMenuClick = (item) => {
     if (item.id === 4) {
         isRankingOpen.value = true;
     }
-    if (item.id === 5) {
+    if (item.id === 6) {
         window.open("https://discord.com", "_blank");
     }
-    if (item.id === 6) {
+    if (item.id === 7) {
         form.get(route("world.map", map.map_id), {
             onFinish: () => pushAlert(map.name, "success"),
         });

@@ -103,9 +103,9 @@ function openBattle(monster) {
             element: monster.element,
             drops: monster.drops,
             exp: monster.exp,
-            battle_gif: `/monster_sprites/${monster.name}/idle-left.gif`,
-            attack_gif: `/monster_sprites/${monster.name}/attack.gif`,
-            dead_gif: `/monster_sprites/${monster.name}/dead.gif`,
+            battle_gif: `/monster_sprites/${monster.name.replace(" (Elite)", "")}/idle-left.gif`,
+            attack_gif: `/monster_sprites/${monster.name.replace(" (Elite)", "")}/attack.gif`,
+            dead_gif: `/monster_sprites/${monster.name.replace(" (Elite)", "")}/dead.gif`,
         };
     });
 

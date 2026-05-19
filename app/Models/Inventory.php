@@ -12,6 +12,7 @@ class Inventory extends Model
         'item_type',
         'quantity',
         'is_equipped',
+        'enhancement_level'
     ];
 
     public function item()

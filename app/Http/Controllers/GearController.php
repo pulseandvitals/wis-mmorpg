@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Resources\GearResource;
 use App\Models\CraftingMaterial;
 use App\Models\Gear;
+use App\Models\Inventory;
 use App\Models\Material;
 use Illuminate\Http\Request;
 
@@ -123,5 +124,98 @@ class GearController extends Controller
         }
 
         return json_encode($stats);
+    }
+
+    public function upgradeGear(Request $request)
+    {
+        $request->validate([
+            'gear' => 'required|string',
+        ]);
+        $key = $request->gear . '_id';
+
+        $player = auth()->user()->player;
+
+        if(!$player->{$key}) {
+            return response()->json([
+                'message' => 'Item not found.'
+            ], 400);
+        }
+
+        $inventory = Inventory::with('gear')->findOrFail($player->{$key});
+
+        // prevent invalid upgrade
+        if ($inventory->item_type !== 'gear') {
+            return response()->json([
+                'message' => 'This item is not gear.'
+            ], 400);
+        }
+
+        $currentLevel = $inventory->enhancement ?? 0;
+
+        // max upgrade cap
+        if ($currentLevel >= 10) {
+            return response()->json([
+                'message' => 'Max enhancement reached.'
+            ], 400);
+        }
+
+        // cost formula
+        $cost = 1000 * ($currentLevel + 1);
+
+        if ($player->gold < $cost) {
+            return response()->json([
+                'message' => 'Not enough gold.'
+            ], 400);
+        }
+
+        // success rate (decreases as level increases)
+        $successRate = max(10, 100 - ($currentLevel * 10));
+        $roll = rand(1, 100);
+
+        if ($roll <= $successRate) {
+
+            // SUCCESS UPGRADE
+            $inventory->enhancement_level = $currentLevel + 1;
+            $inventory->save();
+
+            $player->gold -= $cost;
+            $player->save();
+
+            return response()->json([
+                'message' => 'Upgrade successful!',
+                'level' => $inventory->enhancement_level
+            ]);
+        }
+
+        /**
+         * FAIL CASE
+         * Now we check if item breaks
+         */
+        $breakChance = max(5, $currentLevel * 5);
+        $breakRoll = rand(1, 100);
+
+        if ($breakRoll <= $breakChance) {
+
+            // 💥 ITEM BREAKS
+            $inventory->enhancement_level = 0;
+            $inventory->save();
+
+            $player->gold -= $cost;
+            $player->save();
+
+            return response()->json([
+                'message' => 'Item enhancement back to 0 during upgrade!',
+                'broken' => true
+            ]);
+        }
+
+        // ❌ SAFE FAIL (no upgrade, no break)
+        $player->gold -= $cost;
+        $player->save();
+
+        return response()->json([
+            'message' => 'Upgrade failed, but item is safe.',
+            'level' => $inventory->enhancement
+        ]);
     }
 }
