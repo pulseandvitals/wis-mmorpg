@@ -178,25 +178,26 @@ function handleMouseMove(e) {
 function handleMapClick(e) {
     const rect = e.currentTarget.getBoundingClientRect();
 
-    const targetX = Math.floor((e.clientX - rect.left) / tileSize);
-    const targetY = Math.floor((e.clientY - rect.top) / tileSize);
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+
+    const targetX = Math.floor(x / tileSize);
+    const targetY = Math.floor(y / tileSize);
 
     if (isBlocked(targetX, targetY)) return;
 
-    // clear old path
     moveQueue.length = 0;
 
-    let x = player.x;
-    let y = player.y;
+    let x1 = player.x;
+    let y1 = player.y;
 
-    // build simple step path (grid straight-line movement)
-    while (x !== targetX || y !== targetY) {
-        if (x < targetX) x++;
-        else if (x > targetX) x--;
-        else if (y < targetY) y++;
-        else if (y > targetY) y--;
+    while (x1 !== targetX || y1 !== targetY) {
+        if (x1 < targetX) x1++;
+        else if (x1 > targetX) x1--;
+        else if (y1 < targetY) y1++;
+        else if (y1 > targetY) y1--;
 
-        moveQueue.push({ x, y });
+        moveQueue.push({ x: x1, y: y1 });
     }
 
     processQueue();

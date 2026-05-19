@@ -73,6 +73,7 @@ const handleMenuClick = (item) => {
 
     <PlayerInventoryModal
         v-if="isInventoryOpen"
+        :isInventoryOpen="isInventoryOpen"
         @close="isInventoryOpen = false"
     />
     <PartyRoom v-if="isPartyOpen" @close="isPartyOpen = false" />

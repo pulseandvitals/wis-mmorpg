@@ -7,6 +7,32 @@ const loading = ref(false);
 let removeStart;
 let removeFinish;
 const currentImage = ref("");
+
+const scale = ref(1);
+
+function updateScale() {
+    const baseWidth = 1536;
+    const baseHeight = 832;
+
+    const screenWidth = window.innerWidth;
+    const screenHeight = window.innerHeight;
+
+    const scaleX = screenWidth / baseWidth;
+    const scaleY = screenHeight / baseHeight;
+
+    // IMPORTANT: keep aspect ratio
+    scale.value = Math.min(scaleX, scaleY);
+}
+
+onMounted(() => {
+    updateScale();
+    window.addEventListener("resize", updateScale);
+});
+
+onUnmounted(() => {
+    window.removeEventListener("resize", updateScale);
+});
+
 const loadingImages = [
     "/loading_screens/Loading1.png",
     "/loading_screens/Loading2.png",
@@ -30,17 +56,6 @@ onMounted(() => {
     });
 });
 
-onMounted(() => {
-    removeStart = router.on("start", () => {
-        loading.value = true;
-        getRandomImage();
-    });
-
-    removeFinish = router.on("finish", () => {
-        loading.value = false;
-    });
-});
-
 onUnmounted(() => {
     removeStart();
     removeFinish();
@@ -49,7 +64,7 @@ onUnmounted(() => {
 
 <template>
     <div class="game-wrapper">
-        <div class="game-area">
+        <div class="game-area" :style="{ transform: `scale(${scale})` }">
             <transition name="fade">
                 <div v-if="loading" class="loading-screen">
                     <img :src="currentImage" class="loading-bg" />
@@ -92,13 +107,13 @@ canvas {
 .game-wrapper {
     width: 100vw;
     height: 100vh;
-    background: #111827;
 
     display: flex;
     justify-content: center;
     align-items: center;
 
-    overflow: hidden; /* important for mobile */
+    background: #111827;
+    overflow: hidden;
 }
 
 .game-area {

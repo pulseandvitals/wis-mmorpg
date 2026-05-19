@@ -473,7 +473,7 @@
 </template>
 
 <script setup>
-import { onMounted, ref, computed } from "vue";
+import { onMounted, ref, computed, watch } from "vue";
 const getInventory = ref([]);
 import { usePage } from "@inertiajs/vue3";
 
@@ -481,7 +481,9 @@ const page = usePage();
 const playerCurrentGold = page.props.auth.user.player.current_gold;
 const playerCurrentDiamond = page.props.auth.user.player.current_diamond;
 const selectedItem = ref(null);
-
+const props = defineProps({
+    isInventoryOpen: Boolean,
+});
 function openItem(item) {
     selectedItem.value = item;
 }
@@ -606,6 +608,11 @@ const armory = [
         stats: ["+10 SPD", "+5 EVA"],
     },
 ];
+watch(paginatedInventory, (newVal) => {
+    if (newVal) {
+        openInventory();
+    }
+});
 </script>
 
 <style scoped>

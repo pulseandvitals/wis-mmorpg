@@ -4,7 +4,7 @@ const props = defineProps({
 });
 import { pushAlert } from "@/Stores/GlobalAlert";
 import { usePage } from "@inertiajs/vue3";
-import { onMounted, ref } from "vue";
+import { onMounted, ref, watch } from "vue";
 const page = usePage();
 const playerId = page.props.auth.user?.player?.id;
 const party = ref(null);
@@ -33,10 +33,15 @@ onMounted(async () => {
     await getMyParty();
     getPartyReward();
 });
+watch(party?.members, (newVal) => {
+    if (newVal) {
+        getPartyReward();
+    }
+});
 </script>
 <template>
     <div
-        v-if="party"
+        v-if="party?.members"
         class="fixed left-1.5 top-[250px] -translate-y-1/2 w-48 bg-gray-900 border border-gray-700 rounded-xl p-3 text-white z-50"
     >
         <!-- HEADER -->

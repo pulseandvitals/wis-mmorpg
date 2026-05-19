@@ -140,7 +140,7 @@
 </template>
 
 <script setup>
-import { onMounted, ref } from "vue";
+import { onMounted, ref, watch } from "vue";
 import axios from "axios";
 import { useForm, usePage } from "@inertiajs/vue3";
 import { pushAlert } from "@/Stores/GlobalAlert";
@@ -178,6 +178,11 @@ async function leaveRoom() {
 
 onMounted(async () => {
     await getMyRoom(); // 1. load data first
+});
+watch(room, (newVal) => {
+    if (newVal) {
+        getMyRoom();
+    }
 });
 </script>
 

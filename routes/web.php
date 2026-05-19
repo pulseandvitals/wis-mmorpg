@@ -4,6 +4,7 @@ use App\Http\Controllers\BattleController;
 use App\Http\Controllers\GearController;
 use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\MapController;
+use App\Http\Controllers\MiniEventController;
 use App\Http\Controllers\PartyRoomController;
 use App\Http\Controllers\PlayerController;
 use App\Http\Controllers\ProfileController;
@@ -40,6 +41,8 @@ Route::prefix('world')->group(function () {
     Route::get('/get-party',[PartyRoomController::class,'getParty']);
     Route::post('/party-room/leave/{room_id}',[PartyRoomController::class,'leaveRoom']);
     Route::post('/party-room/join/{code}',[PartyRoomController::class,'joinRoom']);
+
+    Route::post('/mini-event/bet',[MiniEventController::class,'miniEventBet']);
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
