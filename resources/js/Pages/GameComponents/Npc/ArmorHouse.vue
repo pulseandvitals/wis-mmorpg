@@ -3,6 +3,7 @@ import { computed, onMounted, ref } from "vue";
 import { pushAlert } from "@/Stores/GlobalAlert";
 const armors = ref([]);
 const materials = ref({});
+const loading = ref(false);
 
 /**
  * FETCH ARMORS
@@ -81,6 +82,7 @@ const groupedSets = computed(() => {
 async function craftGear(gear) {
     try {
         // optional: show loading state
+        loading.value = true;
         pushAlert("Crafting gear...", "info");
 
         const res = await axios.post("/craft-gear", {
@@ -89,7 +91,7 @@ async function craftGear(gear) {
 
         // success callback
         pushAlert(res.data.message || "Gear crafted successfully!", "success");
-
+        loading.value = false;
         return res.data;
     } catch (error) {
         // error callback
@@ -97,6 +99,7 @@ async function craftGear(gear) {
             error.response?.data?.message || "Failed to craft gear.",
             "error",
         );
+        loading.value = false;
 
         console.error("Craft Gear Error:", error);
     }
@@ -228,9 +231,10 @@ onMounted(async () => {
 
                                 <button
                                     class="mt-3 w-full text-xs py-1.5 rounded bg-green-500/10 border border-green-400/30 text-green-300 hover:bg-green-500/20 transition"
+                                    :disabled="loading"
                                     @click="craftGear(gear)"
                                 >
-                                    Craft
+                                    {{ loading ? "Crafting..." : "Craft" }}
                                 </button>
                             </div>
                         </div>

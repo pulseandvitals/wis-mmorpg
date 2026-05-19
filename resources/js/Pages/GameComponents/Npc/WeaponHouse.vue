@@ -9,6 +9,7 @@ const materials = ref({});
 const weaponTabs = ["Sword", "Spear", "Bow", "Staff", "Dagger"];
 const selectedWeaponTab = ref("Sword");
 const selectedWeapon = ref(null);
+const loading = ref(false);
 /**
  * FETCH WEAPONS
  */
@@ -70,6 +71,7 @@ function getWeaponType(name) {
 
 async function craftGear(gear) {
     try {
+        loading.value = true;
         // optional: show loading state
         pushAlert("Crafting gear...", "info");
 
@@ -79,8 +81,10 @@ async function craftGear(gear) {
 
         // success callback
         pushAlert(res.data.message || "Gear crafted successfully!", "success");
+        loading.value = false;
         return res.data;
     } catch (error) {
+        loading.value = false;
         // error callback
         pushAlert(
             error.response?.data?.message || "Failed to craft gear.",
@@ -227,9 +231,10 @@ onMounted(async () => {
                             <div class="text-right">
                                 <button
                                     class="px-4 py-2 text-xs font-bold rounded-lg border border-green-400/30 bg-green-500/10 text-green-300 hover:bg-green-500/20 hover:border-green-400/60 transition"
+                                    :disabled="loading"
                                     @click="craftGear(weapon)"
                                 >
-                                    Craft
+                                    {{ loading ? "Crafting..." : "Craft" }}
                                 </button>
                             </div>
                         </div>

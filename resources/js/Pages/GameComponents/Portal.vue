@@ -10,7 +10,7 @@ const clickPortal = () => {
 </script>
 
 <template>
-    <div
+    <button
         @click="clickPortal"
         class="rift-wrapper"
         :style="{
@@ -38,19 +38,38 @@ const clickPortal = () => {
 
         <!-- label -->
         <div class="rift-enter">WARP</div>
-    </div>
+    </button>
 </template>
+
 <style scoped>
 .rift-wrapper {
     position: absolute;
     width: 160px;
     height: 140px;
     cursor: pointer;
+    pointer-events: auto; /* 👈 PINAKAIMPORTANTE - para maging clickable */
+    background: none;
+    border: none;
+    padding: 0;
 
     /* MMO FLOOR PERSPECTIVE */
     transform: translate(-50%, -50%) perspective(900px) rotateX(65deg)
         skewX(-10deg);
     transform-origin: center;
+
+    /* Hover effect para sa button */
+    transition: all 0.2s ease;
+}
+
+.rift-wrapper:hover {
+    transform: translate(-50%, -50%) perspective(900px) rotateX(65deg)
+        skewX(-10deg) scale(1.05);
+    filter: brightness(1.2);
+}
+
+.rift-wrapper:active {
+    transform: translate(-50%, -50%) perspective(900px) rotateX(65deg)
+        skewX(-10deg) scale(0.98);
 }
 
 /* =========================
@@ -70,6 +89,7 @@ const clickPortal = () => {
 
     filter: blur(22px);
     animation: auraFloat 6s ease-in-out infinite;
+    pointer-events: none;
 }
 
 /* =========================
@@ -85,6 +105,7 @@ const clickPortal = () => {
     box-shadow:
         inset 0 0 30px rgba(0, 0, 0, 0.95),
         0 0 25px rgba(147, 51, 234, 0.35);
+    pointer-events: none;
 }
 
 /* =========================
@@ -100,6 +121,7 @@ const clickPortal = () => {
     box-shadow:
         inset 0 0 20px rgba(168, 85, 247, 0.25),
         0 0 15px rgba(0, 0, 0, 0.6);
+    pointer-events: none;
 }
 
 /* =========================
@@ -118,6 +140,7 @@ const clickPortal = () => {
     );
 
     animation: abyssPulse 5s ease-in-out infinite;
+    pointer-events: none;
 }
 
 /* =========================
@@ -137,6 +160,7 @@ const clickPortal = () => {
 
     filter: blur(2px);
     animation: coreBreath 2.8s ease-in-out infinite;
+    pointer-events: none;
 }
 
 /* =========================
@@ -159,6 +183,7 @@ const clickPortal = () => {
 
     filter: blur(1px);
     opacity: 0.75;
+    pointer-events: none;
 }
 
 /* =========================
