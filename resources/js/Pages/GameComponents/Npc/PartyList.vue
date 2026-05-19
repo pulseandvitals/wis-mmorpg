@@ -44,7 +44,18 @@ onMounted(async () => {
             class="text-xs text-gray-400 mb-3 flex justify-between items-center"
         >
             <span>Party</span>
-            <span>{{ party?.members?.length || 0 }}/3</span>
+
+            <div class="flex items-center gap-2">
+                <span>{{ party?.members?.length || 0 }}/3</span>
+
+                <!-- REFRESH BUTTON -->
+                <button
+                    @click="getMyParty"
+                    class="px-2 py-1 text-[10px] bg-gray-800 border border-gray-600 rounded hover:bg-gray-700 transition text-white"
+                >
+                    ↻ refresh
+                </button>
+            </div>
         </div>
 
         <!-- MEMBERS LIST -->
@@ -71,10 +82,8 @@ onMounted(async () => {
                         🟢 {{ member.player.is_online ? "online" : "offline" }}
                     </div>
 
-                    <div class="text-red-400">
-                        {{ member?.player.current_health }}/{{
-                            member?.player.max_health
-                        }}
+                    <div class="text-gray-400">
+                        Lvl.{{ member?.player.current_level }}
                     </div>
                 </div>
             </div>
