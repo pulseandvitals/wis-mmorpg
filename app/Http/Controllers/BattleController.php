@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\PartySharedReward;
 use App\Http\Resources\PlayerResource;
 use App\Models\Experience;
 use App\Models\Inventory;
@@ -104,10 +105,17 @@ class BattleController extends Controller
                 if ($memberPlayer->id === $player->id) {
                     continue;
                 }
+                if($player->current_map_id === $memberPlayer->current_map_id) {
+                    $memberPlayer->current_experience += $sharedExp;
+                    $memberPlayer->current_gold += $sharedGold;
+                    $memberPlayer->save();
 
-                $memberPlayer->current_experience += $sharedExp;
-                $memberPlayer->current_gold += $sharedGold;
-                $memberPlayer->save();
+                    broadcast(new PartySharedReward([
+                        'player_id' => $memberPlayer->id,
+                        'exp' => $sharedExp,
+                        'gold' => $sharedGold,
+                    ]))->toOthers();
+                }
             }
         }
     }

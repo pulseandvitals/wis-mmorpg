@@ -24,14 +24,26 @@ class WorldMapController extends Controller
             case 'Valdora Grassland':
                 $current_map = $this->getValdoraGrasslandMap($map);
                 break;
+            case 'Valdora Grassland Underground':
+                $current_map = $this->getValdoraGrasslandUndergroundMap($map);
+                break;
             case 'Dark Forest':
                 $current_map = $this->getDarkForestMap($map);
+                break;
+            case 'Dark Forest Underground':
+                $current_map = $this->getDarkForestUndergroundMap($map);
                 break;
             case 'Crystal Cave':
                 $current_map = $this->getCrystalCaveMap($map);
                 break;
+            case 'Crystal Cave Underground':
+                $current_map = $this->getCrystalCaveUndergroundMap($map);
+                break;
             case 'Volcanic Wasteland':
                 $current_map = $this->getVolcanicWastelandMap($map);
+                break;
+            case 'Volcanic Wasteland Underground':
+                $current_map = $this->getVolcanicWastelandUndergroundMap($map);
                 break;
             case 'Sky Islands':
                 $current_map = $this->getSkyIslandsMap($map);
@@ -113,6 +125,40 @@ class WorldMapController extends Controller
         ]);
     }
 
+    private function getValdoraGrasslandUndergroundMap($map) {
+        $player = auth()->user()->player;
+
+        if($map->level_requirement > $player->current_level) {
+            return redirect()->back();
+        };
+
+        $this->saveMap($map->map_id);
+
+        $mapTiles =  [
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+            [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+            [1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1],
+            [1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1],
+            [1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1],
+            [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+            [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+            [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+            [1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+            [1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+            [1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+        ];
+
+        return Inertia::render('World',[
+            'current_map' => $map,
+            'all_maps' => $this->getAllMaps(),
+            'map_tiles' => $mapTiles,
+            'monsters' => $this->getMonsterByMap($map->name),
+            ...$this->getPlayerData()
+        ]);
+    }
+
     private function getDarkForestMap($map) {
         $player = auth()->user()->player;
 
@@ -136,6 +182,40 @@ class WorldMapController extends Controller
             [1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1],
             [1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1],
             [1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1],
+            [1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+        ];
+
+        return Inertia::render('World',[
+            'current_map' => $map,
+            'all_maps' => $this->getAllMaps(),
+            'map_tiles' => $mapTiles,
+            'monsters' => $this->getMonsterByMap($map->name),
+            ...$this->getPlayerData()
+        ]);
+    }
+
+    private function getDarkForestUndergroundMap($map) {
+        $player = auth()->user()->player;
+
+        if($map->level_requirement > $player->current_level) {
+            return redirect()->back();
+        };
+
+        $this->saveMap($map->map_id);
+
+        $mapTiles =  [
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1],
+            [1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1],
+            [1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1],
+            [1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1],
+            [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1],
+            [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1],
+            [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1],
+            [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1],
+            [1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 1, 1],
+            [1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1],
             [1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1],
             [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
         ];
@@ -184,6 +264,42 @@ class WorldMapController extends Controller
         ]);
     }
 
+    private function getCrystalCaveUndergroundMap($map) {
+        $player = auth()->user()->player;
+
+        if($map->level_requirement > $player->current_level) {
+            return back()->withErrors([
+                'message' => 'Level not met.'
+            ]);
+        };
+
+        $this->saveMap($map->map_id);
+
+        $mapTiles =  [
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1],
+            [1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1],
+            [1, 1, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1],
+            [1, 1, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1],
+            [1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1],
+            [1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1],
+            [1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1],
+            [1, 1, 1, 1, 0, 0, 1, 1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+        ];
+
+        return Inertia::render('World',[
+            'current_map' => $map,
+            'all_maps' => $this->getAllMaps(),
+            'map_tiles' => $mapTiles,
+            'monsters' => $this->getMonsterByMap($map->name),
+            ...$this->getPlayerData()
+        ]);
+    }
+
     private function getVolcanicWastelandMap($map) {
         $player = auth()->user()->player;
 
@@ -219,6 +335,44 @@ class WorldMapController extends Controller
             ...$this->getPlayerData()
         ]);
     }
+
+    private function getVolcanicWastelandUndergroundMap($map) {
+        $player = auth()->user()->player;
+
+        if($map->level_requirement > $player->current_level) {
+            return back()->withErrors([
+                'message' => 'Level not met.'
+            ]);
+        };
+
+        $this->saveMap($map->map_id);
+
+        $mapTiles =  [
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 1, 1, 1, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1],
+            [1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1],
+            [1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1],
+            [1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1],
+            [1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1],
+            [1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1],
+            [1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1],
+            [1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1],
+            [1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1],
+            [1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+        ];
+
+        return Inertia::render('World',[
+            'current_map' => $map,
+            'all_maps' => $this->getAllMaps(),
+            'map_tiles' => $mapTiles,
+            'monsters' => $this->getMonsterByMap($map->name),
+            ...$this->getPlayerData()
+        ]);
+    }
+
+
 
     private function getSkyIslandsMap($map)
     {
@@ -264,26 +418,7 @@ class WorldMapController extends Controller
     private function getAllMaps()
     {
         return MapResource::collection(
-            Map::query()
-                ->whereIn('name', [
-                    'Town Square',
-                    'Valdora Grassland',
-                    'Dark Forest',
-                    'Crystal Cave',
-                    'Volcanic Wasteland',
-                    'Sky Islands',
-                ])
-                ->orderByRaw("
-                    FIELD(
-                        name,
-                        'Valdora Grassland',
-                        'Dark Forest',
-                        'Crystal Cave',
-                        'Volcanic Wasteland',
-                        'Sky Islands'
-                    )
-                ")
-                ->get()
+            Map::all()
         );
     }
 

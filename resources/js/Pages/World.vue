@@ -7,10 +7,11 @@ import Player from "./GameComponents/Player.vue";
 import PvE from "./GameComponents/Battle.vue/PvE.vue";
 import Menu from "./GameComponents/Menu.vue";
 import TownSquareNPC from "./GameComponents/Npc/TownSquareNPC.vue";
-import { Head, usePage } from "@inertiajs/vue3";
+import { Head, router, usePage } from "@inertiajs/vue3";
 import GameLayout from "@/Layouts/GameLayout.vue";
 import Players from "./GameComponents/Players.vue";
 import Portal from "./GameComponents/Portal.vue";
+import { pushAlert } from "@/Stores/GlobalAlert";
 
 const props = defineProps({
     playerData: Object,
@@ -38,7 +39,11 @@ const mapHeight = map.length;
 const mapWidth = map[0].length;
 const monsters = reactive([]);
 const flatMap = computed(() => map.flat());
-
+const filteredMaps = computed(() => {
+    return props.all_maps.data.filter(
+        (map) => !map.name.includes("Underground"),
+    );
+});
 const player = reactive({
     x: props.playerData.data.x,
     y: props.playerData.data.y,
@@ -522,7 +527,37 @@ onMounted(() => {
             });
     });
 });
+const undergroundMap = computed(() => {
+    if (!props.current_map) return null;
 
+    const maps = props.all_maps?.data ?? props.all_maps ?? [];
+
+    if (!Array.isArray(maps)) return null;
+
+    return (
+        maps.find(
+            (map) =>
+                map.name?.toLowerCase() ===
+                `${props.current_map.name?.toLowerCase()} underground`,
+        ) || null
+    );
+});
+const portalPositions = {
+    "Valdora Grassland Underground": { x: 750, y: 380 },
+    "Dark Forest Underground": { x: 1100, y: 140 },
+    "Crystal Cave Underground": { x: 800, y: 80 },
+    "Volcanic Wasteland Underground": { x: 940, y: 60 },
+};
+const getPortalPosition = (mapName) => {
+    return portalPositions[mapName] || { x: 100, y: 100 };
+};
+function handleMapPortal() {
+    router.visit(route("world.map", undergroundMap.value?.map_id), {
+        onFinish: () => {
+            pushAlert(undergroundMap.value.name, "success");
+        },
+    });
+}
 watch(
     () => props.monsters,
     () => {
@@ -561,15 +596,22 @@ watch(
                     top: Math.floor(index / mapWidth) * tileSize + 'px',
                 }"
             /> -->
+
+            <Portal
+                v-if="undergroundMap"
+                :x="getPortalPosition(undergroundMap.name).x"
+                :y="getPortalPosition(undergroundMap.name).y"
+                @open="handleMapPortal"
+            />
             <!-- PLAYER -->
             <Player :player="player" :tileSize="tileSize" />
             <Players :players="players" :tileSize="tileSize" />
             <!-- HUD COMPONENTS -->
-            <Menu :classSkills="classSkills.data" :all_maps="all_maps.data" />
+            <Menu :classSkills="classSkills.data" :all_maps="filteredMaps" />
             <PlayerStat :player="player" />
             <TownSquareNPC
                 v-if="current_map.name === 'Town Square'"
-                :all_maps="all_maps.data"
+                :all_maps="filteredMaps"
                 :player="player"
             />
             <PlayerSkill :playerSkills="playerSkills.data" />

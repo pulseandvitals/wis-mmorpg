@@ -62,7 +62,7 @@ class GearSeeder extends Seeder
                     // DPS UTILITY
                     'gloves' => [
                         'attack' => randStats($level * 0.4),
-                        'attack_speed' => randStats($level * 0.6),
+                        'speed' => randStats($level * 0.6),
                     ],
 
                     // MOBILITY

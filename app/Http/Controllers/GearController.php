@@ -103,13 +103,13 @@ class GearController extends Controller
         $stats = [];
 
         $statPool = [
-            'atk' => ['min' => 5, 'max' => 15, 'chance' => 5],
-            'def' => ['min' => 3, 'max' => 12, 'chance' => 5],
-            'crit' => ['min' => 1, 'max' => 10, 'chance' => 2],
-            'evasion' => ['min' => 1, 'max' => 10, 'chance' => 2],
-            'speed' => ['min' => 1, 'max' => 10, 'chance' => 2],
-            'hp' => ['min' => 1, 'max' => 10, 'chance' => 5],
-            'mp' => ['min' => 1, 'max' => 10, 'chance' => 10],
+            'atk' => ['min' => 5, 'max' => 10, 'chance' => 8],
+            'def' => ['min' => 3, 'max' => 10, 'chance' => 8],
+            'crit' => ['min' => 1, 'max' => 5, 'chance' => 3],
+            'evasion' => ['min' => 1, 'max' => 5, 'chance' => 3],
+            'speed' => ['min' => 1, 'max' => 10, 'chance' => 3],
+            'hp' => ['min' => 1, 'max' => 20, 'chance' => 12],
+            'mp' => ['min' => 1, 'max' => 20, 'chance' => 12],
         ];
 
         foreach ($statPool as $statName => $data) {

@@ -12,12 +12,14 @@ class WorldChatController extends Controller
     {
         $request->validate([
             'msg_value' => 'required|string|max:255',
+            'channel' => 'required|string|in:local,party,world'
         ]);
 
         $player = auth()->user()->player;
         $worldChat = new WorldChat();
         $worldChat->player_id = $player->id;
         $worldChat->message = $request->msg_value;
+        $worldChat->channel = $request->channel;
         $worldChat->save();
 
         // trigger reverb broadcast

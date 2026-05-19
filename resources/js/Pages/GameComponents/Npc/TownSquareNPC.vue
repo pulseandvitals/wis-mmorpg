@@ -5,6 +5,7 @@ import Healer from "./Healer.vue";
 import BlackSmith from "./BlackSmith.vue";
 import WeaponHouse from "./WeaponHouse.vue";
 import ArmorHouse from "./ArmorHouse.vue";
+import Portal from "../Portal.vue";
 const props = defineProps({
     all_maps: Object,
     player: Object,
@@ -24,7 +25,7 @@ const currentNpc = ref();
 const npcData = {
     blacksmith: {
         name: "Blacksmith",
-        x: 335,
+        x: 360,
         y: 100,
         icon: "⚒️",
         color: "from-stone-700 to-stone-900",
@@ -33,8 +34,8 @@ const npcData = {
 
     potion: {
         name: "Potion House",
-        x: 990,
-        y: 70,
+        x: 1010,
+        y: 75,
         icon: "🧪",
         color: "from-emerald-700 to-green-900",
         services: ["Buy Potions", "Mana Elixirs", "Revive Scrolls"],
@@ -83,17 +84,9 @@ const npcData = {
         color: "from-purple-700 to-indigo-950",
         services: ["Learn Skills", "Magic Scrolls", "Enchant Gear"],
     },
-    portal: {
-        name: "Dungeon Portal",
-        x: 1290,
-        y: 750,
-        icon: "✨",
-        color: "from-purple-700 to-indigo-950",
-        services: isPortalOpen,
-    },
     healer: {
         name: "Healer",
-        x: 750,
+        x: 770,
         y: 300,
         icon: "✨",
         color: "from-purple-700 to-indigo-950",
@@ -142,6 +135,10 @@ function openNpc(key) {
             break;
     }
 }
+
+function handleOpen() {
+    isPortalOpen.value = true;
+}
 </script>
 
 <template>
@@ -150,14 +147,21 @@ function openNpc(key) {
         v-for="(data, key) in npcData"
         :key="key"
         @click="openNpc(key)"
-        class="absolute px-10 py-3 bg-gray-800 hover:bg-gray-700 text-white text-xs rounded-lg border border-gray-600"
+        class="absolute px-12 py-2 text-white text-xs font-semibold rounded-xl border border-cyan-300/30 bg-gradient-to-br from-cyan-400/30 via-blue-500/20 to-purple-600/30 backdrop-blur-md shadow-[0_0_15px_rgba(34,211,238,0.35)] hover:scale-[1.35] hover:shadow-[0_0_25px_rgba(34,211,238,0.6)] transition-all duration-200 overflow-hidden"
         :style="{
             left: data.x + 'px',
             top: data.y + 'px',
+            transform: 'translateX(-15%)', // keeps alignment nice when widened
         }"
     >
-        {{ data.icon }} {{ data.name }}
+        <span class="relative z-10 drop-shadow-md whitespace-nowrap">
+            {{ data.icon }} {{ data.name }}
+        </span>
     </button>
+
+    <Portal :x="1370" :y="790" @open="handleOpen" />
+    <Portal :x="1330" :y="160" @open="handleOpen" />
+
     <BlackSmith v-if="isBlacksmithOpen" @close="isBlacksmithOpen = false" />
     <WeaponHouse v-if="isWeaponHouseOpen" @close="isWeaponHouseOpen = false" />
     <ArmorHouse v-if="isArmorHouseOpen" @close="isArmorHouseOpen = false" />

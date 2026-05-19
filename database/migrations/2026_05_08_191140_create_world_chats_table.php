@@ -16,6 +16,7 @@ return new class extends Migration
             $table->unsignedBigInteger('player_id');
             $table->text('message');
             $table->foreign('player_id')->references('id')->on('players')->onDelete('cascade');
+            $table->string('channel')->nullable(); //local, world, party
             $table->timestamps();
         });
     }

@@ -5,6 +5,7 @@ import PlayerSkillModal from "./PlayerSkillModal.vue";
 import PlayerInventoryModal from "./PlayerInventoryModal.vue";
 import Ranking from "./Npc/Ranking.vue";
 import PartyRoom from "./Npc/PartyRoom.vue";
+import { pushAlert } from "@/Stores/GlobalAlert";
 
 const props = defineProps({
     classSkills: Object,
@@ -17,16 +18,16 @@ const isInventoryOpen = ref(false);
 const isRankingOpen = ref(false);
 const isPartyOpen = ref(false);
 
-const mapId = props.all_maps.find((map) => map.name === "Town Square")?.map_id;
+const map = props.all_maps.find((map) => map.name === "Town Square");
 
 const menuItems = [
     { id: 1, label: "Inventory", icon: "🎒" },
     { id: 2, label: "Party", icon: "👥" },
-    { id: 3, label: "Skills", icon: "⚔️" },
+    { id: 3, label: "Skills", icon: "📖" },
     { id: 4, label: "Ranking", icon: "🏆" },
     { id: 5, label: "Discord", icon: "💬" },
-    { id: 6, label: "Town Square", icon: "🏘" },
-    { id: 7, label: "Settings", icon: "⚙" },
+    { id: 6, label: "Town Square", icon: "🏡" },
+    { id: 7, label: "Settings", icon: "⚙️" },
 ];
 
 const handleMenuClick = (item) => {
@@ -46,7 +47,9 @@ const handleMenuClick = (item) => {
         window.open("https://discord.com", "_blank");
     }
     if (item.id === 6) {
-        form.get(route("world.map", mapId));
+        form.get(route("world.map", map.map_id), {
+            onFinish: () => pushAlert(map.name, "success"),
+        });
     }
 };
 </script>

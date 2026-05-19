@@ -46,6 +46,7 @@ class WorldChatMessage implements ShouldBroadcastNow
         return [
             'id' => $this->worldChat->id,
             'message' => $this->worldChat->message,
+            'channel' => $this->worldChat->channel,
             'player' => [
                 'id' => $this->player->id,
                 'name' => $this->player->name,

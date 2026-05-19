@@ -171,7 +171,7 @@ onMounted(async () => {
                                 <!-- LEFT SIDE -->
                                 <div class="flex items-center gap-4 min-w-0">
                                     <img
-                                        :src="`/weapons/${weapon.name}.png`"
+                                        :src="`/gears/${weapon.name}.png`"
                                         class="w-10 h-10 object-contain flex-shrink-0"
                                     />
 

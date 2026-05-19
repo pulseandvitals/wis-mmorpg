@@ -20,39 +20,45 @@
                     <div
                         class="bg-gray-900 border border-gray-700 rounded-xl p-3"
                     >
+                        <!-- HEADER -->
                         <div class="text-sm text-gray-300 font-semibold mb-3">
                             Materials/Armory
                         </div>
-                        <div class="grid grid-cols-4 gap-2">
+
+                        <!-- INVENTORY -->
+                        <div class="grid grid-cols-5 gap-2">
                             <div
                                 v-for="item in paginatedInventory"
                                 :key="item.id"
-                                class="bg-gray-800 border border-gray-700 rounded-lg p-2 hover:bg-gray-700 transition"
+                                @click="openItem(item)"
+                                class="relative cursor-pointer group"
                             >
-                                <!-- ICON -->
+                                <!-- SLOT -->
                                 <div
-                                    class="w-12 h-12 mx-auto rounded bg-gray-900 border border-gray-600 flex items-center justify-center text-xl"
+                                    class="aspect-square bg-gradient-to-b from-gray-800 to-gray-900 border border-gray-700 rounded-lg flex items-center justify-center transition hover:border-yellow-400 hover:scale-105 hover:shadow-lg hover:shadow-yellow-500/20"
                                 >
+                                    <!-- ITEM IMAGE -->
                                     <img
                                         :src="`/${item.item_type}s/${item.item.name}.png`"
+                                        class="w-12 h-12 object-contain drop-shadow-lg"
                                     />
+
+                                    <!-- QTY -->
+                                    <div
+                                        class="absolute bottom-1 right-1 text-[10px] font-bold text-white bg-black/70 px-1 rounded"
+                                    >
+                                        x{{ item.quantity }}
+                                    </div>
                                 </div>
 
-                                <!-- NAME -->
+                                <!-- HOVER GLOW -->
                                 <div
-                                    class="text-[11px] text-white text-center mt-2 truncate"
-                                >
-                                    {{ item.item.name }}
-                                </div>
-
-                                <!-- QTY -->
-                                <div
-                                    class="text-[10px] text-gray-400 text-center"
-                                >
-                                    x{{ item.quantity }}
-                                </div>
+                                    class="absolute inset-0 rounded-lg border border-yellow-400 opacity-0 group-hover:opacity-100 transition pointer-events-none"
+                                ></div>
                             </div>
                         </div>
+
+                        <!-- PAGINATION -->
                         <div
                             class="flex items-center justify-center gap-3 mt-3 text-white text-sm"
                         >
@@ -76,10 +82,327 @@
                                 Next
                             </button>
                         </div>
+
+                        <!-- GOLD & DIAMOND -->
+                        <div class="mt-4 grid grid-cols-2 gap-2">
+                            <!-- GOLD -->
+                            <div
+                                class="bg-yellow-500/10 border border-yellow-500/30 rounded-lg px-3 py-2 flex items-center justify-between"
+                            >
+                                <div class="flex items-center gap-2">
+                                    <span class="text-yellow-400 text-lg"
+                                        >🪙</span
+                                    >
+
+                                    <span
+                                        class="text-yellow-300 text-sm font-semibold"
+                                    >
+                                        Gold
+                                    </span>
+                                </div>
+
+                                <span class="text-white text-sm font-bold">
+                                    {{ playerCurrentGold }}
+                                </span>
+                            </div>
+
+                            <!-- DIAMOND -->
+                            <div
+                                class="bg-cyan-500/10 border border-cyan-500/30 rounded-lg px-3 py-2 flex items-center justify-between"
+                            >
+                                <div class="flex items-center gap-2">
+                                    <span class="text-cyan-400 text-lg"
+                                        >💎</span
+                                    >
+
+                                    <span
+                                        class="text-cyan-300 text-sm font-semibold"
+                                    >
+                                        Diamond
+                                    </span>
+                                </div>
+
+                                <span class="text-white text-sm font-bold">
+                                    {{ playerCurrentDiamond }}
+                                </span>
+                            </div>
+                        </div>
                     </div>
                 </div>
+                <div
+                    v-if="selectedItem"
+                    class="fixed inset-0 bg-black/70 flex items-center justify-center z-50"
+                >
+                    <div
+                        class="w-[320px] bg-gradient-to-b from-gray-900 to-black border border-gray-500 rounded-xl p-4 shadow-2xl"
+                    >
+                        <!-- HEADER -->
+                        <div class="flex items-center gap-3">
+                            <div
+                                class="w-16 h-16 bg-gray-800 border border-gray-700 rounded-lg flex items-center justify-center"
+                            >
+                                <img
+                                    :src="`/${selectedItem.item_type}s/${selectedItem.item.name}.png`"
+                                    class="w-12 h-12 object-contain"
+                                />
+                            </div>
 
-                <!-- ARMORY -->
+                            <div>
+                                <h2 class="text-yellow-400 font-bold text-lg">
+                                    {{ selectedItem.item.name }}
+                                </h2>
+                                <p
+                                    class="text-gray-400 text-sm capitalize"
+                                    v-if="selectedItem.item_type !== 'material'"
+                                >
+                                    Lvl.{{
+                                        selectedItem.item?.requirement_level
+                                    }}
+                                </p>
+                                <p class="text-gray-400 text-sm capitalize">
+                                    {{ selectedItem.item_type }}
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- DETAILS -->
+                        <div class="mt-4 space-y-2 text-sm">
+                            <div
+                                class="flex justify-between border-b border-gray-800 pb-1"
+                                v-if="selectedItem.item.type === 'material'"
+                            >
+                                <span class="text-gray-400">Quantity</span>
+                                <span class="text-white font-semibold">
+                                    x{{ selectedItem.quantity }}
+                                </span>
+                            </div>
+
+                            <!-- SAMPLE STATS -->
+                            <div
+                                class="flex justify-between border-b border-gray-800 pb-1"
+                                v-if="selectedItem.item.type === 'material'"
+                            >
+                                <span class="text-gray-400">Rarity</span>
+                                <span
+                                    class="text-green-400 font-semibold capitalize"
+                                    :class="{
+                                        'text-green-400':
+                                            selectedItem.item.rarity ===
+                                            'common',
+                                        'text-purple-400':
+                                            selectedItem.item.rarity === 'rare',
+                                        'text-pink-400':
+                                            selectedItem.item.rarity === 'epic',
+                                    }"
+                                >
+                                    {{ selectedItem.item.rarity }}
+                                </span>
+                            </div>
+
+                            <div
+                                class="flex justify-between border-b border-gray-800 pb-1"
+                                v-if="selectedItem.item.type === 'material'"
+                            >
+                                <span class="text-gray-400">Type</span>
+                                <span
+                                    class="text-cyan-400 font-semibold capitalize"
+                                >
+                                    {{ selectedItem.item_type }}
+                                </span>
+                            </div>
+
+                            <!-- STATS -->
+                            <div
+                                class="border-b border-gray-800 pb-2"
+                                v-if="selectedItem.item_type === 'gear'"
+                            >
+                                <div class="text-gray-400 mb-2">Stats</div>
+
+                                <div class="space-y-1 text-sm">
+                                    <!-- BASIC STATS (GRAY / NORMAL) -->
+                                    <div
+                                        v-if="basicStats.attack"
+                                        class="flex justify-between"
+                                    >
+                                        <span class="text-gray-300"
+                                            >⚔ Attack</span
+                                        >
+                                        <span class="text-gray-200"
+                                            >+{{ basicStats.attack }}</span
+                                        >
+                                    </div>
+
+                                    <div
+                                        v-if="basicStats.defense"
+                                        class="flex justify-between"
+                                    >
+                                        <span class="text-gray-300"
+                                            >🛡 Defense</span
+                                        >
+                                        <span class="text-gray-200"
+                                            >+{{ basicStats.defense }}</span
+                                        >
+                                    </div>
+
+                                    <div
+                                        v-if="basicStats.hp"
+                                        class="flex justify-between"
+                                    >
+                                        <span class="text-gray-300">❤️ HP</span>
+                                        <span class="text-gray-200"
+                                            >+{{ basicStats.hp }}</span
+                                        >
+                                    </div>
+
+                                    <div
+                                        v-if="basicStats.mp"
+                                        class="flex justify-between"
+                                    >
+                                        <span class="text-gray-300">🔷 MP</span>
+                                        <span class="text-gray-200"
+                                            >+{{ basicStats.mp }}</span
+                                        >
+                                    </div>
+
+                                    <div
+                                        v-if="basicStats.speed"
+                                        class="flex justify-between"
+                                    >
+                                        <span class="text-gray-300"
+                                            >💨 Speed</span
+                                        >
+                                        <span class="text-gray-200"
+                                            >+{{ basicStats.speed }}</span
+                                        >
+                                    </div>
+
+                                    <div
+                                        v-if="basicStats.crit"
+                                        class="flex justify-between"
+                                    >
+                                        <span class="text-gray-300"
+                                            >✨ Crit</span
+                                        >
+                                        <span class="text-gray-200"
+                                            >+{{ basicStats.crit }}%</span
+                                        >
+                                    </div>
+
+                                    <!-- RANDOM STATS (GREEN / BONUS) -->
+                                    <div
+                                        v-if="randomStats.attack"
+                                        class="flex justify-between"
+                                    >
+                                        <span class="text-green-400"
+                                            >⚔ Bonus Attack</span
+                                        >
+                                        <span
+                                            class="text-green-300 font-semibold"
+                                        >
+                                            +{{ randomStats.attack }}
+                                        </span>
+                                    </div>
+
+                                    <div
+                                        v-if="randomStats.defense"
+                                        class="flex justify-between"
+                                    >
+                                        <span class="text-green-400"
+                                            >🛡 Bonus Defense</span
+                                        >
+                                        <span
+                                            class="text-green-300 font-semibold"
+                                        >
+                                            +{{ randomStats.defense }}
+                                        </span>
+                                    </div>
+
+                                    <div
+                                        v-if="randomStats.hp"
+                                        class="flex justify-between"
+                                    >
+                                        <span class="text-green-400"
+                                            >❤️ Bonus HP</span
+                                        >
+                                        <span
+                                            class="text-green-300 font-semibold"
+                                        >
+                                            +{{ randomStats.hp }}
+                                        </span>
+                                    </div>
+
+                                    <div
+                                        v-if="randomStats.mp"
+                                        class="flex justify-between"
+                                    >
+                                        <span class="text-green-400"
+                                            >🔷 Bonus MP</span
+                                        >
+                                        <span
+                                            class="text-green-300 font-semibold"
+                                        >
+                                            +{{ randomStats.mp }}
+                                        </span>
+                                    </div>
+
+                                    <div
+                                        v-if="randomStats.speed"
+                                        class="flex justify-between"
+                                    >
+                                        <span class="text-green-400"
+                                            >💨 Bonus Speed</span
+                                        >
+                                        <span
+                                            class="text-green-300 font-semibold"
+                                        >
+                                            +{{ randomStats.speed }}
+                                        </span>
+                                    </div>
+
+                                    <div
+                                        v-if="randomStats.crit"
+                                        class="flex justify-between"
+                                    >
+                                        <span class="text-green-400"
+                                            >✨ Bonus Crit</span
+                                        >
+                                        <span
+                                            class="text-green-300 font-semibold"
+                                        >
+                                            +{{ randomStats.crit }}%
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- DESCRIPTION -->
+                        <div
+                            class="mt-4 bg-gray-900 border border-gray-800 rounded-lg p-3 text-xs text-gray-300"
+                        >
+                            {{
+                                selectedItem.item.description ||
+                                "A mysterious item from the world."
+                            }}
+                        </div>
+                        <!-- ACTIONS -->
+                        <div class="mt-4 flex gap-2">
+                            <button
+                                class="flex-1 bg-blue-500 hover:bg-blue-400 text-white font-bold py-2 rounded-lg transition"
+                                v-if="selectedItem.item.type !== 'material'"
+                            >
+                                Use
+                            </button>
+
+                            <button
+                                @click="closeItem"
+                                class="flex-1 bg-gray-800 hover:bg-gray-700 text-white py-2 rounded-lg transition"
+                            >
+                                Close
+                            </button>
+                        </div>
+                    </div>
+                </div>
 
                 <!-- ARMORY -->
                 <div>
@@ -155,8 +478,34 @@ const getInventory = ref([]);
 import { usePage } from "@inertiajs/vue3";
 
 const page = usePage();
-const playerGold = page.props.auth.user.player.current_gold;
+const playerCurrentGold = page.props.auth.user.player.current_gold;
 const playerCurrentDiamond = page.props.auth.user.player.current_diamond;
+const selectedItem = ref(null);
+
+function openItem(item) {
+    selectedItem.value = item;
+}
+
+function closeItem() {
+    selectedItem.value = null;
+}
+
+const basicStats = computed(() => {
+    try {
+        return JSON.parse(selectedItem.value?.item?.basic_stats || "{}");
+    } catch {
+        return {};
+    }
+});
+
+const randomStats = computed(() => {
+    try {
+        return JSON.parse(selectedItem.value?.random_stat || "{}");
+    } catch {
+        return {};
+    }
+});
+
 async function openInventory() {
     try {
         const response = await axios.get("/open-inventory");
@@ -167,7 +516,7 @@ async function openInventory() {
 }
 
 const currentPage = ref(1);
-const perPage = 12; // 4 x 4 grid
+const perPage = 15; // 4 x 4 grid
 
 const paginatedInventory = computed(() => {
     const items = getInventory.value ?? getInventory;

@@ -9,9 +9,10 @@ const form = useForm({});
 const user = usePage().props.auth.user;
 const emit = defineEmits(["close"]);
 
-function goTo(map_id) {
-    form.get(route("world.map", map_id), {
+function goTo(map) {
+    form.get(route("world.map", map.map_id), {
         onStart: () => emit("close"),
+        onFinish: () => pushAlert(map.name, "success"),
         onError: (errors) => {
             pushAlert(errors.message || "Level not met.", "error");
         },
@@ -22,9 +23,7 @@ function goTo(map_id) {
     <div class="npc-modal">
         <div class="npc-modal-content p-6">
             <div class="flex justify-between items-center mb-6">
-                <h1 class="text-3xl text-white font-bold">
-                    {{ npc.name }}
-                </h1>
+                <h1 class="text-3xl text-white font-bold">Dungeons</h1>
 
                 <button
                     @click="$emit('close')"
@@ -43,7 +42,7 @@ function goTo(map_id) {
                             ? 'bg-gray-900 opacity-40 cursor-not-allowed'
                             : ''
                     "
-                    @click="goTo(map.map_id)"
+                    @click="goTo(map)"
                 >
                     <!-- IMAGE -->
                     <img

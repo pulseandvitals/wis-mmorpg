@@ -1,40 +1,68 @@
 <script setup>
 import { useForm } from "@inertiajs/vue3";
-import { nextTick, onUnmounted, onMounted, ref, watch } from "vue";
+import { nextTick, onMounted, ref, computed } from "vue";
+
 const form = useForm({
     msg_value: "",
 });
+
 const messages = ref([]);
 const isSending = ref(false);
 const isLoading = ref(true);
-
 const chatBox = ref(null);
 
+/* =========================
+CHAT CHANNEL STATE
+========================= */
+const activeChannel = ref("world"); // world | local | party
+
+/* =========================
+FILTERED MESSAGES
+========================= */
+const filteredMessages = computed(() => {
+    return messages.value.filter((m) => m.channel === activeChannel.value);
+});
+
+/* =========================
+SCROLL
+========================= */
 function scrollToBottom() {
     nextTick(() => {
         if (!chatBox.value) return;
-
         chatBox.value.scrollTop = chatBox.value.scrollHeight;
     });
 }
 
+/* =========================
+MOUNT
+========================= */
 onMounted(async () => {
     getMessages();
+
     window.Echo.channel("world-chat").listen(".message.sent", (e) => {
         messages.value.push(e);
-        scrollToBottom();
-        if (messages.value.length > 30) {
+
+        if (messages.value.length > 50) {
             messages.value.shift();
         }
+
+        scrollToBottom();
     });
 });
 
+/* =========================
+LOAD MESSAGES
+========================= */
 async function getMessages() {
     const res = await axios.get("/streams/get-world-chat");
     messages.value = res.data;
     isLoading.value = false;
     scrollToBottom();
 }
+
+/* =========================
+SEND MESSAGE
+========================= */
 async function sendMessage() {
     if (!form.msg_value.trim() || isSending.value) return;
 
@@ -43,9 +71,10 @@ async function sendMessage() {
     try {
         await axios.post("/send-message", {
             msg_value: form.msg_value,
+            channel: activeChannel.value,
         });
 
-        form.msg_value = ""; // clear input after send
+        form.msg_value = "";
         scrollToBottom();
     } catch (err) {
         console.error(err);
@@ -57,22 +86,73 @@ async function sendMessage() {
 
 <template>
     <div class="world-chat">
-        <div class="chat-header">WORLD CHAT</div>
-        <div v-if="isLoading" class="chat-loading">
-            <div class="spinner"></div>
-            <span>Connecting to world chat...</span>
-        </div>
-        <div v-else class="chat-messages" ref="chatBox">
-            <div
-                v-for="(message, index) in messages"
-                :key="index"
-                class="chat-message"
-            >
-                <span class="chat-name">{{ message.player.name }}: </span>
-                <span class="chat-text">{{ message.message }}</span>
+        <!-- HEADER -->
+        <div class="chat-header">
+            <div class="flex justify-between items-center">
+                <span>CHAT</span>
+
+                <!-- CHANNEL SWITCH -->
+                <div class="flex gap-2 text-[10px]">
+                    <button
+                        @click="activeChannel = 'world'"
+                        :class="
+                            activeChannel === 'world'
+                                ? 'text-yellow-400'
+                                : 'text-gray-400'
+                        "
+                    >
+                        World
+                    </button>
+
+                    <button
+                        @click="activeChannel = 'local'"
+                        :class="
+                            activeChannel === 'local'
+                                ? 'text-green-400'
+                                : 'text-gray-400'
+                        "
+                    >
+                        Local
+                    </button>
+
+                    <button
+                        @click="activeChannel = 'party'"
+                        :class="
+                            activeChannel === 'party'
+                                ? 'text-blue-400'
+                                : 'text-gray-400'
+                        "
+                    >
+                        Party
+                    </button>
+                </div>
             </div>
         </div>
 
+        <!-- LOADING -->
+        <div v-if="isLoading" class="chat-loading">
+            <div class="spinner"></div>
+            <span>Connecting...</span>
+        </div>
+
+        <!-- MESSAGES -->
+        <div v-else class="chat-messages" ref="chatBox">
+            <div
+                v-for="(message, index) in filteredMessages"
+                :key="index"
+                class="chat-message"
+            >
+                <span class="chat-name">
+                    [{{ message.channel }}] {{ message.player.name }}:
+                </span>
+
+                <span class="chat-text">
+                    {{ message.message }}
+                </span>
+            </div>
+        </div>
+
+        <!-- INPUT -->
         <div class="chat-input-wrapper">
             <input
                 v-model="form.msg_value"
@@ -87,9 +167,7 @@ async function sendMessage() {
                 :disabled="isSending"
                 class="chat-button"
             >
-                <div v-if="isSending" class="chat-loading">
-                    <div class="spinner"></div>
-                </div>
+                <div v-if="isSending" class="spinner"></div>
                 <div v-else>Send</div>
             </button>
         </div>

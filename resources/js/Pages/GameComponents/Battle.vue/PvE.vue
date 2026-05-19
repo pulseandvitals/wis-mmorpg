@@ -1,10 +1,9 @@
 <script setup>
-import { ref, computed } from "vue";
+import { ref, computed, onMounted, onUnmounted } from "vue";
 import Monster from "./Monster.vue";
 import "./skill_animations.css";
 import LootDrops from "./LootDrops.vue";
 import LevelUp from "./LevelUp.vue";
-
 const props = defineProps({
     player: {
         type: Object,
@@ -464,6 +463,28 @@ function randomDamage(min, max) {
 function randomEva(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + max;
 }
+
+function handleKey(e) {
+    const key = e.key;
+
+    // Only number keys 1–9
+    if (key >= "1" && key <= "9") {
+        const index = Number(key) - 1;
+
+        const skill = props.player.skills[index];
+        if (!skill) return;
+
+        useSkill(skill);
+    }
+}
+
+onMounted(() => {
+    window.addEventListener("keydown", handleKey);
+});
+
+onUnmounted(() => {
+    window.removeEventListener("keydown", handleKey);
+});
 </script>
 
 <template>
@@ -607,11 +628,23 @@ function randomEva(min, max) {
             <!-- SKILLS -->
             <div class="skills-panel">
                 <div
-                    v-for="skill in player.skills"
+                    v-for="(skill, index) in player.skills"
                     :key="skill.id"
-                    class="skill-card"
+                    class="skill-card relative"
+                    :class="{
+                        'active-turn': playerTurn,
+                        'opacity-40 grayscale pointer-events-none':
+                            !playerTurn || battleEnded,
+                    }"
                 >
-                    <!-- SKILL ICON CENTER -->
+                    <!-- HOTKEY NUMBER -->
+                    <div
+                        class="absolute top-1 left-1 text-[10px] bg-black/70 text-yellow-400 px-1 rounded"
+                    >
+                        {{ index + 1 }}
+                    </div>
+
+                    <!-- SKILL ICON -->
                     <div class="skill-icon-wrap" @click="useSkill(skill)">
                         <img
                             :src="skill.icon || '/icons/default-skill.png'"
@@ -628,7 +661,7 @@ function randomEva(min, max) {
                     <div class="target-buttons">
                         <template v-if="skill.targets === 1">
                             <button
-                                v-for="(monster, index) in aliveMonsters"
+                                v-for="monster in aliveMonsters"
                                 :key="monster.id"
                                 class="target-btn skill-btn"
                                 :disabled="!playerTurn || battleEnded"
@@ -1416,5 +1449,9 @@ MONSTER SELECT
 
 .mp-fill {
     background: linear-gradient(to right, #3498db, #2980b9);
+}
+
+.skill-card.active-turn {
+    box-shadow: 0 0 10px rgba(255, 215, 0, 0.4);
 }
 </style>

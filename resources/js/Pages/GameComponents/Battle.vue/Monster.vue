@@ -49,7 +49,7 @@ function selectMonster(monster) {
         <!-- SPRITE -->
         <img
             class="monster-sprite"
-            :src="`/monster_sprites/${monster.name}/${monster.moving ? 'walk' : 'idle'}-${monster.direction}.gif`"
+            :src="`/monster_sprites/${monster.name.replace(' (Elite)', '')}/${monster.moving ? 'walk' : 'idle'}-${monster.direction}.gif`"
         />
     </div>
 </template>
