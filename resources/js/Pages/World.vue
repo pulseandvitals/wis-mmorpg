@@ -669,9 +669,7 @@ watch(
 
     border: 4px solid #374151;
     overflow: hidden;
-    cursor:
-        url("/move-cursor.ani") 16 16,
-        pointer;
+    cursor: pointer;
     image-rendering: pixelated;
 }
 .game-map.blocked {

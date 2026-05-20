@@ -21,5 +21,6 @@ class DatabaseSeeder extends Seeder
         $this->call(GearSeeder::class);
         $this->call(WeaponSeeder::class);
         $this->call(CraftMaterial::class);
+        $this->call(PotionSeeder::class);
     }
 }

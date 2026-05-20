@@ -6,6 +6,7 @@ import PlayerInventoryModal from "./PlayerInventoryModal.vue";
 import Ranking from "./Npc/Ranking.vue";
 import PartyRoom from "./Npc/PartyRoom.vue";
 import { pushAlert } from "@/Stores/GlobalAlert";
+import Topup from "../Transaction/Topup.vue";
 
 const props = defineProps({
     classSkills: Object,
@@ -17,7 +18,7 @@ const isSkillOpen = ref(false);
 const isInventoryOpen = ref(false);
 const isRankingOpen = ref(false);
 const isPartyOpen = ref(false);
-
+const isTopUpOpen = ref(false);
 const map = props.all_maps.find((map) => map.name === "Town Square");
 
 const menuItems = [
@@ -27,7 +28,8 @@ const menuItems = [
     { id: 4, label: "Ranking", icon: "🏆" },
     { id: 5, label: "Discord", icon: "💬" },
     { id: 6, label: "Settings", icon: "⚙️" },
-    { id: 7, label: "Back to Town", icon: "🏡" },
+    { id: 7, label: "Top Up", icon: "💎" },
+    { id: 8, label: "Back to Town", icon: "🏡" },
 ];
 
 const handleMenuClick = (item) => {
@@ -47,6 +49,9 @@ const handleMenuClick = (item) => {
         window.open("https://discord.com", "_blank");
     }
     if (item.id === 7) {
+        isTopUpOpen.value = true;
+    }
+    if (item.id === 8) {
         form.get(route("world.map", map.map_id), {
             onFinish: () => pushAlert(map.name, "success"),
         });
@@ -83,6 +88,7 @@ const handleMenuClick = (item) => {
         @close="isSkillOpen = false"
     />
     <Ranking v-if="isRankingOpen" @close="isRankingOpen = false" />
+    <Topup v-if="isTopUpOpen" @close="isTopUpOpen = false" />
 </template>
 <style scoped>
 .hud-menu {

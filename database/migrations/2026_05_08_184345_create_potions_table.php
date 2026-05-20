@@ -14,14 +14,11 @@ return new class extends Migration
         Schema::create('potions', function (Blueprint $table) {
             $table->id();
             $table->string('name');
+            $table->string('description');
             $table->string('type');
-            $table->integer('health_restore')->default(0);
-            $table->integer('mana_restore')->default(0);
-            $table->integer('attack_bonus')->default(0);
-            $table->integer('defense_bonus')->default(0);
-            $table->integer('speed_bonus')->default(0);
-            $table->integer('evasion_bonus')->default(0);
-            $table->integer('critical_bonus')->default(0);
+            $table->json('effect')->nullable();
+            $table->integer('item_price')->default(0);
+            $table->string('sell_type');
             $table->timestamps();
         });
     }

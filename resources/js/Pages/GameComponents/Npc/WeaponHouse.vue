@@ -253,7 +253,7 @@ onMounted(async () => {
                                     class="flex items-center gap-3 border-b border-white/10 pb-4 mb-4"
                                 >
                                     <img
-                                        :src="`/weapons/${selectedWeapon.name}.png`"
+                                        :src="`/gears/${selectedWeapon.name}.png`"
                                         class="w-12 h-12 object-contain"
                                     />
 

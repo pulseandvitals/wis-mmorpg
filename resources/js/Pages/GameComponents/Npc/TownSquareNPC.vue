@@ -7,6 +7,7 @@ import WeaponHouse from "./WeaponHouse.vue";
 import ArmorHouse from "./ArmorHouse.vue";
 import Portal from "../Portal.vue";
 import EventList from "../Event/EventList.vue";
+import PotionHouse from "./PotionHouse.vue";
 const props = defineProps({
     all_maps: Object,
     player: Object,
@@ -163,6 +164,7 @@ function handleOpen() {
     <WeaponHouse v-if="isWeaponHouseOpen" @close="isWeaponHouseOpen = false" />
     <ArmorHouse v-if="isArmorHouseOpen" @close="isArmorHouseOpen = false" />
     <EventList v-if="isEventOrgOpen" @close="isEventOrgOpen = false" />
+    <PotionHouse v-if="isPotionHouseOpen" @close="isPotionHouseOpen = false" />
     <DungeonMaps
         v-if="isPortalOpen"
         :all_maps="all_maps"

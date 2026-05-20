@@ -7,6 +7,7 @@ use App\Http\Controllers\MapController;
 use App\Http\Controllers\MiniEventController;
 use App\Http\Controllers\PartyRoomController;
 use App\Http\Controllers\PlayerController;
+use App\Http\Controllers\PotionController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\WorldChatController;
 use Illuminate\Foundation\Application;
@@ -32,6 +33,7 @@ Route::prefix('world')->group(function () {
     Route::get('/get-ranking',[PlayerController::class,'getPlayerRanking']);
     Route::get('/get-weapons',[GearController::class,'getWeapons']);
     Route::get('/get-armors',[GearController::class,'getArmors']);
+    Route::get('/get-potions',[PotionController::class,'getPotions']);
     Route::post('/update-player-move',[PlayerController::class,'updatePlayerMove']);
     Route::get('/get-crafting-materials',[GearController::class,'getCraftingMaterials']);
     Route::post('/craft-gear',[GearController::class,'craftGear']);
