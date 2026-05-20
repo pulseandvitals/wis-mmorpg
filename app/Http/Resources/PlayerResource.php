@@ -14,7 +14,7 @@ class PlayerResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        return [
+       return [
             'id' => $this->id,
             'name' => $this->name,
             'class_type' => $this->class_type,
@@ -34,6 +34,38 @@ class PlayerResource extends JsonResource
             'current_map_id' => $this->current_map_id,
             'x' => $this->x,
             'y' => $this->y,
+
+            /*
+            |--------------------------------------------------------------------------
+            | EQUIPPED GEARS
+            |--------------------------------------------------------------------------
+            */
+
+            'helmet' => $this->helmet,
+            'weapon' => $this->weapon,
+            'armor' => $this->armor,
+            'boots' => $this->boots,
+            'gloves' => $this->gloves,
+            'shield' => $this->shield,
+            'necklace' => $this->necklace,
+            'ring' => $this->ring,
+            'pants' => $this->pants,
+
+            /*
+            |--------------------------------------------------------------------------
+            | EQUIPPED GEAR IDS
+            |--------------------------------------------------------------------------
+            */
+
+            'helmet_id' => $this->helmet_id,
+            'weapon_id' => $this->weapon_id,
+            'armor_id' => $this->armor_id,
+            'boots_id' => $this->boots_id,
+            'gloves_id' => $this->gloves_id,
+            'shield_id' => $this->shield_id,
+            'necklace_id' => $this->necklace_id,
+            'pants_id' => $this->pants_id,
+            'ring_id' => $this->ring_id,
         ];
     }
 }

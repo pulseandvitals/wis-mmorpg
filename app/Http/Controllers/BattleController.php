@@ -45,10 +45,7 @@ class BattleController extends Controller
             $this->player->current_level += 1;
             $this->player->current_experience -= $neededExp;
 
-            $this->player->total_attack += 3;
-            $this->player->total_defense += 3;
-            $this->player->max_health += 5;
-            $this->player->max_mana += 5;
+            $this->player->recalculateStats();
             $levelUp = true;
         }
 

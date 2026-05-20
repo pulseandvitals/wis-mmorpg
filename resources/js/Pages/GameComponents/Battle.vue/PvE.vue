@@ -335,7 +335,41 @@ function monsterTurn() {
         setTimeout(() => {
             attackingMonsterId.value = monster.id;
 
-            const damage = randomDamage(monster.attack - 2, monster.attack + 2);
+            const rawDamage = randomDamage(
+                monster.attack - 2,
+                monster.attack + 2,
+            );
+
+            // =========================
+            // 🎯 MISS CHECK
+            // =========================
+            if (calculateMiss(props.player.eva ?? 0)) {
+                logs.value.unshift(`${monster.name} missed! 🌀`);
+
+                monsterSkillShout(monster);
+
+                setTimeout(() => {
+                    attackingMonsterId.value = null;
+                }, 700);
+
+                checkBattle();
+
+                if (
+                    monster.id ===
+                        aliveMonsters.value[aliveMonsters.value.length - 1]
+                            ?.id &&
+                    !battleEnded.value
+                ) {
+                    playerTurn.value = true;
+                }
+
+                return;
+            }
+
+            // =========================
+            // 🛡 DAMAGE CALCULATION
+            // =========================
+            const damage = calculateDamage(rawDamage, props.player.def ?? 0);
 
             playerDamage.value = damage;
 
@@ -345,10 +379,11 @@ function monsterTurn() {
 
             props.player.current_health -= damage;
 
-            if (props.player.current_health < 0)
+            if (props.player.current_health < 0) {
                 props.player.current_health = 0;
+            }
 
-            logs.value.unshift(`${monster.name} attacked for ${damage}`);
+            logs.value.unshift(`${monster.name} hit you for ${damage} ⚔️`);
 
             monsterSkillShout(monster);
 
@@ -464,6 +499,24 @@ function randomEva(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + max;
 }
 
+function calculateMiss(evasion) {
+    const hitChance = Math.max(40, 90 - evasion * 0.6);
+    const roll = Math.random() * 100;
+
+    return roll > hitChance; // true = MISS
+}
+
+function calculateDamage(rawDamage, defense) {
+    let reduction = defense * 0.55;
+    let damage = rawDamage - reduction;
+
+    // chip damage rule
+    if (damage <= 0) {
+        return Math.floor(Math.random() * 4) + 3; // 3–6
+    }
+
+    return Math.floor(damage);
+}
 function handleKey(e) {
     const key = e.key;
 

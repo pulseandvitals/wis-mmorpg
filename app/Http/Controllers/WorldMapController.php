@@ -18,8 +18,11 @@ class WorldMapController extends Controller
         $map = Map::where('map_id', $map_id)->firstOrFail();
 
         switch($map->name) {
-            case 'Town Square':
-                $current_map = $this->getTownSquareMap($map);
+            case 'Wisteria Town':
+                $current_map = $this->getWisteriaTownMap($map);
+                break;
+            case 'Wisteria Village':
+                $current_map = $this->getWisteriaVillageMap($map);
                 break;
             case 'Valdora Grassland':
                 $current_map = $this->getValdoraGrasslandMap($map);
@@ -48,14 +51,17 @@ class WorldMapController extends Controller
             case 'Sky Islands':
                 $current_map = $this->getSkyIslandsMap($map);
                 break;
+            case 'Sky Islands Underground':
+                $current_map = $this->getSkyIslandsUnderground($map);
+                break;
             default:
-                $current_map =$this->getTownSquareMap($map);
+                $current_map =$this->getWisteriaVillageMap($map);
         }
 
         return $current_map;
     }
 
-    private function getTownSquareMap($map) {
+    private function getWisteriaTownMap($map) {
         $player = auth()->user()->player;
 
         if($map->level_requirement > $player->current_level) {
@@ -80,6 +86,42 @@ class WorldMapController extends Controller
             [1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
             [1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
             [1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+        ];
+
+        return Inertia::render('World',[
+            'current_map' => $map,
+            'map_tiles' => $mapTiles,
+            'all_maps' => $this->getAllMaps(),
+            ...$this->getPlayerData()
+        ]);
+    }
+
+    private function getWisteriaVillageMap($map) {
+        $player = auth()->user()->player;
+
+        if($map->level_requirement > $player->current_level) {
+            return back()->withErrors([
+                'message' => 'Level not met.'
+            ]);
+        };
+
+        $this->saveMap($map->map_id);
+
+
+        $mapTiles =  [
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 1],
+            [1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1],
+            [1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1],
+            [1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1],
+            [1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1],
+            [1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
             [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
         ];
 
@@ -410,6 +452,42 @@ class WorldMapController extends Controller
         ]);
     }
 
+    private function getSkyIslandsUnderground($map)
+    {
+        $player = auth()->user()->player;
+
+        if($map->level_requirement > $player->current_level) {
+            return back()->withErrors([
+                'message' => 'Level not met.'
+            ]);
+        };
+
+        $this->saveMap($map->map_id);
+
+        $mapTiles =  [
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1],
+            [1, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1],
+            [1, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1],
+            [1, 1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1],
+            [1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1],
+            [1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1],
+            [1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1],
+            [1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1],
+            [1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1],
+            [1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1],
+            [1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1],
+        ];
+        return Inertia::render('World',[
+            'current_map' => $map,
+            'all_maps' => $this->getAllMaps(),
+            'map_tiles' => $mapTiles,
+            'monsters' => $this->getMonsterByMap($map->name),
+            ...$this->getPlayerData()
+        ]);
+    }
+
     private function getMonsterByMap($map)
     {
         return Monster::whereMap($map)->get() ?: null;
@@ -427,7 +505,16 @@ class WorldMapController extends Controller
         $player = auth()->user()->player;
 
         return [
-            'playerData' => PlayerResource::make($player),
+            'playerData' => PlayerResource::make($player::with([
+                    'helmet.gear',
+                    'weapon.gear',
+                    'armor.gear',
+                    'boots.gear',
+                    'gloves.gear',
+                    'shield.gear',
+                    'pants.gear',
+                    'ring.gear',
+                ])->first()),
             'playerSkills' => ClassSkillResource::collection(Skill::byClass($player->class_type)->byLevel($player->current_level)->get()),
             'classSkills' => ClassSkillResource::collection(Skill::byClass($player->class_type)->get()),
         ];

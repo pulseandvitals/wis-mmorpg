@@ -6,7 +6,6 @@ import { pushAlert } from "@/Stores/GlobalAlert";
 import { usePage } from "@inertiajs/vue3";
 import { onMounted, ref, watch } from "vue";
 const page = usePage();
-const playerId = page.props.auth.user?.player?.id;
 const party = ref(null);
 async function getMyParty() {
     let res = await axios.get("/get-party");

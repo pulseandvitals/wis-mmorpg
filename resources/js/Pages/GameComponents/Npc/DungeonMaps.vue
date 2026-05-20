@@ -8,7 +8,7 @@ const props = defineProps({
 const form = useForm({});
 const user = usePage().props.auth.user;
 const emit = defineEmits(["close"]);
-
+const maps = props.all_maps.filter((map) => map.name !== "Wisteria Village");
 function goTo(map) {
     form.get(route("world.map", map.map_id), {
         onStart: () => emit("close"),
@@ -34,7 +34,7 @@ function goTo(map) {
             </div>
             <div class="grid grid-cols-2 gap-4">
                 <div
-                    v-for="map in all_maps"
+                    v-for="map in maps"
                     :key="map.map_id"
                     class="p-4 bg-gray-800 hover:bg-gray-700 rounded-lg border border-gray-600 cursor-pointer transition"
                     :class="

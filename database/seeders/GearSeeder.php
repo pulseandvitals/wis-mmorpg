@@ -79,7 +79,7 @@ class GearSeeder extends Seeder
 
                     // ACCESSORY / HYBRID BONUS
                     'ring' => [
-                        'crit_rate' => randStats($level * 0.1),
+                        'crit' => randStats($level * 0.1),
                         'attack' => randStats($level * 0.2),
                         'hp' => randStats($level * 0.8),
                     ],

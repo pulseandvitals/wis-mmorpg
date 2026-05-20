@@ -23,7 +23,7 @@ class SkillSeeder extends Seeder
                 'element' => 'fire',
                 'requirement_level' => 1,
                 'damage' => 20,
-                'mana_cost' => 5,
+                'mana_cost' => 2,
                 'icon_path' => URL::to('skills/Archer1.png'),
             ],
             [
@@ -34,7 +34,7 @@ class SkillSeeder extends Seeder
                 'element' => 'water',
                 'requirement_level' => 10,
                 'damage' => 25,
-                'mana_cost' => 20,
+                'mana_cost' => 6,
                 'icon_path' => URL::to('skills/Archer2.png'),
             ],
 
@@ -46,7 +46,7 @@ class SkillSeeder extends Seeder
                 'element' => 'wind',
                 'requirement_level' => 15,
                 'damage' => 80,
-                'mana_cost' => 20,
+                'mana_cost' => 8,
                 'icon_path' => URL::to('skills/Archer3.png'),
             ],
             [
@@ -57,7 +57,7 @@ class SkillSeeder extends Seeder
                 'element' => 'fire',
                 'requirement_level' => 25,
                 'damage' => 90,
-                'mana_cost' => 30,
+                'mana_cost' => 12,
                 'icon_path' => URL::to('skills/Archer4.png'),
             ],
 
@@ -69,7 +69,7 @@ class SkillSeeder extends Seeder
                 'element' => 'electric',
                 'requirement_level' => 30,
                 'damage' => 140,
-                'mana_cost' => 30,
+                'mana_cost' => 10,
                 'icon_path' => URL::to('skills/Archer5.png'),
             ],
 
@@ -88,7 +88,7 @@ class SkillSeeder extends Seeder
                 'element' => 'fire',
                 'requirement_level' => 1,
                 'damage' => 20,
-                'mana_cost' => 5,
+                'mana_cost' => 2,
                 'icon_path' => URL::to('skills/Assassin1.png'),
             ],
 
@@ -100,7 +100,7 @@ class SkillSeeder extends Seeder
                 'element' => 'electric',
                 'requirement_level' => 5,
                 'damage' => 25,
-                'mana_cost' => 20,
+                'mana_cost' => 6,
                 'icon_path' => URL::to('skills/Assassin2.png'),
             ],
 
@@ -112,7 +112,7 @@ class SkillSeeder extends Seeder
                 'element' => 'water',
                 'requirement_level' => 15,
                 'damage' => 80,
-                'mana_cost' => 20,
+                'mana_cost' => 8,
                 'icon_path' => URL::to('skills/Assassin3.png'),
             ],
 
@@ -124,7 +124,7 @@ class SkillSeeder extends Seeder
                 'element' => 'wind',
                 'requirement_level' => 25,
                 'damage' => 120,
-                'mana_cost' => 35,
+                'mana_cost' => 10,
                 'icon_path' => URL::to('skills/Assassin4.png'),
             ],
 
@@ -136,7 +136,7 @@ class SkillSeeder extends Seeder
                 'element' => 'earth',
                 'requirement_level' => 30,
                 'damage' => 110,
-                'mana_cost' => 25,
+                'mana_cost' => 12,
                 'icon_path' => URL::to('skills/Assassin5.png'),
             ],
 
@@ -155,7 +155,7 @@ class SkillSeeder extends Seeder
                 'element' => 'water',
                 'requirement_level' => 1,
                 'damage' => 15,
-                'mana_cost' => 5,
+                'mana_cost' => 2,
                 'icon_path' => URL::to('skills/Knight1.png'),
             ],
 
@@ -167,7 +167,7 @@ class SkillSeeder extends Seeder
                 'element' => 'earth',
                 'requirement_level' => 5,
                 'damage' => 55,
-                'mana_cost' => 20,
+                'mana_cost' => 4,
                 'icon_path' => URL::to('skills/Knight2.png'),
             ],
 
@@ -179,7 +179,7 @@ class SkillSeeder extends Seeder
                 'element' => 'electric',
                 'requirement_level' => 10,
                 'damage' => 55,
-                'mana_cost' => 25,
+                'mana_cost' => 8,
                 'icon_path' => URL::to('skills/Knight3.png'),
             ],
 
@@ -191,7 +191,7 @@ class SkillSeeder extends Seeder
                 'element' => 'water',
                 'requirement_level' => 25,
                 'damage' => 130,
-                'mana_cost' => 30,
+                'mana_cost' => 8,
                 'icon_path' => URL::to('skills/Knight4.png'),
             ],
 
@@ -203,7 +203,7 @@ class SkillSeeder extends Seeder
                 'element' => 'fire',
                 'requirement_level' => 30,
                 'damage' => 110,
-                'mana_cost' => 35,
+                'mana_cost' => 12,
                 'icon_path' => URL::to('skills/Knight5.png'),
             ],
 
@@ -222,7 +222,7 @@ class SkillSeeder extends Seeder
                 'element' => 'wind',
                 'requirement_level' => 1,
                 'damage' => 15,
-                'mana_cost' => 5,
+                'mana_cost' => 2,
                 'icon_path' => URL::to('skills/Crusader1.png'),
             ],
 
@@ -234,7 +234,7 @@ class SkillSeeder extends Seeder
                 'element' => 'fire',
                 'requirement_level' => 5,
                 'damage' => 60,
-                'mana_cost' => 25,
+                'mana_cost' => 5,
                 'icon_path' => URL::to('skills/Crusader2.png'),
             ],
 
@@ -246,7 +246,7 @@ class SkillSeeder extends Seeder
                 'element' => 'earth',
                 'requirement_level' => 15,
                 'damage' => 50,
-                'mana_cost' => 25,
+                'mana_cost' => 10,
                 'icon_path' => URL::to('skills/Crusader3.png'),
             ],
 
@@ -258,7 +258,7 @@ class SkillSeeder extends Seeder
                 'element' => 'fire',
                 'requirement_level' => 25,
                 'damage' => 110,
-                'mana_cost' => 25,
+                'mana_cost' => 8,
                 'icon_path' => URL::to('skills/Crusader4.png'),
             ],
 
@@ -270,7 +270,7 @@ class SkillSeeder extends Seeder
                 'element' => 'water',
                 'requirement_level' => 30,
                 'damage' => 130,
-                'mana_cost' => 35,
+                'mana_cost' => 12,
                 'icon_path' => URL::to('skills/Crusader5.png'),
             ],
 
@@ -289,7 +289,7 @@ class SkillSeeder extends Seeder
                 'element' => 'fire',
                 'requirement_level' => 1,
                 'damage' => 25,
-                'mana_cost' => 5,
+                'mana_cost' => 2,
                 'icon_path' => URL::to('skills/Wizard1.png'),
             ],
 
@@ -301,7 +301,7 @@ class SkillSeeder extends Seeder
                 'element' => 'water',
                 'requirement_level' => 5,
                 'damage' => 40,
-                'mana_cost' => 30,
+                'mana_cost' => 5,
                 'icon_path' => URL::to('skills/Wizard2.png'),
             ],
 
@@ -313,7 +313,7 @@ class SkillSeeder extends Seeder
                 'element' => 'electric',
                 'requirement_level' => 15,
                 'damage' => 60,
-                'mana_cost' => 30,
+                'mana_cost' => 13,
                 'icon_path' => URL::to('skills/Wizard3.png'),
             ],
 
@@ -325,7 +325,7 @@ class SkillSeeder extends Seeder
                 'element' => 'earth',
                 'requirement_level' => 25,
                 'damage' => 100,
-                'mana_cost' => 45,
+                'mana_cost' => 13,
                 'icon_path' => URL::to('skills/Wizard4.png'),
             ],
 
@@ -337,7 +337,7 @@ class SkillSeeder extends Seeder
                 'element' => 'fire',
                 'requirement_level' => 30,
                 'damage' => 150,
-                'mana_cost' => 40,
+                'mana_cost' => 10,
                 'icon_path' => URL::to('skills/Wizard5.png'),
             ],
         ];

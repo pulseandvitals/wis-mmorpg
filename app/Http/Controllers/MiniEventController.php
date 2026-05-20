@@ -12,6 +12,12 @@ class MiniEventController extends Controller
 
         $currentGold = $player->current_gold ?: 0;
 
+        if($player->daily_bet_chance <= 0) {
+            return response()->json([
+                'message' => 'You have used all your daily bet chances. Try again tomorrow!'
+            ]);
+        }
+
         if($currentGold < $request->input('amount')) {
             return response()->json([
                 'message' => 'Not enough gold. You poor. Go farm!'
@@ -28,6 +34,7 @@ class MiniEventController extends Controller
         $amountBet = $request->input('amount');
         if($roll) {
             $player->current_gold += $amountBet;
+            $player->daily_bet_chance = max(0, $player->daily_bet_chance - 1);
             $player->save();
             $amountWon = $amountBet * 2;
             return response()->json([

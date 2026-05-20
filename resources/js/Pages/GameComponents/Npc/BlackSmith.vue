@@ -123,7 +123,8 @@ async function upgradeGear() {
                         class="mt-6 pt-4 border-t border-white/10 flex items-center justify-between"
                     >
                         <p class="text-xs text-gray-500">
-                            “Steel remembers every hand that forged it.”
+                            Upgrading comes with risk — there’s a chance your
+                            weapon will reset back to +0 if the upgrade fails.
                         </p>
 
                         <button

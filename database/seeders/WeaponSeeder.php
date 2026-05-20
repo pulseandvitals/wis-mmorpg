@@ -39,8 +39,8 @@ class WeaponSeeder extends Seeder
 
                 $stats = [
                     'attack' => randStat($level * 2),
-                    'crit_rate' => randStat($level * 0.3),
-                    'speed' => randStat($level * 0.4),
+                    'crit' => randStat($level * 0.2),
+                    'speed' => randStat($level * 0.3),
                 ];
 
                 $weapons[] = [

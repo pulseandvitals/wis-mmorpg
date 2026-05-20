@@ -38,17 +38,6 @@ const hoveredClass = ref(null);
         <meta property="og:type" content="website" />
 
         <!-- Game Schema -->
-        <script type="application/ld+json">
-            {
-                "@context": "https://schema.org",
-                "@type": "VideoGame",
-                "name": "Wis Online",
-                "description": "Free MMORPG browser game with PvP, quests, dungeons, and class-based progression.",
-                "genre": ["MMORPG", "Fantasy", "RPG", "Browser Game"],
-                "gamePlatform": "Web Browser",
-                "applicationCategory": "Game"
-            }
-        </script>
     </Head>
 
     <body

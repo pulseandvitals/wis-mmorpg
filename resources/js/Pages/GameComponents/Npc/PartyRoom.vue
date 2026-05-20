@@ -179,11 +179,6 @@ async function leaveRoom() {
 onMounted(async () => {
     await getMyRoom(); // 1. load data first
 });
-watch(room, (newVal) => {
-    if (newVal) {
-        getMyRoom();
-    }
-});
 </script>
 
 <style scoped>

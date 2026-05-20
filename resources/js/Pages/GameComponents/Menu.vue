@@ -11,6 +11,7 @@ import Topup from "../Transaction/Topup.vue";
 const props = defineProps({
     classSkills: Object,
     all_maps: Object,
+    player: Object,
 });
 
 const form = useForm({});
@@ -19,7 +20,7 @@ const isInventoryOpen = ref(false);
 const isRankingOpen = ref(false);
 const isPartyOpen = ref(false);
 const isTopUpOpen = ref(false);
-const map = props.all_maps.find((map) => map.name === "Town Square");
+const map = props.all_maps.find((map) => map.name === "Wisteria Town");
 
 const menuItems = [
     { id: 1, label: "Inventory", icon: "🎒" },
@@ -78,7 +79,7 @@ const handleMenuClick = (item) => {
 
     <PlayerInventoryModal
         v-if="isInventoryOpen"
-        :isInventoryOpen="isInventoryOpen"
+        :player="player"
         @close="isInventoryOpen = false"
     />
     <PartyRoom v-if="isPartyOpen" @close="isPartyOpen = false" />

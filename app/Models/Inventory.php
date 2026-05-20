@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Http\Resources\GearResource;
 use Illuminate\Database\Eloquent\Model;
 
 class Inventory extends Model
@@ -12,10 +13,11 @@ class Inventory extends Model
         'item_type',
         'quantity',
         'is_equipped',
+        'random_stat',
         'enhancement_level'
     ];
 
-    public function item()
+    public function material()
     {
         return $this->belongsTo(Material::class, 'item_id');
     }
@@ -23,7 +25,7 @@ class Inventory extends Model
     public function getItemData()
     {
         return match ($this->item_type) {
-            'gear' => $this->gear,
+            'gear' => GearResource::make($this->gear),
             'material' => $this->material,
             'potion' => $this->potion,
             default => null,
@@ -35,8 +37,8 @@ class Inventory extends Model
         return $this->belongsTo(Gear::class, 'item_id');
     }
 
-    public function material()
+    public function potion()
     {
-        return $this->belongsTo(Material::class, 'item_id');
+        return $this->belongsTo(Potion::class, 'item_id');
     }
 }

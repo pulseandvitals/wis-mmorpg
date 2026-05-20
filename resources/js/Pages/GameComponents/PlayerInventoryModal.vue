@@ -390,6 +390,7 @@
                             <button
                                 class="flex-1 bg-blue-500 hover:bg-blue-400 text-white font-bold py-2 rounded-lg transition"
                                 v-if="selectedItem.item.type !== 'material'"
+                                @click="useGear"
                             >
                                 Use
                             </button>
@@ -426,9 +427,13 @@
                                 >
                                     <!-- ICON -->
                                     <div
-                                        class="w-10 h-10 rounded bg-gray-900 border border-gray-600 flex items-center justify-center text-lg"
+                                        class="w-10 h-10 rounded bg-gray-900 border border-gray-600 flex items-center justify-center overflow-hidden"
                                     >
-                                        {{ gear.icon }}
+                                        <img
+                                            :src="gear.icon"
+                                            :alt="gear.name"
+                                            class="w-full h-full object-contain p-1"
+                                        />
                                     </div>
 
                                     <!-- SLOT -->
@@ -465,6 +470,63 @@
                                 </div>
                             </div>
                         </div>
+
+                        <!-- 🔥 TOTAL STATS (BOTTOM SECTION) -->
+
+                        <!-- STATS -->
+                        <div
+                            class="mt-4 rounded-lg border border-gray-700 bg-gray-900/80 p-3 text-white"
+                        >
+                            <!-- HEADER -->
+                            <div class="flex items-center justify-between mb-2">
+                                <h2 class="text-xs font-semibold">
+                                    Character Status
+                                </h2>
+                                <div class="text-xs text-gray-300">
+                                    Lv. {{ props.player.current_level }}
+                                </div>
+                            </div>
+
+                            <!-- STATS -->
+                            <div class="grid grid-cols-2 gap-1 text-xs">
+                                <div class="rounded bg-gray-800 px-2 py-1">
+                                    HP: {{ props.player.current_health }} /
+                                    {{ props.player.max_health }}
+                                </div>
+
+                                <div class="rounded bg-gray-800 px-2 py-1">
+                                    MP: {{ props.player.current_mana }} /
+                                    {{ props.player.max_mana }}
+                                </div>
+
+                                <div class="rounded bg-gray-800 px-2 py-1">
+                                    ATK: {{ props.player.total_attack }}
+                                </div>
+
+                                <div class="rounded bg-gray-800 px-2 py-1">
+                                    DEF: {{ props.player.total_defense }}
+                                </div>
+
+                                <div class="rounded bg-gray-800 px-2 py-1">
+                                    SPD: {{ props.player.total_speed }}
+                                </div>
+
+                                <div class="rounded bg-gray-800 px-2 py-1">
+                                    CRIT:
+                                    {{
+                                        props.player.total_critical_percentage
+                                    }}%
+                                </div>
+
+                                <div class="rounded bg-gray-800 px-2 py-1">
+                                    EVA:
+                                    {{ props.player.total_evasion_percentage }}%
+                                </div>
+                                <div class="rounded bg-gray-800 px-2 py-1">
+                                    Kills: 0
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -474,16 +536,47 @@
 
 <script setup>
 import { onMounted, ref, computed, watch } from "vue";
-const getInventory = ref([]);
-import { usePage } from "@inertiajs/vue3";
-
-const page = usePage();
-const playerCurrentGold = page.props.auth.user.player.current_gold;
-const playerCurrentDiamond = page.props.auth.user.player.current_diamond;
-const selectedItem = ref(null);
+import { pushAlert } from "@/Stores/GlobalAlert";
 const props = defineProps({
-    isInventoryOpen: Boolean,
+    player: Object,
 });
+
+const getInventory = ref([]);
+const playerCurrentGold = props.player.current_gold;
+const playerCurrentDiamond = props.player.current_diamond;
+const selectedItem = ref(null);
+
+const EQUIP_SLOTS = [
+    { key: "helmet", label: "Helmet", folder: "gears" },
+    { key: "weapon", label: "Weapon", folder: "gears" },
+    { key: "armor", label: "Armor", folder: "gears" },
+    { key: "boots", label: "Boots", folder: "gears" },
+    { key: "gloves", label: "Gloves", folder: "gears" },
+    { key: "shield", label: "Shield", folder: "gears" },
+    { key: "pants", label: "Pants", folder: "gears" },
+    { key: "ring", label: "Ring", folder: "gears" },
+];
+
+const armory = computed(() =>
+    EQUIP_SLOTS.map((s) => {
+        const equip = props.player?.[s.key]?.gear;
+
+        return {
+            slot: s.label,
+            icon: equip ? `/${s.folder}/${equip.name}.png` : "❔",
+            name: equip?.name || `Empty ${s.label} Slot`,
+            description: equip?.requirement_level
+                ? `Level ${equip.requirement_level} ${s.label}`
+                : `No ${s.label.toLowerCase()} equipped`,
+            stats: equip?.basic_stats
+                ? Object.entries(JSON.parse(equip.basic_stats)).map(
+                      ([k, v]) => `+${v} ${k.toUpperCase()}`,
+                  )
+                : [],
+        };
+    }),
+);
+
 function openItem(item) {
     selectedItem.value = item;
 }
@@ -494,7 +587,7 @@ function closeItem() {
 
 const basicStats = computed(() => {
     try {
-        return JSON.parse(selectedItem.value?.item?.basic_stats || "{}");
+        return JSON.parse(selectedItem.value?.gear?.basic_stats || "{}");
     } catch {
         return {};
     }
@@ -507,6 +600,26 @@ const randomStats = computed(() => {
         return {};
     }
 });
+
+async function useGear() {
+    try {
+        const res = await axios.post("/use-gear", {
+            gear: selectedItem.value,
+        });
+
+        // backend might still send "error" inside 200
+        Object.assign(props.player, res.data.player);
+        pushAlert(res.data.message, "success");
+        openInventory();
+        closeItem();
+    } catch (error) {
+        pushAlert(
+            error?.response?.data?.message || "Something went wrong",
+            "error",
+        );
+        closeItem();
+    }
+}
 
 async function openInventory() {
     try {
@@ -550,69 +663,14 @@ onMounted(() => {
     openInventory();
 });
 
-const armory = [
-    {
-        slot: "Helmet",
-        name: "Iron Helmet",
-        icon: "🪖",
-        description: "A sturdy helmet forged from iron.",
-        stats: ["+12 DEF", "+5 HP"],
+watch(
+    () => paginatedInventory.value.length,
+    (newLength, oldLength) => {
+        if (newLength > 0 && newLength !== oldLength) {
+            openInventory();
+        }
     },
-    {
-        slot: "Weapon",
-        name: "Knight Sword",
-        icon: "⚔️",
-        description: "A balanced sword for knights.",
-        stats: ["+35 ATK", "+5 CRIT"],
-    },
-    {
-        slot: "Gloves",
-        name: "War Gloves",
-        icon: "🧤",
-        description: "Gloves that increase grip strength.",
-        stats: ["+6 ATK", "+3 SPD"],
-    },
-    {
-        slot: "Shield",
-        name: "Guardian Shield",
-        icon: "🛡️",
-        description: "Heavy shield with defensive power.",
-        stats: ["+25 DEF", "+10 BLOCK"],
-    },
-    {
-        slot: "Pants",
-        name: "Steel Leggings",
-        icon: "👖",
-        description: "Leg armor made from steel.",
-        stats: ["+15 DEF", "+4 SPD"],
-    },
-    {
-        slot: "Accessory",
-        name: "Ruby Ring",
-        icon: "💍",
-        description: "A magical ring infused with fire.",
-        stats: ["+10 ATK", "+8 HP"],
-    },
-    {
-        slot: "Armor",
-        name: "Knight Armor",
-        icon: "🥋",
-        description: "Heavy chest armor for protection.",
-        stats: ["+40 DEF", "+20 HP"],
-    },
-    {
-        slot: "Boots",
-        name: "Swift Boots",
-        icon: "👢",
-        description: "Boots that increase movement speed.",
-        stats: ["+10 SPD", "+5 EVA"],
-    },
-];
-watch(paginatedInventory, (newVal) => {
-    if (newVal) {
-        openInventory();
-    }
-});
+);
 </script>
 
 <style scoped>

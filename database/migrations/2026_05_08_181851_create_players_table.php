@@ -32,15 +32,21 @@ return new class extends Migration
             $table->integer('x')->default(10);
             $table->integer('y')->default(2);
             $table->string('direction')->default('down');
-            $table->integer('helm_id')->unsigned()->nullable();
+            $table->boolean('is_online')->default(true);
+            $table->integer('helmet_id')->unsigned()->nullable();
             $table->integer('armor_id')->unsigned()->nullable();
             $table->integer('pants_id')->unsigned()->nullable();
             $table->integer('boots_id')->unsigned()->nullable();
             $table->integer('gloves_id')->unsigned()->nullable();
             $table->integer('weapon_id')->unsigned()->nullable();
             $table->integer('shield_id')->unsigned()->nullable();
-            $table->integer('accessory_id')->unsigned()->nullable();
-            $table->boolean('is_online')->default(true);
+            $table->integer('ring_id')->unsigned()->nullable();
+
+            $table->json('potion_effects')->nullable();
+            $table->integer('daily_bet_chance')->default(10);
+            $table->integer('daily_trivia_chance')->default(10);
+            $table->integer('daily_mobs_kill')->default(10);
+            $table->integer('daily_fishing_chance')->default(10);
             $table->timestamps();
         });
     }

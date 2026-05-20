@@ -16,7 +16,14 @@ class MapSeeder extends Seeder
     {
         $maps = [
             [
-                'name' => 'Town Square',
+                'name' => 'Wisteria Town',
+                'description' => 'A peaceful town filled with lush greenery and gentle streams.',
+                'map_id' => random_int(10000000, 99999999),
+                'is_safe_zone' => true,
+                'level_requirement' => 1,
+            ],
+            [
+                'name' => 'Wisteria Village',
                 'description' => 'A peaceful town filled with lush greenery and gentle streams.',
                 'map_id' => random_int(10000000, 99999999),
                 'is_safe_zone' => true,

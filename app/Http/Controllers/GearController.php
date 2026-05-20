@@ -76,11 +76,18 @@ class GearController extends Controller
                 ], 400);
             }
         }
-
         // ✅ deduct materials AFTER validation
         foreach ($materials as $material) {
+
+            $item = Material::where('name', $material['item'])->first();
+
+            if(!$item) {
+                return response()->json(['message' => 'Material not found'], 404);
+            }
+
             $player->inventory()
                 ->where('item_id', $item->id)
+                ->where('item_type','material')
                 ->decrement('quantity', $material['qty']);
         }
 
@@ -104,8 +111,8 @@ class GearController extends Controller
         $stats = [];
 
         $statPool = [
-            'atk' => ['min' => 5, 'max' => 10, 'chance' => 8],
-            'def' => ['min' => 3, 'max' => 10, 'chance' => 8],
+            'attack' => ['min' => 5, 'max' => 10, 'chance' => 10],
+            'defense' => ['min' => 3, 'max' => 10, 'chance' => 8],
             'crit' => ['min' => 1, 'max' => 5, 'chance' => 3],
             'evasion' => ['min' => 1, 'max' => 5, 'chance' => 3],
             'speed' => ['min' => 1, 'max' => 10, 'chance' => 3],

@@ -519,7 +519,7 @@ function smoothMovePlayers(entity, targetX, targetY, callback = null) {
 }
 
 onMounted(() => {
-    // window.addEventListener("keydown", handleKey);
+    window.addEventListener("keydown", handleKey);
     moveMonsters();
     getPlayers();
     window.Echo.channel("world").listen(".player.moved", (e) => {
@@ -632,11 +632,15 @@ watch(
             <Player :player="player" :tileSize="tileSize" />
             <Players :players="players" :tileSize="tileSize" />
             <!-- HUD COMPONENTS -->
-            <Menu :classSkills="classSkills.data" :all_maps="filteredMaps" />
+            <Menu
+                :classSkills="classSkills.data"
+                :all_maps="filteredMaps"
+                :player="playerData.data"
+            />
             <PlayerStat :player="player" />
             <PartyList :players="players" />
             <TownSquareNPC
-                v-if="current_map.name === 'Town Square'"
+                :current_map="current_map"
                 :all_maps="filteredMaps"
                 :player="player"
             />
