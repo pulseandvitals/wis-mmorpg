@@ -46,6 +46,7 @@
                                     <!-- QTY -->
                                     <div
                                         class="absolute bottom-1 right-1 text-[10px] font-bold text-white bg-black/70 px-1 rounded"
+                                        v-if="item.item_type !== 'gear'"
                                     >
                                         x{{ item.quantity }}
                                     </div>
@@ -150,6 +151,11 @@
                             <div>
                                 <h2 class="text-yellow-400 font-bold text-lg">
                                     {{ selectedItem.item.name }}
+                                    {{
+                                        selectedItem.enhancement_level > 0
+                                            ? `+${selectedItem.enhancement_level}`
+                                            : ""
+                                    }}
                                 </h2>
                                 <p
                                     class="text-gray-400 text-sm capitalize"
@@ -423,7 +429,7 @@
                             >
                                 <!-- SLOT BOX -->
                                 <div
-                                    class="bg-gray-800 border border-gray-700 hover:border-cyan-500 rounded-lg p-2 h-20 flex flex-col items-center justify-center transition cursor-pointer"
+                                    class="bg-gray-800 border border-gray-700 hover:border-yellow-500 rounded-lg p-2 h-20 flex flex-col items-center justify-center transition-all duration-200 cursor-pointer"
                                 >
                                     <!-- ICON -->
                                     <div
@@ -446,12 +452,13 @@
 
                                 <!-- POPUP STATS -->
                                 <div
-                                    class="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 w-44 bg-black border border-cyan-500 rounded-lg p-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition z-50 pointer-events-none"
+                                    class="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 w-44 bg-black border border-yellow-500 rounded-lg p-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition z-50 pointer-events-none"
                                 >
                                     <div
-                                        class="text-sm text-cyan-400 font-bold"
+                                        class="text-sm text-yellow-400 font-bold"
                                     >
                                         {{ gear.name }}
+                                        {{ gear.enhancement_level }}
                                     </div>
 
                                     <div class="text-[11px] text-gray-400 mt-1">
@@ -462,6 +469,15 @@
                                         <div
                                             v-for="stat in gear.stats"
                                             :key="stat"
+                                            class="text-white"
+                                        >
+                                            {{ stat }}
+                                        </div>
+                                    </div>
+                                    <div class="mt-2 space-y-1 text-[11px]">
+                                        <div
+                                            v-for="stat in gear.random_stats"
+                                            :key="stat"
                                             class="text-green-400"
                                         >
                                             {{ stat }}
@@ -470,8 +486,6 @@
                                 </div>
                             </div>
                         </div>
-
-                        <!-- 🔥 TOTAL STATS (BOTTOM SECTION) -->
 
                         <!-- STATS -->
                         <div
@@ -559,26 +573,35 @@ const EQUIP_SLOTS = [
 
 const armory = computed(() =>
     EQUIP_SLOTS.map((s) => {
-        const equip = props.player?.[s.key]?.gear;
+        const equip = props.player?.[s.key];
 
         return {
             slot: s.label,
-            icon: equip ? `/${s.folder}/${equip.name}.png` : "❔",
-            name: equip?.name || `Empty ${s.label} Slot`,
-            description: equip?.requirement_level
-                ? `Level ${equip.requirement_level} ${s.label}`
+            icon: equip ? `/${s.folder}/${equip.gear.name}.png` : "❔",
+            name: equip?.gear.name || `Empty ${s.label} Slot`,
+            description: equip?.gear.requirement_level
+                ? `Level ${equip.gear.requirement_level} ${s.label}`
                 : `No ${s.label.toLowerCase()} equipped`,
-            stats: equip?.basic_stats
-                ? Object.entries(JSON.parse(equip.basic_stats)).map(
+            stats: equip?.gear?.basic_stats
+                ? Object.entries(JSON.parse(equip?.gear?.basic_stats)).map(
                       ([k, v]) => `+${v} ${k.toUpperCase()}`,
                   )
                 : [],
+            random_stats: equip?.random_stat
+                ? Object.entries(JSON.parse(equip.random_stat)).map(
+                      ([k, v]) => `+${v} ${k.toUpperCase()}`,
+                  )
+                : [],
+            enhancement_level: equip?.enhancement_level
+                ? `+${equip.enhancement_level}`
+                : "",
         };
     }),
 );
 
 function openItem(item) {
     selectedItem.value = item;
+    console.log("Selected Item:", item);
 }
 
 function closeItem() {
@@ -587,7 +610,7 @@ function closeItem() {
 
 const basicStats = computed(() => {
     try {
-        return JSON.parse(selectedItem.value?.gear?.basic_stats || "{}");
+        return selectedItem.value.item?.basic_stats || "{}";
     } catch {
         return {};
     }

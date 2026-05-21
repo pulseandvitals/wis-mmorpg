@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('name');
             $table->string('description');
             $table->string('type');
-            $table->json('effect')->nullable();
+            $table->json('effects')->nullable();
             $table->integer('item_price')->default(0);
             $table->string('sell_type');
             $table->timestamps();

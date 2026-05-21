@@ -303,26 +303,26 @@ class Player extends Model
         ];
     }
 
-    protected static function boot()
-    {
-        parent::boot();
+    // protected static function boot()
+    // {
+    //     parent::boot();
 
-        static::updated(function ($player) {
-            if ($player->wasChanged([
-                'helmet_id',
-                'weapon_id',
-                'armor_id',
-                'boots_id',
-                'gloves_id',
-                'shield_id',
-                'ring_id',
-                'necklace_id',
-                'pants_id',
-            ])) {
-                $player->recalculateStats();
-            }
-        });
-    }
+    //     static::updated(function ($player) {
+    //         if ($player->wasChanged([
+    //             'helmet_id',
+    //             'weapon_id',
+    //             'armor_id',
+    //             'boots_id',
+    //             'gloves_id',
+    //             'shield_id',
+    //             'ring_id',
+    //             'necklace_id',
+    //             'pants_id',
+    //         ])) {
+    //             $player->recalculateStats();
+    //         }
+    //     });
+    // }
 
     public function helmet()
     {

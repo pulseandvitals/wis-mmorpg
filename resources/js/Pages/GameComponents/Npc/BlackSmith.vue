@@ -84,12 +84,12 @@ async function upgradeGear() {
                             </option>
 
                             <option value="weapon">Weapon</option>
-                            <option value="helm">Helm</option>
+                            <option value="helmet">Helm</option>
                             <option value="gloves">Gloves</option>
                             <option value="pants">Pants</option>
                             <option value="armor">Armor</option>
                             <option value="boots">Boots</option>
-                            <option value="accessory">Accessory</option>
+                            <option value="ring">Ring</option>
                             <option value="shield">Shield</option>
                         </select>
                     </div>

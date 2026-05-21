@@ -104,14 +104,6 @@
 
                 <div class="flex gap-2">
                     <button
-                        v-if="player.current_level >= 30"
-                        class="px-3 py-1 text-xs rounded bg-red-600 hover:bg-red-500"
-                        @click="resetSelection"
-                    >
-                        Reset
-                    </button>
-
-                    <button
                         class="px-3 py-1 text-xs rounded bg-red-600 hover:bg-red-500 disabled:opacity-50"
                         :disabled="
                             selected.length !== 3 || player.current_level < 30
@@ -162,11 +154,11 @@ const talents = ref([
     },
     {
         name: "Critical Focus",
-        description: "+6% Critical Rate",
+        description: "+8% Critical Rate",
     },
     {
         name: "Evasive Dance",
-        description: "+6% Evasion Rate",
+        description: "+8% Evasion Rate",
     },
     {
         name: "Mana Flow",

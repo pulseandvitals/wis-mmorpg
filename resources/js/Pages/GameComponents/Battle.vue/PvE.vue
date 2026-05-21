@@ -563,6 +563,7 @@ onUnmounted(() => {
                             "
                             class="player-sprite"
                         />
+                        <div class="player-floor"></div>
 
                         <div v-if="playerShout" class="shout-text player-shout">
                             {{ playerShout }}
@@ -925,8 +926,6 @@ PLAYER SIDE
 
     align-items: center;
     justify-content: center;
-
-    gap: 10px;
 }
 
 /* SMALLER PLAYER */
@@ -937,10 +936,46 @@ PLAYER SIDE
     object-fit: contain;
 
     image-rendering: pixelated;
+    position: relative;
+    z-index: 2;
 
     filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.08));
 }
+.player-floor {
+    position: absolute;
+    bottom: 42%;
+    left: 50%;
+    transform: translateX(-50%);
 
+    width: 160px; /* BIGGER */
+    height: 60px; /* BIGGER */
+
+    background: radial-gradient(
+        ellipse at center,
+        rgba(180, 0, 255, 0.35) 0%,
+        rgba(120, 0, 255, 0.15) 35%,
+        rgba(180, 0, 255, 0.05) 60%,
+        transparent 80%
+    );
+
+    border-radius: 50%;
+
+    filter: blur(2px);
+    animation: auraPulse 2.5s ease-in-out infinite;
+    z-index: 0;
+}
+
+@keyframes auraPulse {
+    0%,
+    100% {
+        transform: translateX(-50%) scale(1);
+        opacity: 0.7;
+    }
+    50% {
+        transform: translateX(-50%) scale(1.15);
+        opacity: 1;
+    }
+}
 /* =========================================
 MONSTERS
 ========================================= */

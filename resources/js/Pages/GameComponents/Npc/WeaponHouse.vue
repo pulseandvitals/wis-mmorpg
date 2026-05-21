@@ -282,17 +282,9 @@ onMounted(async () => {
                                         {{ selectedWeapon.basic_stats.attack }}
                                     </p>
 
-                                    <p
-                                        v-if="
-                                            selectedWeapon.basic_stats
-                                                ?.crit_rate
-                                        "
-                                    >
+                                    <p v-if="selectedWeapon.basic_stats?.crit">
                                         💥 Crit Rate:
-                                        {{
-                                            selectedWeapon.basic_stats
-                                                .crit_rate
-                                        }}%
+                                        {{ selectedWeapon.basic_stats.crit }}%
                                     </p>
 
                                     <p v-if="selectedWeapon.basic_stats?.speed">

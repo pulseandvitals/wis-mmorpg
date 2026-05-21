@@ -148,7 +148,23 @@ class GearController extends Controller
             ], 400);
         }
 
+
+        $material = $request->gear === 'weapon'
+                ? Material::where('name', 'Celebeam Gem')->first()
+                : Material::where('name', 'Seleri Gem')->first();
+
+        $inventoryMaterial = Inventory::where('player_id', $player->id)
+            ->where('item_id', $material->id)
+            ->where('item_type', 'material')
+            ->first();
+
         $inventory = Inventory::with('gear')->findOrFail($player->{$key});
+
+        if(!$inventoryMaterial) {
+            return response()->json([
+                'message' => 'Upgrade material not found.'
+            ], 404);
+        }
 
         // prevent invalid upgrade
         if ($inventory->item_type !== 'gear') {
@@ -157,7 +173,7 @@ class GearController extends Controller
             ], 400);
         }
 
-        $currentLevel = $inventory->enhancement ?? 0;
+        $currentLevel = $inventory->enhancement_level ?? 0;
 
         // max upgrade cap
         if ($currentLevel >= 10) {
@@ -169,7 +185,7 @@ class GearController extends Controller
         // cost formula
         $cost = 1000 * ($currentLevel + 1);
 
-        if ($player->gold < $cost) {
+        if ($player->current_gold < $cost) {
             return response()->json([
                 'message' => 'Not enough gold.'
             ], 400);
@@ -185,7 +201,9 @@ class GearController extends Controller
             $inventory->enhancement_level = $currentLevel + 1;
             $inventory->save();
 
-            $player->gold -= $cost;
+            $inventoryMaterial->decrement('quantity', 1);
+
+            $player->current_gold -= $cost;
             $player->save();
 
             return response()->json([
@@ -198,7 +216,7 @@ class GearController extends Controller
          * FAIL CASE
          * Now we check if item breaks
          */
-        $breakChance = max(5, $currentLevel * 5);
+        $breakChance = max(5, $currentLevel * 6);
         $breakRoll = rand(1, 100);
 
         if ($breakRoll <= $breakChance) {
@@ -207,7 +225,9 @@ class GearController extends Controller
             $inventory->enhancement_level = 0;
             $inventory->save();
 
-            $player->gold -= $cost;
+            $inventoryMaterial->decrement('quantity', 1);
+
+            $player->current_gold -= $cost;
             $player->save();
 
             return response()->json([
@@ -217,12 +237,15 @@ class GearController extends Controller
         }
 
         // ❌ SAFE FAIL (no upgrade, no break)
-        $player->gold -= $cost;
+
+        $player->current_gold -= $cost;
         $player->save();
+
+        $inventoryMaterial->decrement('quantity', 1);
 
         return response()->json([
             'message' => 'Upgrade failed, but item is safe.',
-            'level' => $inventory->enhancement
+            'level' => $inventory->enhancement_level
         ]);
     }
 }
