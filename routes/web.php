@@ -46,6 +46,7 @@ Route::prefix('world')->group(function () {
     Route::post('/party-room/join/{code}',[PartyRoomController::class,'joinRoom']);
 
     Route::post('/mini-event/bet',[MiniEventController::class,'miniEventBet']);
+    Route::post('/mini-event/trivia',[MiniEventController::class,'miniEventTrivia']);
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');

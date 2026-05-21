@@ -18,7 +18,7 @@ class DailyReset extends Command
      *
      * @var string
      */
-    protected $description = 'Command description';
+    protected $description = 'Daily reset for all players.';
 
     /**
      * Execute the console command.

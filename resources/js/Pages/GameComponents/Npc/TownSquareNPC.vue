@@ -204,7 +204,7 @@ function handleOpenForWisteriaTown() {
             @close="isHealerOpen = false"
         />
     </template>
-    <template v-else>
+    <template v-if="wisteriaVillage.map_id === current_map.map_id">
         <Portal :x="480" :y="690" @open="handleOpenForWisteriaTown" />
     </template>
 </template>

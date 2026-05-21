@@ -39,7 +39,7 @@ class MultipleSession extends Command
             // Get all sessions of that user ordered by last activity
             $sessions = DB::table('sessions')
                 ->where('user_id', $user->user_id)
-                ->orderByDesc('updated_at')
+                ->orderByDesc('last_activity')
                 ->get();
 
             // Keep the latest session, delete the rest

@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Models\Player;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\DB;
 
 class InactivePlayers extends Command
 {
@@ -27,15 +28,18 @@ class InactivePlayers extends Command
      */
     public function handle()
     {
-        $limit = Carbon::now()->subMinutes(30);
 
-        $inactivePlayers = Player::where('updated_at', '<', $limit)
-            ->where('is_online', true)
+        $inactivePlayers = DB::table('sessions')
+            ->whereNotNull('user_id')
+            ->where('last_activity', '<', now()->subMinutes(30)->timestamp)
+            ->select('user_id')
+            ->distinct()
             ->get();
 
         foreach ($inactivePlayers as $player) {
-            $player->is_online = false;
-            $player->save();
+            DB::table('players')
+                ->where('id', $player->user_id)
+                ->update(['is_online' => false]);
         }
 
         $this->info("Marked {$inactivePlayers->count()} players as offline.");

@@ -7,6 +7,7 @@ import Ranking from "./Npc/Ranking.vue";
 import PartyRoom from "./Npc/PartyRoom.vue";
 import { pushAlert } from "@/Stores/GlobalAlert";
 import Topup from "../Transaction/Topup.vue";
+import TalentTree from "./TalentTree.vue";
 
 const props = defineProps({
     classSkills: Object,
@@ -20,17 +21,19 @@ const isInventoryOpen = ref(false);
 const isRankingOpen = ref(false);
 const isPartyOpen = ref(false);
 const isTopUpOpen = ref(false);
+const isTalentTreeOpen = ref(false);
 const map = props.all_maps.find((map) => map.name === "Wisteria Town");
 
 const menuItems = [
     { id: 1, label: "Inventory", icon: "🎒" },
     { id: 2, label: "Party", icon: "👥" },
     { id: 3, label: "Skills", icon: "📖" },
-    { id: 4, label: "Ranking", icon: "🏆" },
-    { id: 5, label: "Discord", icon: "💬" },
-    { id: 6, label: "Settings", icon: "⚙️" },
-    { id: 7, label: "Top Up", icon: "💎" },
-    { id: 8, label: "Back to Town", icon: "🏡" },
+    { id: 4, label: "Talent Tree", icon: "📖" },
+    { id: 5, label: "Ranking", icon: "🏆" },
+    { id: 6, label: "Discord", icon: "💬" },
+    { id: 7, label: "Settings", icon: "⚙️" },
+    { id: 8, label: "Top Up", icon: "💎" },
+    { id: 9, label: "Back to Town", icon: "🏡" },
 ];
 
 const handleMenuClick = (item) => {
@@ -44,15 +47,18 @@ const handleMenuClick = (item) => {
         isSkillOpen.value = true;
     }
     if (item.id === 4) {
+        isTalentTreeOpen.value = true;
+    }
+    if (item.id === 5) {
         isRankingOpen.value = true;
     }
-    if (item.id === 6) {
+    if (item.id === 7) {
         window.open("https://discord.com", "_blank");
     }
-    if (item.id === 7) {
+    if (item.id === 8) {
         isTopUpOpen.value = true;
     }
-    if (item.id === 8) {
+    if (item.id === 9) {
         form.get(route("world.map", map.map_id), {
             onFinish: () => pushAlert(map.name, "success"),
         });
@@ -90,6 +96,11 @@ const handleMenuClick = (item) => {
     />
     <Ranking v-if="isRankingOpen" @close="isRankingOpen = false" />
     <Topup v-if="isTopUpOpen" @close="isTopUpOpen = false" />
+    <TalentTree
+        :player="player"
+        v-if="isTalentTreeOpen"
+        @close="isTalentTreeOpen = false"
+    />
 </template>
 <style scoped>
 .hud-menu {

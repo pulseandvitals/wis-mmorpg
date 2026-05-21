@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Monster;
 use Illuminate\Http\Request;
 
 class MiniEventController extends Controller
@@ -51,5 +52,27 @@ class MiniEventController extends Controller
                 'reward' => 0
             ]);
         }
+    }
+
+    public function miniEventTrivia(Request $request)
+    {
+        $player = auth()->user()->player;
+
+        if($player->daily_trivia_chance <= 0) {
+            return response()->json([
+                'message' => 'You have used all your daily trivia chances. Try again tomorrow!'
+            ]);
+        }
+
+        $monster = Monster::where('name', 'not like', '%(Elite)%')
+                ->inRandomOrder()
+                ->first();
+
+        $scrambledString = StringHelper::rumble($monster);
+
+        return response()->json([
+            'scrambled' => $scrambledString,
+            'answer' => $monster,
+        ]);
     }
 }

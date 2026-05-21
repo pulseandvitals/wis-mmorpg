@@ -51,16 +51,20 @@ const submit = () => {
                 <div class="flex items-center gap-4">
                     <!-- LOGO -->
                     <div
-                        class="w-16 h-16 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-3xl shadow-lg"
+                        class="w-16 h-16 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center shadow-lg overflow-hidden"
                     >
-                        ⚔️
+                        <img
+                            src="/logos/wisteriaonline.png"
+                            class="w-full h-full object-cover"
+                            alt="Wisteria Online"
+                        />
                     </div>
 
                     <div>
                         <h1
                             class="text-3xl font-black text-white tracking-wide"
                         >
-                            WIS ONLINE
+                            Wisteria Online
                         </h1>
 
                         <p class="text-sm text-blue-200/70">
