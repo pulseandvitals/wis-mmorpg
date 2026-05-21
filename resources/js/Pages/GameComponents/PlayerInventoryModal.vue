@@ -395,8 +395,15 @@
                         <div class="mt-4 flex gap-2">
                             <button
                                 class="flex-1 bg-blue-500 hover:bg-blue-400 text-white font-bold py-2 rounded-lg transition"
-                                v-if="selectedItem.item.type !== 'material'"
+                                v-if="selectedItem.item_type === 'gear'"
                                 @click="useGear"
+                            >
+                                Use
+                            </button>
+                            <button
+                                v-else
+                                class="flex-1 bg-blue-500 hover:bg-blue-400 text-white font-bold py-2 rounded-lg transition"
+                                @click="usePotion"
                             >
                                 Use
                             </button>
@@ -598,6 +605,24 @@ const armory = computed(() =>
         };
     }),
 );
+
+async function usePotion() {
+    try {
+        const res = await axios.post("/use-potion", {
+            potion: selectedItem.value,
+        });
+        Object.assign(props.player, res.data.player);
+        pushAlert(res.data.message || "Potion used successfully!", "success");
+        openInventory();
+        closeItem();
+    } catch (error) {
+        pushAlert(
+            error.response?.data?.message || "Failed to use potion.",
+            "error",
+        );
+        console.error("Use Potion Error:", error);
+    }
+}
 
 function openItem(item) {
     selectedItem.value = item;

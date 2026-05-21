@@ -36,7 +36,8 @@ class BattleController extends Controller
 
 
         /* SIMPLE LEVEL SYSTEM */
-        $this->player->current_experience += $totalExp;
+        $multiplier = $this->player->is_exp_potion_active ? 2 : 1;
+        $this->player->current_experience += (int)($totalExp * $multiplier);
         $this->player->current_gold += $totalGold;
 
         $levelUp = false;

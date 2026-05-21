@@ -82,6 +82,7 @@ class InventoryController extends Controller
             'shield',
             'pants',
             'ring',
+            'wing',
         ];
 
         if (!in_array($gear->type, $allowedTypes)) {
@@ -144,7 +145,6 @@ class InventoryController extends Controller
         | EQUIP NEW GEAR
         |--------------------------------------------------------------------------
         */
-
         $player->$column = $inventoryItem->id;
         $player->save();
         $player->recalculateStats();

@@ -13,6 +13,7 @@ import Players from "./GameComponents/Players.vue";
 import Portal from "./GameComponents/Portal.vue";
 import { pushAlert } from "@/Stores/GlobalAlert";
 import PartyList from "./GameComponents/Npc/PartyList.vue";
+import ActiveBuffs from "./GameComponents/ActiveBuffs.vue";
 
 const props = defineProps({
     playerData: Object,
@@ -45,6 +46,7 @@ const filteredMaps = computed(() => {
         (map) => !map.name.includes("Underground"),
     );
 });
+
 const player = reactive({
     x: props.playerData.data.x,
     y: props.playerData.data.y,
@@ -56,6 +58,7 @@ const player = reactive({
 
     name: props.playerData.data.name,
     class_type: props.playerData.data.class_type,
+    is_exp_potion_active: props.playerData.data.is_exp_potion_active,
     current_health: props.playerData.data.current_health,
     max_health: props.playerData.data.max_health,
     current_mana: props.playerData.data.current_mana,
@@ -70,6 +73,8 @@ const player = reactive({
     battle_gif: `/sprites/${props.playerData.data.class_type}/idle-right.gif`,
     attack_gif: `/sprites/${props.playerData.data.class_type}/attack.gif`,
     dead_gif: `/sprites/${props.playerData.data.class_type}/dead.gif`,
+
+    active_buff_effects: props.playerData.data.active_buff_effects,
 
     skills: props.playerSkills.data.map((skill) => ({
         id: skill.id,
@@ -632,6 +637,7 @@ watch(
             <Player :player="player" :tileSize="tileSize" />
             <Players :players="players" :tileSize="tileSize" />
             <!-- HUD COMPONENTS -->
+            <ActiveBuffs :player="playerData.data" />
             <Menu
                 :classSkills="classSkills.data"
                 :all_maps="filteredMaps"

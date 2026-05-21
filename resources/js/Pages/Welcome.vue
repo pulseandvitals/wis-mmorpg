@@ -85,6 +85,12 @@ const jsonLd = ref({
             content="Play Wisteria Online on mobile or desktop. Free MMORPG browser game."
         />
     </Head>
+    <div class="fixed inset-0 z-0">
+        <img
+            src="/loading_screens/Wisteria7.png"
+            class="w-full h-full object-cover opacity-30"
+        />
+    </div>
 
     <body
         class="bg-gradient-to-b from-[#0a0e27] via-[#1a1f3a] to-[#0a0e27] text-white overflow-x-hidden font-sans"
@@ -118,16 +124,19 @@ const jsonLd = ref({
                 class="max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-6 flex justify-between items-center"
             >
                 <div class="flex items-center gap-2 sm:gap-3">
-                    <div class="text-xl sm:text-2xl">🌸</div>
+                    <!-- LOGO -->
+                    <img
+                        src="/logos/wisteriaonline.png"
+                        alt="Wisteria Online Logo"
+                        class="w-7 h-7 sm:w-9 sm:h-9 object-contain"
+                    />
+
+                    <!-- GAME TITLE -->
                     <h1
                         class="text-sm sm:text-lg font-black tracking-widest bg-gradient-to-r from-purple-300 via-pink-300 to-purple-400 bg-clip-text text-transparent"
                     >
                         WISTERIA
                     </h1>
-                    <span
-                        class="hidden sm:inline text-xs text-purple-400 font-medium ml-1"
-                        >Online</span
-                    >
                 </div>
 
                 <nav

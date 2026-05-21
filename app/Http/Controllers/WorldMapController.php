@@ -514,6 +514,7 @@ class WorldMapController extends Controller
                     'shield.gear',
                     'pants.gear',
                     'ring.gear',
+                    'wing.gear',
                 ])->first()),
             'playerSkills' => ClassSkillResource::collection(Skill::byClass($player->class_type)->byLevel($player->current_level)->get()),
             'classSkills' => ClassSkillResource::collection(Skill::byClass($player->class_type)->get()),

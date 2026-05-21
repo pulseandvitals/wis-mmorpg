@@ -28,7 +28,7 @@ const menuItems = [
     { id: 1, label: "Inventory", icon: "🎒" },
     { id: 2, label: "Party", icon: "👥" },
     { id: 3, label: "Skills", icon: "📖" },
-    { id: 4, label: "Talent Tree", icon: "📖" },
+    { id: 4, label: "Talent Tree", icon: "🌀" },
     { id: 5, label: "Ranking", icon: "🏆" },
     { id: 6, label: "Discord", icon: "💬" },
     { id: 7, label: "Settings", icon: "⚙️" },

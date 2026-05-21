@@ -10,6 +10,7 @@ import EventList from "../Event/EventList.vue";
 import PotionHouse from "./PotionHouse.vue";
 import { router } from "@inertiajs/vue3";
 import { pushAlert } from "@/Stores/GlobalAlert";
+import Market from "./Market.vue";
 const props = defineProps({
     all_maps: Object,
     player: Object,
@@ -41,7 +42,7 @@ const npcData = {
     },
 
     potion: {
-        name: "Potion House",
+        name: "Potion/Exp House",
         x: 1010,
         y: 75,
         icon: "🧪",
@@ -185,6 +186,7 @@ function handleOpenForWisteriaTown() {
             v-if="isWeaponHouseOpen"
             @close="isWeaponHouseOpen = false"
         />
+        <Market v-if="isMarketOpen" @close="isMarketOpen = false" />
         <ArmorHouse v-if="isArmorHouseOpen" @close="isArmorHouseOpen = false" />
         <EventList v-if="isEventOrgOpen" @close="isEventOrgOpen = false" />
         <PotionHouse

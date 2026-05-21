@@ -30,12 +30,21 @@ Route::prefix('world')->group(function () {
     });
 
     Route::post('/send-message', [WorldChatController::class, 'sendMessage']);
+
     Route::get('/get-ranking',[PlayerController::class,'getPlayerRanking']);
     Route::get('/get-weapons',[GearController::class,'getWeapons']);
     Route::get('/get-armors',[GearController::class,'getArmors']);
+    Route::get('/get-wings',[GearController::class,'getWings']);
+    Route::post('/market-buy',[GearController::class,'marketBuy']);
+
     Route::get('/get-potions',[PotionController::class,'getPotions']);
+    Route::post('/buy-potion',[PotionController::class,'buyPotion']);
+    Route::post('/use-potion',[PotionController::class,'usePotion']);
+
     Route::post('/update-player-move',[PlayerController::class,'updatePlayerMove']);
+    Route::get('/get-player',[PlayerController::class,'getPlayer']);
     Route::get('/get-crafting-materials',[GearController::class,'getCraftingMaterials']);
+
     Route::post('/craft-gear',[GearController::class,'craftGear']);
     Route::post('/upgrade-gear',[GearController::class,'upgradeGear']);
     Route::post('/use-gear',[InventoryController::class,'useGear']);

@@ -53,6 +53,6 @@ class RegisteredUserController extends Controller
 
         Auth::login($user);
 
-        return redirect(route('world.map', ['map_id' => Map::where('name', 'Town Square')->firstOrFail()->map_id]));
+        return redirect(route('world.map', ['map_id' => Map::where('name', 'Wisteria Town')->firstOrFail()->map_id]));
     }
 }

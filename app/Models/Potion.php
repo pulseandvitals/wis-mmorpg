@@ -17,4 +17,8 @@ class Potion extends Model
         'evasion_bonus',
         'critical_bonus',
     ];
+
+    protected $casts = [
+        'effects' => 'array',
+    ];
 }

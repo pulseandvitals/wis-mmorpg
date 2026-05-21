@@ -37,11 +37,19 @@ class Player extends Model
         'is_online',
         'user_id',
         //new fields
-        'potion_effects',
+        'active_buff_effects',
         'daily_bet_chance',
         'daily_trivia_chance',
         'daily_mobs_kill',
         'daily_fishing_chance'
+    ];
+
+    protected $casts = [
+        'active_buff_effects' => 'array',
+    ];
+
+    protected $appends = [
+        'is_exp_potion_active'
     ];
 
     const BASE_ATTACK = 10;
@@ -199,6 +207,7 @@ class Player extends Model
             'necklace.gear',
             'ring.gear',
             'pants.gear',
+            'wing.gear'
         ])->find($this->id);
 
         $stats = [
@@ -221,6 +230,7 @@ class Player extends Model
             $player->necklace,
             $player->ring,
             $player->pants,
+            $player->wing,
         ];
 
         foreach ($equipped as $slot) {
@@ -303,26 +313,71 @@ class Player extends Model
         ];
     }
 
-    // protected static function boot()
-    // {
-    //     parent::boot();
+    public function getActiveBuffs()
+    {
+        $now = now()->timestamp;
 
-    //     static::updated(function ($player) {
-    //         if ($player->wasChanged([
-    //             'helmet_id',
-    //             'weapon_id',
-    //             'armor_id',
-    //             'boots_id',
-    //             'gloves_id',
-    //             'shield_id',
-    //             'ring_id',
-    //             'necklace_id',
-    //             'pants_id',
-    //         ])) {
-    //             $player->recalculateStats();
-    //         }
-    //     });
-    // }
+        return collect($this->active_buff_effects ?? [])
+            ->filter(fn ($buff) => $buff['expires_at'] > $now)
+            ->values();
+    }
+
+    public function getAllStats()
+    {
+        $this->recalculateStats(); // gear + base only
+
+        $stats = [
+            'attack' => $this->total_attack,
+            'defense' => $this->total_defense,
+            'speed' => $this->total_speed,
+            'crit' => $this->total_critical_percentage,
+            'evasion' => $this->total_evasion_percentage,
+            'hp' => $this->max_health,
+            'mp' => $this->max_mana,
+            'is_exp_potion_active' => $this->is_exp_potion_active,
+        ];
+
+        foreach ($this->getActiveBuffs() as $buff) {
+
+            $stat = $buff['stat'];
+
+            if (!isset($stats[$stat])) continue;
+
+            $value = $buff['value'];
+
+            $stats[$stat] = $buff['operation'] === 'multiply'
+                ? $stats[$stat] * (1 + $value / 100)
+                : $stats[$stat] + $value;
+        }
+        return $stats;
+    }
+
+    public function getIsExpPotionActiveAttribute(): bool
+    {
+        $now = now()->timestamp;
+
+        $buffs = $this->active_buff_effects;
+
+        $buffs = is_string($buffs)
+            ? json_decode($buffs, true)
+            : $buffs;
+
+        $buffs = is_array($buffs) ? $buffs : [];
+
+        foreach ($buffs as $buff) {
+            if (($buff['stat'] ?? null) === 'exp' &&
+                ($buff['expires_at'] ?? 0) > $now) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public function wing()
+    {
+        return $this->belongsTo(Inventory::class, 'wings_id');
+    }
 
     public function helmet()
     {

@@ -57,6 +57,7 @@ async function buyPotion(potion) {
         console.error("Buy Potion Error:", error);
     }
 }
+
 async function getPotions() {
     const resp = await axios.get("/get-potions");
     potions.value = resp.data.potions || [];

@@ -33,6 +33,7 @@ return new class extends Migration
             $table->integer('y')->default(2);
             $table->string('direction')->default('down');
             $table->boolean('is_online')->default(true);
+
             $table->integer('helmet_id')->unsigned()->nullable();
             $table->integer('armor_id')->unsigned()->nullable();
             $table->integer('pants_id')->unsigned()->nullable();
@@ -41,8 +42,9 @@ return new class extends Migration
             $table->integer('weapon_id')->unsigned()->nullable();
             $table->integer('shield_id')->unsigned()->nullable();
             $table->integer('ring_id')->unsigned()->nullable();
+            $table->integer('wing_id')->unsigned()->nullable();
 
-            $table->json('potion_effects')->nullable();
+            $table->json('active_buff_effects')->nullable();
             $table->integer('daily_bet_chance')->default(10);
             $table->integer('daily_trivia_chance')->default(10);
             $table->integer('daily_mobs_kill')->default(10);

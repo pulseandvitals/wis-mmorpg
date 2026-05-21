@@ -37,6 +37,22 @@ class GearController extends Controller
         ]);
     }
 
+    public function getWings()
+    {
+        $wings = Gear::query()
+            ->where('type', 'wing')
+            ->get();
+
+        return response()->json([
+            'status' => 'success',
+            'wings' => GearResource::collection($wings),
+            'purchase_details' => [
+                'price' => 999,
+                'sell_type' => 'diamond'
+            ],
+        ]);
+    }
+
     public function getCraftingMaterials()
     {
         return CraftingMaterial::all()->map(function ($row) {
@@ -246,6 +262,58 @@ class GearController extends Controller
         return response()->json([
             'message' => 'Upgrade failed, but item is safe.',
             'level' => $inventory->enhancement_level
+        ]);
+    }
+
+    public function marketBuy(Request $request)
+    {
+        $request->validate([
+            'gear' => 'required|array',
+            'gear.id' => 'required|integer|exists:gears,id',
+            'gear.type' => 'required|string',
+            'purchase_details' => 'required|array',
+            'purchase_details.price' => 'required|numeric',
+            'purchase_details.sell_type' => 'required|string',
+        ]);
+
+        $player = auth()->user()->player;
+
+        $gear = $request->gear;
+        $purchaseFormat = $request->purchase_details['sell_type'];
+        $price = $request->purchase_details['price'];
+
+        $currencyField = $purchaseFormat === 'diamond'
+            ? 'current_diamond'
+            : 'current_gold';
+
+        $playerCurrency = $player->$currencyField;
+
+        if ($playerCurrency < $price) {
+            return response()->json([
+                'message' => "Not enough {$purchaseFormat}."
+            ], 400);
+        }
+
+        /**
+         * Deduct currency safely
+         */
+        $player->$currencyField -= $price;
+
+        /**
+         * Add item to inventory
+         */
+        $randomStats = $this->randomStatGenerator();
+
+        $player->inventory()->create([
+            'item_id' => $gear['id'],
+            'item_type' => 'gear',
+            'stats' => $randomStats
+        ]);
+
+        $player->save();
+
+        return response()->json([
+            'message' => 'Purchase successful!'
         ]);
     }
 }
