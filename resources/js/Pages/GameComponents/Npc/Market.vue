@@ -143,93 +143,107 @@ onMounted(async () => {
                     <button
                         @click="buyItem(item)"
                         :disabled="loading"
-                        class="px-4 py-2 text-xs font-bold rounded-lg border border-blue-400/30 bg-blue-500/10 text-blue-300 hover:bg-blue-500/20 transition"
+                        class="px-4 py-2 text-xs font-bold rounded-lg border border-green-400/30 bg-green-500/10 text-green-300 hover:bg-green-500/20 transition"
                     >
-                        {{
-                            loading
-                                ? "Processing..."
-                                : `💎 ${purchase_details.price}`
-                        }}
+                        {{ loading ? "Processing..." : `Buy` }}
                     </button>
                 </div>
             </div>
             <!-- POPUP -->
-            <div
-                v-if="selectedItem"
-                class="fixed inset-0 bg-black/60 flex items-center justify-center z-50"
-            >
+            <transition name="fade">
                 <div
-                    class="w-[320px] bg-[#111827] border border-white/10 rounded-xl p-5 shadow-2xl"
+                    v-if="selectedItem"
+                    class="fixed inset-0 flex items-center justify-center z-50 pointer-events-none"
                 >
-                    <!-- HEADER -->
                     <div
-                        class="flex items-center gap-3 mb-4 border-b border-white/10 pb-3"
+                        class="w-[340px] rounded-2xl border border-white/10 bg-black/85 p-5 shadow-2xl"
                     >
-                        <img
-                            :src="`/gears/${selectedItem.name}.png`"
-                            class="w-12 h-12 object-contain"
-                        />
+                        <!-- HEADER -->
+                        <div
+                            class="flex items-center gap-3 border-b border-white/10 pb-3 mb-3"
+                        >
+                            <img
+                                :src="`/gears/${selectedItem.name}.png`"
+                                class="w-12 h-12 object-contain"
+                            />
 
-                        <div>
-                            <p class="text-white font-bold">
-                                {{ selectedItem.name }}
+                            <div class="leading-tight">
+                                <p class="text-white font-bold text-sm">
+                                    {{ selectedItem.name }}
+                                </p>
+
+                                <p class="text-[11px] text-gray-400 capitalize">
+                                    {{ selectedItem.type }}
+                                </p>
+                                <p class="text-[11px] text-gray-400 capitalize">
+                                    {{
+                                        selectedItem.requirement_level
+                                            ? `Requires Level ${selectedItem.requirement_level}`
+                                            : "No level requirement"
+                                    }}
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- STATS -->
+                        <div class="space-y-2 text-sm text-gray-300">
+                            <p v-if="selectedItem.basic_stats?.attack">
+                                ⚔ Attack:
+                                {{ selectedItem.basic_stats.attack }}
                             </p>
-                            <p class="text-xs text-gray-400 capitalize">
-                                Lvl.{{ selectedItem.requirement_level }}
+
+                            <p v-if="selectedItem.basic_stats?.defense">
+                                🛡 Defense:
+                                {{ selectedItem.basic_stats.defense }}
                             </p>
-                            <p class="text-xs text-gray-400 capitalize">
-                                {{ selectedItem.type }}
+
+                            <p v-if="selectedItem.basic_stats?.speed">
+                                ⚡ Speed:
+                                {{ selectedItem.basic_stats.speed }}
+                            </p>
+
+                            <p v-if="selectedItem.basic_stats?.hp">
+                                ❤️ HP:
+                                {{ selectedItem.basic_stats.hp }}
+                            </p>
+
+                            <p v-if="selectedItem.basic_stats?.mp">
+                                💧 MP:
+                                {{ selectedItem.basic_stats.mp }}
+                            </p>
+
+                            <p v-if="selectedItem.basic_stats?.crit">
+                                💥 Crit:
+                                {{ selectedItem.basic_stats.crit }}%
+                            </p>
+
+                            <p v-if="selectedItem.basic_stats?.evasion">
+                                🎯 Evasion:
+                                {{ selectedItem.basic_stats.evasion }}%
+                            </p>
+                        </div>
+
+                        <!-- FOOTER -->
+                        <div class="mt-4 pt-3 border-t border-white/10">
+                            <p class="text-xs text-yellow-400">
+                                {{
+                                    purchase_details.sell_type === "gold"
+                                        ? "💰"
+                                        : "💎"
+                                }}
+                                {{ purchase_details.price }}
                             </p>
                         </div>
                     </div>
-
-                    <!-- STATS -->
-                    <div class="text-xs text-gray-300 space-y-1">
-                        <p v-if="selectedItem.basic_stats?.attack">
-                            ⚔ Attack: {{ selectedItem.basic_stats.attack }}
-                        </p>
-
-                        <p v-if="selectedItem.basic_stats?.defense">
-                            🛡 Defense: {{ selectedItem.basic_stats.defense }}
-                        </p>
-
-                        <p v-if="selectedItem.basic_stats?.speed">
-                            ⚡ Speed: {{ selectedItem.basic_stats.speed }}
-                        </p>
-
-                        <p v-if="selectedItem.basic_stats?.hp">
-                            ❤️ HP: {{ selectedItem.basic_stats.hp }}
-                        </p>
-
-                        <p v-if="selectedItem.basic_stats?.mp">
-                            💧 MP: {{ selectedItem.basic_stats.mp }}
-                        </p>
-
-                        <p v-if="selectedItem.basic_stats?.crit">
-                            💥 Crit: {{ selectedItem.basic_stats.crit }}%
-                        </p>
-
-                        <p v-if="selectedItem.basic_stats?.evasion">
-                            🎯 Evasion: {{ selectedItem.basic_stats.evasion }}%
-                        </p>
-                    </div>
-
-                    <!-- CLOSE -->
-                    <button
-                        @click="selectedItem = null"
-                        class="mt-4 w-full py-2 rounded-lg bg-red-500/20 text-red-300 border border-red-400/30"
-                    >
-                        Close
-                    </button>
                 </div>
-            </div>
+            </transition>
 
             <!-- FOOTER -->
             <div
                 class="mt-6 pt-4 border-t border-white/10 flex justify-between"
             >
                 <p class="text-xs text-gray-500">
-                    Wings • Pets • Auction System
+                    ..and a chance for an extra stats
                 </p>
             </div>
         </div>

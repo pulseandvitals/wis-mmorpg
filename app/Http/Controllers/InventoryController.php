@@ -167,6 +167,7 @@ class InventoryController extends Controller
                 'necklace.gear',
                 'ring.gear',
                 'pants.gear',
+                'wing.gear',
             ]))
         ]);
     }

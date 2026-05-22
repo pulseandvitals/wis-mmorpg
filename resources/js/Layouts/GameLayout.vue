@@ -34,10 +34,15 @@ onUnmounted(() => {
 });
 
 const loadingImages = [
-    "/loading_screens/Loading1.png",
-    "/loading_screens/Loading2.png",
-    "/loading_screens/Loading3.png",
-    "/loading_screens/Loading4.png",
+    "/loading_screens/Wisteria.png",
+    "/loading_screens/Wisteria1.png",
+    "/loading_screens/Wisteria2.png",
+    "/loading_screens/Wisteria3.png",
+    "/loading_screens/Wisteria4.png",
+    "/loading_screens/Wisteria5.png",
+    "/loading_screens/Wisteria6.png",
+    "/loading_screens/Wisteria7.png",
+    "/loading_screens/Wisteria8.png",
 ];
 
 function getRandomImage() {

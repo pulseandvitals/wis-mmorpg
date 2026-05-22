@@ -1,19 +1,14 @@
 <script setup>
+import { pushAlert } from "@/Stores/GlobalAlert";
+import { onMounted, ref, watch } from "vue";
+
 const props = defineProps({
     players: Object,
+    party: Object,
 });
-import { pushAlert } from "@/Stores/GlobalAlert";
-import { usePage } from "@inertiajs/vue3";
-import { onMounted, ref, watch } from "vue";
-const page = usePage();
-const party = ref(null);
-async function getMyParty() {
-    let res = await axios.get("/get-party");
-    party.value = res.data;
-}
 
 async function getPartyReward() {
-    window.Echo.channel(`party.${party.value?.id}`).listen(
+    window.Echo.channel(`party.${props.party?.id}`).listen(
         ".party.reward",
         (e) => {
             const player = props.players.find((m) => m.id === e.player_id);
@@ -32,11 +27,15 @@ onMounted(async () => {
     await getMyParty();
     getPartyReward();
 });
-watch(party?.members, (newVal) => {
-    if (newVal) {
-        getPartyReward();
-    }
-});
+watch(
+    () => props.party?.members,
+    (newVal) => {
+        if (newVal) {
+            getPartyReward();
+        }
+    },
+    { deep: true },
+);
 </script>
 <template>
     <div

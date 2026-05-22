@@ -36,7 +36,7 @@ class WingSeeder extends Seeder
                 'type' => 'wing',
                 'basic_stats' => json_encode([
                     'hp' => 30,
-                    'mana' => 10,
+                    'mp' => 15,
                 ]),
                 'requirement_level' => 1,
             ],

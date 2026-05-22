@@ -26,13 +26,13 @@ class PlayerResource extends JsonResource
             'current_health' => $this->current_health,
             'current_mana' => $this->current_mana,
 
-            'max_health' => $this->getAllStats()['hp'],
-            'max_mana' => $this->getAllStats()['mp'],
-            'total_attack' => $this->getAllStats()['attack'],
-            'total_defense' => $this->getAllStats()['defense'],
-            'total_speed' => $this->getAllStats()['speed'],
-            'total_evasion_percentage' => $this->getAllStats()['evasion'],
-            'total_critical_percentage' => $this->getAllStats()['crit'],
+            'max_health' => (int) round($this->getAllStats()['hp']),
+            'max_mana' => (int) round($this->getAllStats()['mp']),
+            'total_attack' => (int) round($this->getAllStats()['attack']),
+            'total_defense' => (int) round($this->getAllStats()['defense']),
+            'total_speed' => (int) round($this->getAllStats()['speed']),
+            'total_evasion_percentage' => (int) round($this->getAllStats()['evasion']),
+            'total_critical_percentage' => (int) round($this->getAllStats()['crit']),
 
             'current_map_id' => $this->current_map_id,
             'x' => $this->x,
@@ -40,7 +40,7 @@ class PlayerResource extends JsonResource
 
 
             'active_buff_effects' => $this->active_buff_effects,
-
+            'selected_talent_skills' => $this->selected_talent_skills,
             /*
             |--------------------------------------------------------------------------
             | EQUIPPED GEARS
@@ -56,7 +56,7 @@ class PlayerResource extends JsonResource
             'necklace' => $this->necklace,
             'ring' => $this->ring,
             'pants' => $this->pants,
-            'wings' => $this->wing,
+            'wing' => $this->wing,
 
             /*
             |--------------------------------------------------------------------------

@@ -5,22 +5,26 @@ import { onMounted, ref } from "vue";
 const props = defineProps({
     player: Object,
 });
-
+const loading = ref(false);
 const selectedGear = ref("");
 const dialogues = [
     "But power has a price. Nothing here is free.",
+    "The higher the upgrade... the more gold you must sacrifice.",
     "Bring me rare materials… and I shall upgrade your gear.",
 ];
 
 async function upgradeGear() {
     try {
+        loading.value = true;
         let res = await axios.post("/upgrade-gear", {
             gear: selectedGear.value,
         });
         pushAlert(res.data.message, "success");
         res = res.data;
+        loading.value = false;
     } catch (e) {
         pushAlert(e.response?.data?.message, "error");
+        loading.value = false;
     }
 }
 </script>
@@ -56,12 +60,6 @@ async function upgradeGear() {
                             </div>
 
                             <div>
-                                <p
-                                    class="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-orange-300 to-yellow-400"
-                                >
-                                    Blacksmith
-                                </p>
-
                                 <p class="text-sm text-gray-400 mt-1">
                                     Master of forged weapons and armor
                                 </p>
@@ -91,6 +89,7 @@ async function upgradeGear() {
                             <option value="boots">Boots</option>
                             <option value="ring">Ring</option>
                             <option value="shield">Shield</option>
+                            <option value="wing">Wing</option>
                         </select>
                     </div>
 
@@ -99,7 +98,7 @@ async function upgradeGear() {
                         <div
                             v-for="(line, index) in dialogues"
                             :key="index"
-                            class="flex items-center justify-between rounded-xl border border-white/10 bg-black/20 hover:bg-orange-500/5 transition px-5 py-4"
+                            class="flex items-center justify-between rounded-xl border border-white/10 bg-black/20 hover:bg-orange-500/5 transition px-5 py-2"
                         >
                             <!-- LEFT -->
                             <div class="flex items-center gap-4">
@@ -128,10 +127,11 @@ async function upgradeGear() {
                         </p>
 
                         <button
-                            class="px-4 py-2 rounded-lg bg-yellow-500/20 border border-yellow-400/30 text-yellow-300 hover:bg-yellow-500/30"
+                            class="px-4 py-2 rounded-lg bg-green-500/20 border border-green-400/30 text-green-300 hover:bg-green-500/30"
                             @click="upgradeGear"
+                            :disabled="loading"
                         >
-                            🔧 Start Forging
+                            {{ loading ? "Forging..." : "🔧 Start Forging" }}
                         </button>
                     </div>
                 </div>
@@ -169,5 +169,14 @@ async function upgradeGear() {
     justify-content: center;
 
     z-index: 999999999;
+}
+.fade-enter-active,
+.fade-leave-active {
+    transition: opacity 0.2s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+    opacity: 0;
 }
 </style>

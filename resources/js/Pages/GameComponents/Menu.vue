@@ -22,6 +22,7 @@ const isRankingOpen = ref(false);
 const isPartyOpen = ref(false);
 const isTopUpOpen = ref(false);
 const isTalentTreeOpen = ref(false);
+const emit = defineEmits(["updatePlayer", "updateParty"]);
 const map = props.all_maps.find((map) => map.name === "Wisteria Town");
 
 const menuItems = [
@@ -86,9 +87,14 @@ const handleMenuClick = (item) => {
     <PlayerInventoryModal
         v-if="isInventoryOpen"
         :player="player"
+        @updatePlayer="emit('updatePlayer', $event)"
         @close="isInventoryOpen = false"
     />
-    <PartyRoom v-if="isPartyOpen" @close="isPartyOpen = false" />
+    <PartyRoom
+        v-if="isPartyOpen"
+        @updateParty="emit('updateParty', $event)"
+        @close="isPartyOpen = false"
+    />
     <PlayerSkillModal
         :classSkills="classSkills"
         v-if="isSkillOpen"

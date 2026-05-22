@@ -9,6 +9,7 @@ use App\Http\Controllers\PartyRoomController;
 use App\Http\Controllers\PlayerController;
 use App\Http\Controllers\PotionController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\TalentSkillController;
 use App\Http\Controllers\WorldChatController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
@@ -40,6 +41,9 @@ Route::prefix('world')->group(function () {
     Route::get('/get-potions',[PotionController::class,'getPotions']);
     Route::post('/buy-potion',[PotionController::class,'buyPotion']);
     Route::post('/use-potion',[PotionController::class,'usePotion']);
+
+    Route::get('/get-talents',[TalentSkillController::class,'getTalentSkills']);
+    Route::post('/store-selected-talents',[TalentSkillController::class,'storeSelectedTalents']);
 
     Route::post('/update-player-move',[PlayerController::class,'updatePlayerMove']);
     Route::get('/get-player',[PlayerController::class,'getPlayer']);

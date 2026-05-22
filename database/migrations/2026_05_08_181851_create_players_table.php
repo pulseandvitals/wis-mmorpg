@@ -28,6 +28,7 @@ return new class extends Migration
             $table->integer('total_speed')->default(5);
             $table->integer('total_evasion_percentage')->default(2);
             $table->integer('total_critical_percentage')->default(2);
+
             $table->foreignId('current_map_id')->nullable();
             $table->integer('x')->default(10);
             $table->integer('y')->default(2);
@@ -45,6 +46,7 @@ return new class extends Migration
             $table->integer('wing_id')->unsigned()->nullable();
 
             $table->json('active_buff_effects')->nullable();
+            $table->json('selected_talent_skills')->nullable();
             $table->integer('daily_bet_chance')->default(10);
             $table->integer('daily_trivia_chance')->default(10);
             $table->integer('daily_mobs_kill')->default(10);

@@ -38,6 +38,7 @@ class Player extends Model
         'user_id',
         //new fields
         'active_buff_effects',
+        'selected_talent_skills',
         'daily_bet_chance',
         'daily_trivia_chance',
         'daily_mobs_kill',
@@ -46,6 +47,7 @@ class Player extends Model
 
     protected $casts = [
         'active_buff_effects' => 'array',
+        'selected_talent_skills' => 'array',
     ];
 
     protected $appends = [
@@ -156,7 +158,7 @@ class Player extends Model
         $town = Map::where('name', 'Wisteria Town')->firstOrFail();
 
         $this->current_map_id = $town->map_id;
-        $this->x = 7;
+        $this->x = 10;
         $this->y = 7;
         $this->direction = 'down';
 
@@ -322,33 +324,55 @@ class Player extends Model
             ->values();
     }
 
+    public function getAllActiveTalents()
+    {
+        return collect($this->selected_talent_skills ?? [])
+            ->flatMap(function ($talent) {
+                // if it's still a JSON string (your current issue)
+                if (is_string($talent)) {
+                    return json_decode($talent, true) ?: [];
+                }
+
+                return $talent ?? [];
+            })
+            ->values();
+    }
+
+    public function getAllActiveEffects()
+    {
+        return array_merge(
+            $this->getActiveBuffs()->toArray(),
+            $this->getAllActiveTalents()->toArray()
+        );
+    }
+
     public function getAllStats()
     {
         $this->recalculateStats(); // gear + base only
 
         $stats = [
-            'attack' => $this->total_attack,
-            'defense' => $this->total_defense,
-            'speed' => $this->total_speed,
-            'crit' => $this->total_critical_percentage,
-            'evasion' => $this->total_evasion_percentage,
-            'hp' => $this->max_health,
-            'mp' => $this->max_mana,
-            'is_exp_potion_active' => $this->is_exp_potion_active,
+            'attack' => (int) $this->total_attack,
+            'defense' => (int) $this->total_defense,
+            'speed' => (int) $this->total_speed,
+            'crit' => (int) $this->total_critical_percentage,
+            'evasion' => (int) $this->total_evasion_percentage,
+            'hp' => (int) $this->max_health,
+            'mp' => (int) $this->max_mana,
+            'is_exp_potion_active' => (bool) $this->is_exp_potion_active,
         ];
+        foreach ($this->getAllActiveEffects() as $effect) {
 
-        foreach ($this->getActiveBuffs() as $buff) {
-
-            $stat = $buff['stat'];
+            $stat = $effect['stat'];
 
             if (!isset($stats[$stat])) continue;
 
-            $value = $buff['value'];
+            $value = $effect['value'];
 
-            $stats[$stat] = $buff['operation'] === 'multiply'
+            $stats[$stat] = $effect['operation'] === 'multiply'
                 ? $stats[$stat] * (1 + $value / 100)
                 : $stats[$stat] + $value;
         }
+
         return $stats;
     }
 
@@ -376,7 +400,7 @@ class Player extends Model
 
     public function wing()
     {
-        return $this->belongsTo(Inventory::class, 'wings_id');
+        return $this->belongsTo(Inventory::class, 'wing_id');
     }
 
     public function helmet()

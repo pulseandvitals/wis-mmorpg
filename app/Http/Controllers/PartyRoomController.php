@@ -18,7 +18,7 @@ class PartyRoomController extends Controller
             })
             ->first();
 
-        return response()->json($room);
+        return response()->json($room->fresh('members.player'));
 
     }
 
@@ -37,7 +37,7 @@ class PartyRoomController extends Controller
         ]);
 
 
-        return $room;
+        return response()->json($room->fresh('members.player'));
     }
 
     public function leaveRoom($roomId)
@@ -79,6 +79,9 @@ class PartyRoomController extends Controller
             'joined_at' => now()
         ]);
 
-        return response()->json($room);
+        return response()->json([
+            'message' => 'Joined room successfully',
+            'room' => $room->fresh('members.player')
+        ]);
     }
 }

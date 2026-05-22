@@ -396,6 +396,7 @@
                             <button
                                 class="flex-1 bg-blue-500 hover:bg-blue-400 text-white font-bold py-2 rounded-lg transition"
                                 v-if="selectedItem.item_type === 'gear'"
+                                :disabled="loading"
                                 @click="useGear"
                             >
                                 Use
@@ -493,7 +494,6 @@
                                 </div>
                             </div>
                         </div>
-
                         <!-- STATS -->
                         <div
                             class="mt-4 rounded-lg border border-gray-700 bg-gray-900/80 p-3 text-white"
@@ -566,7 +566,8 @@ const getInventory = ref([]);
 const playerCurrentGold = props.player.current_gold;
 const playerCurrentDiamond = props.player.current_diamond;
 const selectedItem = ref(null);
-
+const loading = ref(false);
+const emit = defineEmits(["updatePlayer"]);
 const EQUIP_SLOTS = [
     { key: "helmet", label: "Helmet", folder: "gears" },
     { key: "weapon", label: "Weapon", folder: "gears" },
@@ -576,6 +577,7 @@ const EQUIP_SLOTS = [
     { key: "shield", label: "Shield", folder: "gears" },
     { key: "pants", label: "Pants", folder: "gears" },
     { key: "ring", label: "Ring", folder: "gears" },
+    { key: "wing", label: "Wing", folder: "gears" },
 ];
 
 const armory = computed(() =>
@@ -584,7 +586,7 @@ const armory = computed(() =>
 
         return {
             slot: s.label,
-            icon: equip ? `/${s.folder}/${equip.gear.name}.png` : "❔",
+            icon: equip ? `/${s.folder}/${equip.gear?.name}.png` : "❔",
             name: equip?.gear.name || `Empty ${s.label} Slot`,
             description: equip?.gear.requirement_level
                 ? `Level ${equip.gear.requirement_level} ${s.label}`
@@ -651,13 +653,15 @@ const randomStats = computed(() => {
 
 async function useGear() {
     try {
+        loading.value = true;
         const res = await axios.post("/use-gear", {
             gear: selectedItem.value,
         });
 
         // backend might still send "error" inside 200
-        Object.assign(props.player, res.data.player);
+        emit("updatePlayer", res.data.player);
         pushAlert(res.data.message, "success");
+        loading.value = false;
         openInventory();
         closeItem();
     } catch (error) {

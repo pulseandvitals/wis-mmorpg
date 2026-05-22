@@ -50,45 +50,81 @@ async function placeBet() {
             </div>
 
             <!-- BODY -->
-            <div class="flex flex-col items-center justify-center mt-10">
-                <p
-                    class="text-gray-300 mb-5 text-center text-sm leading-relaxed"
-                >
-                    A trial of fate awaits you. Place your gold and face a 50/50
-                    chance — either your fortune is doubled, or it is lost to
-                    the void.
-                </p>
+            <div class="flex flex-col items-center justify-center mt-10 px-4">
+                <!-- TITLE / DESCRIPTION -->
+                <div class="text-center max-w-md mb-6">
+                    <h2 class="text-lg font-bold text-white mb-2">
+                        Trial of Fate
+                    </h2>
 
-                <!-- INPUT -->
-                <input
-                    v-model="amount"
-                    type="number"
-                    placeholder="Enter amount"
-                    class="w-full max-w-sm px-4 py-3 rounded-md bg-gray-800 border border-gray-700 text-white outline-none focus:border-indigo-400 transition"
-                />
+                    <p class="text-gray-400 text-sm leading-relaxed">
+                        A trial of fate awaits you. Place your gold and face a
+                        <span class="text-white font-semibold"
+                            >50/50 chance</span
+                        >
+                        — either your fortune is doubled, or it is lost to the
+                        void.
+                    </p>
+                </div>
+
+                <!-- INPUT CARD -->
+                <div
+                    class="w-full max-w-sm bg-gray-900/60 border border-gray-700 rounded-xl p-4 backdrop-blur"
+                >
+                    <label class="text-xs text-gray-400 mb-2 block">
+                        Bet Amount
+                    </label>
+
+                    <input
+                        v-model="amount"
+                        type="number"
+                        placeholder="Enter amount"
+                        class="w-full px-4 py-3 rounded-lg bg-gray-800 border border-gray-700 text-white outline-none focus:border-indigo-400 transition"
+                    />
+
+                    <!-- QUICK INFO -->
+                    <div
+                        class="flex justify-between text-[10px] text-gray-500 mt-2"
+                    >
+                        <span>Min: 1</span>
+                        <span>Risk: High</span>
+                    </div>
+                </div>
 
                 <!-- BUTTON -->
                 <button
                     @click="placeBet"
-                    :disabled="loading"
-                    class="mt-5 w-full max-w-sm py-3 rounded-md font-semibold text-white transition bg-green-600 hover:bg-green-500 shadow-md hover:shadow-green-500/30 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
+                    :disabled="loading || !amount"
+                    class="mt-5 px-6 py-3 text-sm font-bold rounded-lg border border-green-400/30 bg-green-500/10 text-green-300 hover:bg-green-500/20 disabled:opacity-40 disabled:cursor-not-allowed transition flex items-center gap-2"
                 >
-                    {{ loading ? "Rolling..." : "⚔ Bet Now" }}
+                    <span v-if="loading" class="animate-pulse">Rolling...</span>
+                    <span v-else>⚔ Enter the Trial</span>
                 </button>
 
                 <!-- RESULT -->
-                <div v-if="result" class="mt-6 text-center">
-                    <div
-                        v-if="result === 'win'"
-                        class="text-green-400 font-semibold text-lg"
-                    >
-                        🎉 You Won {{ reward }} Gold
-                    </div>
+                <transition name="fade">
+                    <div v-if="result" class="mt-6 text-center">
+                        <div
+                            v-if="result === 'win'"
+                            class="text-green-400 font-bold text-xl flex flex-col items-center gap-1"
+                        >
+                            🎉 Victory
+                            <span class="text-sm text-gray-300">
+                                +{{ reward }} Gold earned
+                            </span>
+                        </div>
 
-                    <div v-else class="text-red-400 font-semibold text-lg">
-                        💀 You Lost {{ amount }} Gold
+                        <div
+                            v-else
+                            class="text-red-400 font-bold text-xl flex flex-col items-center gap-1"
+                        >
+                            💀 Defeat
+                            <span class="text-sm text-gray-400">
+                                -{{ amount }} Gold lost
+                            </span>
+                        </div>
                     </div>
-                </div>
+                </transition>
             </div>
         </div>
     </div>

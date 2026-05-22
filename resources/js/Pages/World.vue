@@ -40,7 +40,13 @@ const map = props.map_tiles;
 const mapHeight = map.length;
 const mapWidth = map[0].length;
 const monsters = reactive([]);
+const selectedMonster = ref(null);
+const pveRef = ref(null);
+const party = ref([]);
 const flatMap = computed(() => map.flat());
+const spriteFolder = props.playerData.data.wing
+    ? `${props.playerData.data.class_type} ${props.playerData.data.wing?.gear?.name}`
+    : props.playerData.data.class_type;
 const filteredMaps = computed(() => {
     return props.all_maps.data.filter(
         (map) => !map.name.includes("Underground"),
@@ -70,9 +76,10 @@ const player = reactive({
     crit: props.playerData.data.total_critical_percentage,
     eva: props.playerData.data.total_evasion_percentage,
 
-    battle_gif: `/sprites/${props.playerData.data.class_type}/idle-right.gif`,
-    attack_gif: `/sprites/${props.playerData.data.class_type}/attack.gif`,
-    dead_gif: `/sprites/${props.playerData.data.class_type}/dead.gif`,
+    sprite: spriteFolder,
+    battle_gif: `/sprites/${spriteFolder}/idle-right.gif`,
+    attack_gif: `/sprites/${spriteFolder}/attack.gif`,
+    dead_gif: `/sprites/${spriteFolder}/dead.gif`,
 
     active_buff_effects: props.playerData.data.active_buff_effects,
 
@@ -87,9 +94,12 @@ const player = reactive({
         icon: skill.icon_path,
     })),
 });
-
-const selectedMonster = ref(null);
-const pveRef = ref(null);
+const updatePlayer = (newUpdate) => {
+    props.playerData.data = newUpdate;
+};
+const updateParty = (newParty) => {
+    party.value = newParty;
+};
 function handleAttackMonster(monster) {
     selectedMonster.value = monster;
 
@@ -522,11 +532,15 @@ function smoothMovePlayers(entity, targetX, targetY, callback = null) {
 
     animate();
 }
-
+async function getMyParty() {
+    const res = await axios.get("/get-party");
+    party.value = res.data;
+}
 onMounted(() => {
     window.addEventListener("keydown", handleKey);
     moveMonsters();
     getPlayers();
+    getMyParty();
     window.Echo.channel("world").listen(".player.moved", (e) => {
         const id = Number(e.player_id);
         if (id === myPlayerId) return;
@@ -575,6 +589,7 @@ function handleMapPortal() {
         },
     });
 }
+
 watch(
     () => props.monsters,
     () => {
@@ -584,7 +599,7 @@ watch(
 );
 </script>
 <template>
-    <Head title="Wis Online" />
+    <Head title="Wisteria Online - MMORPG" />
     <GameLayout>
         <div
             class="game-map"
@@ -610,6 +625,7 @@ watch(
                     }"
                 ></span>
             </div>
+
             <!-- COLLISION DEBUG (OPTIONAL) -->
             <!-- <div
                 v-for="(tile, index) in flatMap"
@@ -634,7 +650,11 @@ watch(
                 @open="handleMapPortal"
             />
             <!-- PLAYER -->
-            <Player :player="player" :tileSize="tileSize" />
+            <Player
+                :player="player"
+                :playerData="playerData.data"
+                :tileSize="tileSize"
+            />
             <Players :players="players" :tileSize="tileSize" />
             <!-- HUD COMPONENTS -->
             <ActiveBuffs :player="playerData.data" />
@@ -642,9 +662,11 @@ watch(
                 :classSkills="classSkills.data"
                 :all_maps="filteredMaps"
                 :player="playerData.data"
+                @updatePlayer="updatePlayer"
+                @updateParty="updateParty"
             />
             <PlayerStat :player="player" />
-            <PartyList :players="players" />
+            <PartyList :players="players" :party="party" />
             <TownSquareNPC
                 :current_map="current_map"
                 :all_maps="filteredMaps"

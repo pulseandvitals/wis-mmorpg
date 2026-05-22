@@ -149,10 +149,11 @@ const code = ref("");
 const page = usePage();
 
 const playerId = page.props.auth.user.player.id;
-
+const emit = defineEmits(["updateParty"]);
 async function createRoom() {
     const res = await axios.post("/party-room/create");
     room.value = res.data;
+    emit("updateParty", res.data);
     pushAlert("Created a party", "success");
 }
 async function getMyRoom() {
@@ -164,6 +165,7 @@ async function joinRoom() {
     try {
         const res = await axios.post(`/party-room/join/${code.value}`);
         room.value = res.data;
+        emit("updateParty", res.data);
         pushAlert("Joined a party", "success");
     } catch (err) {
         console.log("JOIN ERROR:", err.response?.data || err);
@@ -173,6 +175,7 @@ async function joinRoom() {
 async function leaveRoom() {
     const res = await axios.post(`/party-room/leave/${room.value.id}`);
     room.value = res.data;
+    emit("updateParty", res.data);
     pushAlert("You leave a party", "warning");
 }
 

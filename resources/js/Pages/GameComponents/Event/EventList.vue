@@ -1,9 +1,11 @@
 <script setup>
 import { ref } from "vue";
 import BetEvent from "./BetEvent.vue";
+import TriviaEvent from "./TriviaEvent.vue";
 
 const selectedEvent = ref();
 const isBetEventOpen = ref(false);
+const isTriviaEventOpen = ref(false);
 /* =========================
 EVENT LIST
 ========================= */
@@ -74,6 +76,9 @@ function enterEvent(event) {
     switch (event.id) {
         case 5:
             isBetEventOpen.value = true;
+            break;
+        case 6:
+            isTriviaEventOpen.value = true;
             break;
         default:
     }
@@ -148,6 +153,7 @@ function badgeClass(color) {
         </div>
     </div>
     <BetEvent v-if="isBetEventOpen" @close="isBetEventOpen = false" />
+    <TriviaEvent v-if="isTriviaEventOpen" @close="isTriviaEventOpen = false" />
 </template>
 
 <style scoped>

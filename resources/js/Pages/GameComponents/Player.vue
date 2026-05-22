@@ -1,6 +1,12 @@
 <script setup>
+import { computed } from "vue";
+
 const props = defineProps({
     player: {
+        type: Object,
+        required: true,
+    },
+    playerData: {
         type: Object,
         required: true,
     },
@@ -8,6 +14,14 @@ const props = defineProps({
         type: Number,
         required: true,
     },
+});
+const spriteFolder = computed(() => {
+    return props.playerData.wing
+        ? `${props.playerData.class_type} ${props.playerData.wing?.gear?.name}`
+        : props.playerData.class_type;
+});
+const spritePath = computed(() => {
+    return `/sprites/${spriteFolder.value}/${props.player.moving ? "walk" : "idle"}-${props.player.direction}.gif`;
 });
 </script>
 <template>
@@ -22,10 +36,7 @@ const props = defineProps({
         <!-- NAME -->
         <div class="player-name">{{ player.name }}</div>
 
-        <img
-            class="sprite"
-            :src="`/sprites/${player.className}/${player.moving ? 'walk' : 'idle'}-${player.direction}.gif`"
-        />
+        <img class="sprite" :src="spritePath" />
 
         <!-- HP & MP BARS -->
         <div class="player-stats">
