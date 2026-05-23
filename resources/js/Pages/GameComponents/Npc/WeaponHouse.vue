@@ -9,6 +9,7 @@ const materials = ref({});
 const weaponTabs = ["Sword", "Spear", "Bow", "Staff", "Dagger"];
 const selectedWeaponTab = ref("Sword");
 const selectedWeapon = ref(null);
+const selectedWeaponMaterials = ref(null);
 const loading = ref(false);
 /**
  * FETCH WEAPONS
@@ -190,52 +191,94 @@ onMounted(async () => {
                                     <div class="relative group">
                                         <button
                                             class="px-3 py-1 text-xs rounded bg-white/10 text-white hover:bg-white/20 flex items-center gap-1"
+                                            @click="
+                                                selectedWeaponMaterials = weapon
+                                            "
                                         >
                                             📦 <span>Materials</span>
                                         </button>
-
-                                        <!-- TOOLTIP -->
+                                        <!-- MATERIALS POPUP -->
                                         <div
-                                            class="absolute right-0 top-full mt-2 w-56 hidden group-hover:block bg-black/90 border border-white/10 rounded-lg p-3 z-50 shadow-xl"
+                                            v-if="selectedWeaponMaterials"
+                                            class="fixed inset-0 flex items-center justify-center z-[60] bg-black/30"
+                                            @click.self="
+                                                selectedWeaponMaterials = null
+                                            "
                                         >
-                                            <p
-                                                class="text-xs text-gray-400 mb-2"
+                                            <div
+                                                class="w-[300px] rounded-2xl border border-white/10 bg-black/90 p-4 shadow-2xl"
                                             >
-                                                Crafting Materials
-                                            </p>
-
-                                            <div class="space-y-2">
-                                                <div
-                                                    v-for="mat in weapon.materials"
-                                                    :key="mat.item"
-                                                    class="flex items-center gap-2 text-xs text-gray-300"
-                                                >
-                                                    <img
-                                                        :src="`/materials/${mat.item}.png`"
-                                                        class="w-5 h-5 object-contain"
-                                                    />
-
-                                                    <span>
-                                                        {{ mat.item }} x{{
-                                                            mat.qty
+                                                <!-- HEADER -->
+                                                <div class="mb-3">
+                                                    <p
+                                                        class="text-white font-bold"
+                                                    >
+                                                        {{
+                                                            selectedWeaponMaterials.name
                                                         }}
-                                                    </span>
+                                                    </p>
+
+                                                    <p
+                                                        class="text-xs text-gray-400"
+                                                    >
+                                                        Crafting Materials
+                                                    </p>
+                                                </div>
+
+                                                <!-- MATERIAL LIST -->
+                                                <div class="space-y-2">
+                                                    <div
+                                                        v-for="mat in selectedWeaponMaterials.materials"
+                                                        :key="mat.item"
+                                                        class="flex items-center gap-3 text-sm text-gray-300"
+                                                    >
+                                                        <img
+                                                            :src="`/materials/${mat.item}.png`"
+                                                            class="w-6 h-6 object-contain"
+                                                        />
+
+                                                        <span>
+                                                            {{ mat.item }} x{{
+                                                                mat.qty
+                                                            }}
+                                                        </span>
+                                                    </div>
+                                                </div>
+
+                                                <!-- CLOSE -->
+                                                <div
+                                                    class="mt-4 grid grid-cols-2 gap-2"
+                                                >
+                                                    <!-- CLOSE -->
+                                                    <button
+                                                        class="text-xs py-2 rounded bg-gray-500/10 border border-gray-400/30 text-gray-300 hover:bg-gray-500/20 transition"
+                                                        @click="
+                                                            selectedWeaponMaterials =
+                                                                null
+                                                        "
+                                                    >
+                                                        Close
+                                                    </button>
+
+                                                    <!-- CRAFT -->
+                                                    <button
+                                                        class="text-xs py-2 rounded bg-green-500/10 border border-green-400/30 text-green-300 hover:bg-green-500/20 hover:border-green-400/60 transition"
+                                                        :disabled="loading"
+                                                        @click="
+                                                            craftGear(weapon)
+                                                        "
+                                                    >
+                                                        {{
+                                                            loading
+                                                                ? "Crafting..."
+                                                                : "Craft"
+                                                        }}
+                                                    </button>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-
-                            <!-- RIGHT -->
-                            <div class="text-right">
-                                <button
-                                    class="px-4 py-2 text-xs font-bold rounded-lg border border-green-400/30 bg-green-500/10 text-green-300 hover:bg-green-500/20 hover:border-green-400/60 transition"
-                                    :disabled="loading"
-                                    @click="craftGear(weapon)"
-                                >
-                                    {{ loading ? "Crafting..." : "Craft" }}
-                                </button>
                             </div>
                         </div>
                     </div>

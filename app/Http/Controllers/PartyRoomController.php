@@ -18,7 +18,7 @@ class PartyRoomController extends Controller
             })
             ->first();
 
-        return response()->json($room->fresh('members.player'));
+        return response()->json($room);
 
     }
 

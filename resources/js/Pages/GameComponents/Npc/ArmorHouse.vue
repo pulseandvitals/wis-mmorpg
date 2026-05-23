@@ -4,7 +4,7 @@ import { pushAlert } from "@/Stores/GlobalAlert";
 const armors = ref([]);
 const materials = ref({});
 const loading = ref(false);
-
+const selectedGear = ref(null);
 /**
  * FETCH ARMORS
  */
@@ -157,68 +157,134 @@ onMounted(async () => {
                         <div
                             v-for="gear in group.items"
                             :key="gear.id"
-                            class="relative group w-11 h-11 rounded-md border border-white/10 bg-black/40 flex items-center justify-center cursor-pointer hover:bg-blue-500/10"
+                            class="relative cursor-pointer active:scale-95 transition"
+                            @click="selectedGear = { gear, group }"
                         >
-                            <!-- ICON (UNCHANGED SIZE) -->
                             <img
                                 :src="`/gears/${gear.name}.png`"
                                 class="w-10 h-10 object-contain"
                             />
-
-                            <!-- TOOLTIP -->
+                        </div>
+                        <!-- GEAR POPUP (ONLY ONCE) -->
+                        <div
+                            v-if="selectedGear"
+                            class="fixed inset-0 flex items-center justify-center p-4 z-[9999]"
+                            @click.self="selectedGear = null"
+                        >
                             <div
-                                class="absolute left-full ml-2 top-1/2 -translate-y-1/2 w-56 hidden group-hover:block bg-black/95 border border-white/10 rounded-lg p-3 z-50 shadow-2xl"
+                                class="w-full max-w-sm bg-black/95 border border-white/10 rounded-xl p-4"
                             >
-                                <p class="text-white text-sm font-bold mb-1">
-                                    {{ gear.name }}
-                                </p>
+                                <!-- HEADER -->
+                                <div class="mb-3 flex items-center gap-3">
+                                    <!-- GEAR IMAGE -->
+                                    <img
+                                        :src="`/gears/${selectedGear.gear.name}.png`"
+                                        class="w-10 h-10 object-contain rounded"
+                                    />
 
-                                <p class="text-xs text-gray-400 mb-2">
-                                    Lv {{ gear.requirement_level }}
-                                </p>
-
-                                <div class="text-xs text-gray-300 space-y-1">
-                                    <p v-if="gear.basic_stats?.attack">
-                                        ⚔ Attack: {{ gear.basic_stats.attack }}
-                                    </p>
-
-                                    <p v-if="gear.basic_stats?.defense">
-                                        🛡 Defense:
-                                        {{ gear.basic_stats.defense }}
-                                    </p>
-
-                                    <p v-if="gear.basic_stats?.hp">
-                                        ❤️ HP: {{ gear.basic_stats.hp }}
-                                    </p>
-
-                                    <p v-if="gear.basic_stats?.crit_rate">
-                                        💥 Crit Rate:
-                                        {{ gear.basic_stats.crit_rate }}%
-                                    </p>
-                                    <p v-if="gear.basic_stats?.speed">
-                                        ⚡ Speed: {{ gear.basic_stats.speed }}
-                                    </p>
-                                    <p v-if="gear.basic_stats?.evasion">
-                                        ⚔ Evasion:
-                                        {{ gear.basic_stats.evasion }}
-                                    </p>
+                                    <!-- TEXT INFO -->
                                     <div>
-                                        <p class="text-yellow-500">
+                                        <p class="text-white text-sm font-bold">
+                                            {{ selectedGear.gear.name }}
+                                        </p>
+
+                                        <p class="text-xs text-gray-400">
+                                            Lv
+                                            {{
+                                                selectedGear.gear
+                                                    .requirement_level
+                                            }}
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <!-- STATS -->
+                                <div class="text-xs text-gray-300 space-y-1">
+                                    <p
+                                        v-if="
+                                            selectedGear.gear.basic_stats
+                                                ?.attack
+                                        "
+                                    >
+                                        ⚔ Attack:
+                                        {{
+                                            selectedGear.gear.basic_stats.attack
+                                        }}
+                                    </p>
+
+                                    <p
+                                        v-if="
+                                            selectedGear.gear.basic_stats
+                                                ?.defense
+                                        "
+                                    >
+                                        🛡 Defense:
+                                        {{
+                                            selectedGear.gear.basic_stats
+                                                .defense
+                                        }}
+                                    </p>
+
+                                    <p v-if="selectedGear.gear.basic_stats?.hp">
+                                        ❤️ HP:
+                                        {{ selectedGear.gear.basic_stats.hp }}
+                                    </p>
+
+                                    <p
+                                        v-if="
+                                            selectedGear.gear.basic_stats
+                                                ?.crit_rate
+                                        "
+                                    >
+                                        💥 Crit Rate:
+                                        {{
+                                            selectedGear.gear.basic_stats
+                                                .crit_rate
+                                        }}%
+                                    </p>
+
+                                    <p
+                                        v-if="
+                                            selectedGear.gear.basic_stats?.speed
+                                        "
+                                    >
+                                        ⚡ Speed:
+                                        {{
+                                            selectedGear.gear.basic_stats.speed
+                                        }}
+                                    </p>
+
+                                    <p
+                                        v-if="
+                                            selectedGear.gear.basic_stats
+                                                ?.evasion
+                                        "
+                                    >
+                                        ⚔ Evasion:
+                                        {{
+                                            selectedGear.gear.basic_stats
+                                                .evasion
+                                        }}
+                                    </p>
+
+                                    <!-- MATERIALS -->
+                                    <div class="mt-3">
+                                        <p class="text-yellow-500 mb-2">
                                             Materials:
                                         </p>
+
                                         <div class="flex flex-wrap gap-2">
                                             <div
-                                                v-for="mat in group.materials"
+                                                v-for="mat in selectedGear.group
+                                                    .materials"
                                                 :key="mat.item"
                                                 class="flex flex-col items-center text-xs text-gray-300"
                                             >
-                                                <!-- MATERIAL IMAGE -->
                                                 <img
                                                     :src="`/materials/${mat.item}.png`"
                                                     class="w-8 h-8 object-contain"
                                                 />
 
-                                                <!-- QUANTITY -->
                                                 <span
                                                     class="text-yellow-300 text-[10px] font-semibold"
                                                 >
@@ -229,13 +295,23 @@ onMounted(async () => {
                                     </div>
                                 </div>
 
-                                <button
-                                    class="mt-3 w-full text-xs py-1.5 rounded bg-green-500/10 border border-green-400/30 text-green-300 hover:bg-green-500/20 transition"
-                                    :disabled="loading"
-                                    @click="craftGear(gear)"
-                                >
-                                    {{ loading ? "Crafting..." : "Craft" }}
-                                </button>
+                                <!-- BUTTON -->
+                                <div class="mt-4 grid grid-cols-2 gap-2">
+                                    <button
+                                        class="text-xs py-2 rounded bg-gray-500/10 border border-gray-400/30 text-gray-300 hover:bg-gray-500/20 transition"
+                                        @click="selectedGear = null"
+                                    >
+                                        Close
+                                    </button>
+
+                                    <button
+                                        class="text-xs py-2 rounded bg-green-500/10 border border-green-400/30 text-green-300 hover:bg-green-500/20 transition"
+                                        :disabled="loading"
+                                        @click="craftGear(selectedGear.gear)"
+                                    >
+                                        {{ loading ? "Crafting..." : "Craft" }}
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>

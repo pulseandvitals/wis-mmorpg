@@ -14,6 +14,28 @@ class TalentSkillController extends Controller
         return response()->json($talentSkills);
     }
 
+    public function resetTalents(Request $request)
+    {
+        $player = auth()->user()->player;
+
+        if($player->current_diamond < $request->cost) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Not enough diamonds to reset talents'
+            ], 400);
+        }
+
+        $player->current_diamond -= $request->cost;
+        $player->selected_talent_skills = null;
+        $player->save();
+
+        return response()->json([
+            'message' => 'Talents reset successfully.',
+            'player' => new PlayerResource($player),
+        ]);
+    }
+
+
     public function storeSelectedTalents(Request $request)
     {
         $request->validate([

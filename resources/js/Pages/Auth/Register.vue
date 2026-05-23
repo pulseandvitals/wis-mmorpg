@@ -19,28 +19,28 @@ const submit = () => {
 const classes = [
     {
         name: "Knight",
-        icon: "⚔️",
-        desc: "Frontline tank with high defense",
-    },
-    {
-        name: "Archer",
-        icon: "🏹",
-        desc: "Long range physical damage",
-    },
-    {
-        name: "Wizard",
-        icon: "🔮",
-        desc: "Master of elemental magic",
-    },
-    {
-        name: "Assassin",
-        icon: "🗡️",
-        desc: "Fast burst damage killer",
+        image: "/sprites/Knight Azure Wings/idle-down.gif",
+        desc: "Frontline melee fighter",
     },
     {
         name: "Crusader",
-        icon: "✨",
-        desc: "Holy warrior with support power",
+        image: "/sprites/Crusader Celestial Wings/idle-down.gif",
+        desc: "Fast burst attacker",
+    },
+    {
+        name: "Archer",
+        image: "/sprites/Archer Angelus Wings/idle-down.gif",
+        desc: "Long range damage dealer",
+    },
+    {
+        name: "Assassin",
+        image: "/sprites/Assassin Ember Wings/idle-down.gif",
+        desc: "Fast burst attacker",
+    },
+    {
+        name: "Wizard",
+        image: "/sprites/Wizard Shadow Wings/idle-down.gif",
+        desc: "Master of elemental magic",
     },
 ];
 </script>
@@ -143,15 +143,21 @@ const classes = [
                                         : 'border-white/10 bg-black/30 hover:bg-white/5'
                                 "
                             >
-                                <div class="text-3xl mb-2">
-                                    {{ c.icon }}
+                                <div class="mb-3 flex justify-center">
+                                    <img
+                                        :src="c.image"
+                                        :alt="c.name"
+                                        class="w-16 h-16 object-contain drop-shadow-lg"
+                                    />
                                 </div>
 
-                                <p class="text-white font-bold">
+                                <p class="text-white font-bold text-center">
                                     {{ c.name }}
                                 </p>
 
-                                <p class="text-xs text-gray-400 mt-1">
+                                <p
+                                    class="text-xs text-gray-400 mt-1 text-center"
+                                >
                                     {{ c.desc }}
                                 </p>
                             </button>

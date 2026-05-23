@@ -10,7 +10,9 @@ use App\Http\Controllers\PlayerController;
 use App\Http\Controllers\PotionController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\TalentSkillController;
+use App\Http\Controllers\TopUpController;
 use App\Http\Controllers\WorldChatController;
+use App\Models\TopUp;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -43,6 +45,7 @@ Route::prefix('world')->group(function () {
     Route::post('/use-potion',[PotionController::class,'usePotion']);
 
     Route::get('/get-talents',[TalentSkillController::class,'getTalentSkills']);
+    Route::post('/reset-talents',[TalentSkillController::class,'resetTalents']);
     Route::post('/store-selected-talents',[TalentSkillController::class,'storeSelectedTalents']);
 
     Route::post('/update-player-move',[PlayerController::class,'updatePlayerMove']);
@@ -60,6 +63,10 @@ Route::prefix('world')->group(function () {
 
     Route::post('/mini-event/bet',[MiniEventController::class,'miniEventBet']);
     Route::post('/mini-event/trivia',[MiniEventController::class,'miniEventTrivia']);
+
+    Route::post('/submit-topup',[TopUpController::class,'submitTopUp']);
+    Route::get('/get-top-ups', [TopUpController::class,'getTopUps']);
+    Route::post('/approve-top-up',[TopUpController::class,'approveTopUp']);
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');

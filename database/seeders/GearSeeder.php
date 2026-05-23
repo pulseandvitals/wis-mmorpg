@@ -49,8 +49,8 @@ class GearSeeder extends Seeder
 
                     // MAIN TANK ITEM
                     'armor' => [
-                        'hp' => randStats($level * 1.6),
-                        'defense' => randStats($level * 0.8),
+                        'hp' => randStats($level * 1.4),
+                        'defense' => randStats($level * 0.6),
                     ],
 
                     // LOWER BODY DEFENSE
@@ -68,13 +68,13 @@ class GearSeeder extends Seeder
                     // MOBILITY
                     'boots' => [
                         'speed' => randStats($level * 0.4),
-                        'evasion' => randStats($level * 0.2),
+                        'evasion' => randStats($level * 0.1),
                     ],
 
                     // DEFENSIVE ITEM
                     'shield' => [
                         'defense' => randStats($level * 0.8),
-                        'evasion' => randStats($level * 0.25),
+                        'evasion' => randStats($level * 0.1),
                     ],
 
                     // ACCESSORY / HYBRID BONUS

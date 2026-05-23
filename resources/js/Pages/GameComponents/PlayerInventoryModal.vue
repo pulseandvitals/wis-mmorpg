@@ -402,7 +402,7 @@
                                 Use
                             </button>
                             <button
-                                v-else
+                                v-if="selectedItem.item_type === 'potion'"
                                 class="flex-1 bg-blue-500 hover:bg-blue-400 text-white font-bold py-2 rounded-lg transition"
                                 @click="usePotion"
                             >
@@ -494,58 +494,56 @@
                                 </div>
                             </div>
                         </div>
+                    </div>
+                    <!-- STATS -->
+                    <div
+                        class="mt-4 rounded-lg border border-gray-700 bg-gray-900/80 p-3 text-white"
+                    >
+                        <!-- HEADER -->
+                        <div class="flex items-center justify-between mb-2">
+                            <h2 class="text-xs font-semibold">
+                                Character Status
+                            </h2>
+                            <div class="text-xs text-gray-300">
+                                Lv. {{ props.player.current_level }}
+                            </div>
+                        </div>
+
                         <!-- STATS -->
-                        <div
-                            class="mt-4 rounded-lg border border-gray-700 bg-gray-900/80 p-3 text-white"
-                        >
-                            <!-- HEADER -->
-                            <div class="flex items-center justify-between mb-2">
-                                <h2 class="text-xs font-semibold">
-                                    Character Status
-                                </h2>
-                                <div class="text-xs text-gray-300">
-                                    Lv. {{ props.player.current_level }}
-                                </div>
+                        <div class="grid grid-cols-2 gap-1 text-xs">
+                            <div class="rounded bg-gray-800 px-2 py-1">
+                                HP: {{ props.player.current_health }} /
+                                {{ props.player.max_health }}
                             </div>
 
-                            <!-- STATS -->
-                            <div class="grid grid-cols-2 gap-1 text-xs">
-                                <div class="rounded bg-gray-800 px-2 py-1">
-                                    HP: {{ props.player.current_health }} /
-                                    {{ props.player.max_health }}
-                                </div>
+                            <div class="rounded bg-gray-800 px-2 py-1">
+                                MP: {{ props.player.current_mana }} /
+                                {{ props.player.max_mana }}
+                            </div>
 
-                                <div class="rounded bg-gray-800 px-2 py-1">
-                                    MP: {{ props.player.current_mana }} /
-                                    {{ props.player.max_mana }}
-                                </div>
+                            <div class="rounded bg-gray-800 px-2 py-1">
+                                ATK: {{ props.player.total_attack }}
+                            </div>
 
-                                <div class="rounded bg-gray-800 px-2 py-1">
-                                    ATK: {{ props.player.total_attack }}
-                                </div>
+                            <div class="rounded bg-gray-800 px-2 py-1">
+                                DEF: {{ props.player.total_defense }}
+                            </div>
 
-                                <div class="rounded bg-gray-800 px-2 py-1">
-                                    DEF: {{ props.player.total_defense }}
-                                </div>
+                            <div class="rounded bg-gray-800 px-2 py-1">
+                                SPD: {{ props.player.total_speed }}
+                            </div>
 
-                                <div class="rounded bg-gray-800 px-2 py-1">
-                                    SPD: {{ props.player.total_speed }}
-                                </div>
+                            <div class="rounded bg-gray-800 px-2 py-1">
+                                CRIT:
+                                {{ props.player.total_critical_percentage }}%
+                            </div>
 
-                                <div class="rounded bg-gray-800 px-2 py-1">
-                                    CRIT:
-                                    {{
-                                        props.player.total_critical_percentage
-                                    }}%
-                                </div>
-
-                                <div class="rounded bg-gray-800 px-2 py-1">
-                                    EVA:
-                                    {{ props.player.total_evasion_percentage }}%
-                                </div>
-                                <div class="rounded bg-gray-800 px-2 py-1">
-                                    Kills: 0
-                                </div>
+                            <div class="rounded bg-gray-800 px-2 py-1">
+                                EVA:
+                                {{ props.player.total_evasion_percentage }}%
+                            </div>
+                            <div class="rounded bg-gray-800 px-2 py-1">
+                                Kills: 0
                             </div>
                         </div>
                     </div>
@@ -586,7 +584,7 @@ const armory = computed(() =>
 
         return {
             slot: s.label,
-            icon: equip ? `/${s.folder}/${equip.gear?.name}.png` : "❔",
+            icon: equip ? `/${s.folder}/${equip.gear?.name}.png` : "/empty.png",
             name: equip?.gear.name || `Empty ${s.label} Slot`,
             description: equip?.gear.requirement_level
                 ? `Level ${equip.gear.requirement_level} ${s.label}`
@@ -714,15 +712,6 @@ function prevPage() {
 onMounted(() => {
     openInventory();
 });
-
-watch(
-    () => paginatedInventory.value.length,
-    (newLength, oldLength) => {
-        if (newLength > 0 && newLength !== oldLength) {
-            openInventory();
-        }
-    },
-);
 </script>
 
 <style scoped>

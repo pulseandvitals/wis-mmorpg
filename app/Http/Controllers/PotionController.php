@@ -142,7 +142,17 @@ class PotionController extends Controller
         return response()->json([
             'status' => 'success',
             'message' => 'Potion used successfully',
-            'player' => new PlayerResource($player)
+            'player' => new PlayerResource($player->fresh([
+                'helmet.gear',
+                'weapon.gear',
+                'armor.gear',
+                'boots.gear',
+                'gloves.gear',
+                'shield.gear',
+                'pants.gear',
+                'ring.gear',
+                'wing.gear',
+            ]))
         ]);
     }
 }

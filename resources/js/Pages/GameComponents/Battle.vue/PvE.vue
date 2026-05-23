@@ -772,7 +772,7 @@ OVERLAY
     inset: 0;
 
     /* LESS DARK / MORE TRANSPARENT */
-    background: rgba(0, 0, 0, 0.35);
+    background: rgba(0, 0, 0, 0.55);
 
     display: flex;
     align-items: center;

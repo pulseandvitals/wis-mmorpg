@@ -7,6 +7,7 @@ use App\Http\Resources\MapResource;
 use App\Http\Resources\PlayerResource;
 use App\Models\Map;
 use App\Models\Monster;
+use App\Models\Player;
 use App\Models\Skill;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -502,20 +503,30 @@ class WorldMapController extends Controller
 
     private function getPlayerData()
     {
-        $player = auth()->user()->player;
+        $user = auth()->user();
+
+        if (!$user->player_id) {
+            return response()->json(['error' => 'No character found for this user'], 404);
+        }
+
+            $player = Player::with([
+            'helmet.gear',
+            'weapon.gear',
+            'armor.gear',
+            'boots.gear',
+            'gloves.gear',
+            'shield.gear',
+            'pants.gear',
+            'ring.gear',
+            'wing.gear',
+        ])->find($user->player_id);
+
+        if (!$player) {
+            return response()->json(['error' => 'Character not found'], 404);
+        }
 
         return [
-            'playerData' => PlayerResource::make($player::with([
-                    'helmet.gear',
-                    'weapon.gear',
-                    'armor.gear',
-                    'boots.gear',
-                    'gloves.gear',
-                    'shield.gear',
-                    'pants.gear',
-                    'ring.gear',
-                    'wing.gear',
-                ])->first()),
+            'playerData' => PlayerResource::make($player),
             'playerSkills' => ClassSkillResource::collection(Skill::byClass($player->class_type)->byLevel($player->current_level)->get()),
             'classSkills' => ClassSkillResource::collection(Skill::byClass($player->class_type)->get()),
         ];

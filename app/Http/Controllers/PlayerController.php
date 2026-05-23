@@ -9,12 +9,14 @@ use Illuminate\Http\Request;
 
 class PlayerController extends Controller
 {
-    public function healPlayer()
+
+
+    public function healPlayer(Request $request)
     {
         $player = auth()->user()->player;
 
-        $player->current_health = $player->max_health;
-        $player->current_mana = $player->max_mana;
+        $player->current_health = $request->input('max_hp');
+        $player->current_mana = $request->input('max_mp');
         $player->save();
 
         return response()->json([
@@ -52,7 +54,7 @@ class PlayerController extends Controller
 
     public function getPlayers()
     {
-        $players = Player::select(
+        $players = Player::select([
             'id',
             'name',
             'x',
@@ -61,8 +63,9 @@ class PlayerController extends Controller
             'class_type',
             'current_experience',
             'current_gold',
-        )->where('id', '!=', auth()->user()->player->id)
+        ])->where('id', '!=', auth()->user()->player->id)
         ->where('current_map_id','=',auth()->user()->player->current_map_id)
+        ->where('is_online', true)
         ->get();
 
         return response()->json($players);

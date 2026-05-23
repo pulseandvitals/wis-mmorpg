@@ -1,6 +1,6 @@
 <script setup>
-import { useForm } from "@inertiajs/vue3";
-import { ref } from "vue";
+import { useForm, usePage } from "@inertiajs/vue3";
+import { computed, ref } from "vue";
 import PlayerSkillModal from "./PlayerSkillModal.vue";
 import PlayerInventoryModal from "./PlayerInventoryModal.vue";
 import Ranking from "./Npc/Ranking.vue";
@@ -8,7 +8,7 @@ import PartyRoom from "./Npc/PartyRoom.vue";
 import { pushAlert } from "@/Stores/GlobalAlert";
 import Topup from "../Transaction/Topup.vue";
 import TalentTree from "./TalentTree.vue";
-
+import TopUpList from "../Transaction/Admin/TopUpList.vue";
 const props = defineProps({
     classSkills: Object,
     all_maps: Object,
@@ -22,20 +22,28 @@ const isRankingOpen = ref(false);
 const isPartyOpen = ref(false);
 const isTopUpOpen = ref(false);
 const isTalentTreeOpen = ref(false);
+const isAdminOpen = ref(false);
+const page = usePage();
+const isAdmin = page.props.auth?.user?.role === "admin";
 const emit = defineEmits(["updatePlayer", "updateParty"]);
 const map = props.all_maps.find((map) => map.name === "Wisteria Town");
 
-const menuItems = [
-    { id: 1, label: "Inventory", icon: "🎒" },
-    { id: 2, label: "Party", icon: "👥" },
-    { id: 3, label: "Skills", icon: "📖" },
-    { id: 4, label: "Talent Tree", icon: "🌀" },
-    { id: 5, label: "Ranking", icon: "🏆" },
-    { id: 6, label: "Discord", icon: "💬" },
-    { id: 7, label: "Settings", icon: "⚙️" },
-    { id: 8, label: "Top Up", icon: "💎" },
-    { id: 9, label: "Back to Town", icon: "🏡" },
-];
+const menuItems = computed(() => {
+    return [
+        { id: 1, label: "Inventory", icon: "🎒" },
+        { id: 2, label: "Party", icon: "👥" },
+        { id: 3, label: "Skills", icon: "📖" },
+        { id: 4, label: "Talent Tree", icon: "🌀" },
+        { id: 5, label: "Ranking", icon: "🏆" },
+        { id: 6, label: "Discord", icon: "💬" },
+        { id: 7, label: "Settings", icon: "⚙️" },
+        { id: 8, label: "Top Up", icon: "💎" },
+
+        ...(isAdmin ? [{ id: 9, label: "Admin", icon: "🛡️" }] : []),
+
+        { id: 10, label: "Back to Town", icon: "🏡" },
+    ];
+});
 
 const handleMenuClick = (item) => {
     if (item.id === 1) {
@@ -60,6 +68,9 @@ const handleMenuClick = (item) => {
         isTopUpOpen.value = true;
     }
     if (item.id === 9) {
+        isAdminOpen.value = true;
+    }
+    if (item.id === 10) {
         form.get(route("world.map", map.map_id), {
             onFinish: () => pushAlert(map.name, "success"),
         });
@@ -83,7 +94,6 @@ const handleMenuClick = (item) => {
             </span>
         </button>
     </div>
-
     <PlayerInventoryModal
         v-if="isInventoryOpen"
         :player="player"
@@ -102,6 +112,11 @@ const handleMenuClick = (item) => {
     />
     <Ranking v-if="isRankingOpen" @close="isRankingOpen = false" />
     <Topup v-if="isTopUpOpen" @close="isTopUpOpen = false" />
+    <TopUpList
+        v-if="isAdminOpen"
+        :isAdmin="isAdmin"
+        @close="isAdminOpen = false"
+    />
     <TalentTree
         :player="player"
         v-if="isTalentTreeOpen"

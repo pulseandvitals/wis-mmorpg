@@ -12,13 +12,13 @@ const bankAccount = ref("");
 // Diamond Promos
 const diamondPromos = [
     { id: 1, diamonds: 50, price: 49, bonus: 0, popular: false },
-    { id: 2, diamonds: 120, price: 99, bonus: 20, popular: true },
-    { id: 3, diamonds: 250, price: 199, bonus: 50, popular: false },
-    { id: 4, diamonds: 500, price: 399, bonus: 100, popular: false },
-    { id: 5, diamonds: 1200, price: 899, bonus: 300, popular: false },
-    { id: 6, diamonds: 2500, price: 1799, bonus: 800, popular: false },
-    { id: 7, diamonds: 5000, price: 3499, bonus: 2000, popular: false },
-    { id: 8, diamonds: 10000, price: 6999, bonus: 5000, popular: false },
+    { id: 2, diamonds: 120, price: 99, bonus: 10, popular: true },
+    { id: 3, diamonds: 250, price: 199, bonus: 30, popular: false },
+    { id: 4, diamonds: 500, price: 399, bonus: 60, popular: false },
+    { id: 5, diamonds: 1200, price: 899, bonus: 200, popular: false },
+    { id: 6, diamonds: 2500, price: 1799, bonus: 600, popular: false },
+    { id: 7, diamonds: 5000, price: 3499, bonus: 1500, popular: false },
+    { id: 8, diamonds: 10000, price: 6999, bonus: 3000, popular: false },
 ];
 
 // Bank Account Info
@@ -30,7 +30,7 @@ const bankInfo = {
 };
 
 // QR Code (replace with your actual QR code image path)
-const qrCodeImage = "/images/qr-codes/bdo-qr.png";
+const qrCodeImage = "/qr_code.png";
 
 const totalDiamonds = computed(() => {
     if (!selectedPromo.value) return 0;
@@ -68,7 +68,7 @@ async function submitPayment() {
     try {
         loading.value = true;
 
-        const res = await axios.post("/submit-diamond-topup", {
+        const res = await axios.post("/submit-topup", {
             promo: selectedPromo.value,
             reference_number: referenceNumber.value,
             amount_sent: amountSent.value,
@@ -88,7 +88,7 @@ async function submitPayment() {
             amountSent.value = "";
             loading.value = false;
             emit("close");
-        }, 3000);
+        }, 1000);
     } catch (error) {
         loading.value = false;
         pushAlert(
@@ -97,11 +97,6 @@ async function submitPayment() {
         );
         console.error("Top-up Error:", error);
     }
-}
-
-function copyToClipboard(text) {
-    navigator.clipboard.writeText(text);
-    pushAlert("Copied to clipboard!", "success");
 }
 
 const emit = defineEmits(["close"]);
@@ -208,20 +203,6 @@ const emit = defineEmits(["close"]);
                         <div
                             class="flex items-center justify-between border-b border-white/10 pb-5 mb-6"
                         >
-                            <div class="flex items-center gap-4">
-                                <div
-                                    class="w-16 h-16 rounded-2xl bg-yellow-500/10 border border-yellow-400/30 flex items-center justify-center text-4xl shadow-lg shadow-yellow-500/10"
-                                >
-                                    💰
-                                </div>
-
-                                <div>
-                                    <p class="text-sm text-gray-400 mt-1">
-                                        Complete your payment
-                                    </p>
-                                </div>
-                            </div>
-
                             <button
                                 @click="goBack"
                                 class="px-3 py-1 text-sm bg-gray-600/50 hover:bg-gray-600 rounded-lg text-white transition"
@@ -328,58 +309,71 @@ const emit = defineEmits(["close"]);
                             </div>
                         </div> -->
 
-                        <!-- QR CODE -->
-                        <div class="text-center mb-6">
-                            <p class="text-sm text-gray-400 mb-3">
-                                Or scan QR code:
-                            </p>
-                            <div class="inline-block p-3 bg-white rounded-xl">
-                                <img
-                                    :src="qrCodeImage"
-                                    alt="QR Code"
-                                    class="w-48 h-48 object-contain"
-                                    @error="
-                                        (e) => (e.target.style.display = 'none')
-                                    "
-                                />
-                            </div>
-                            <p class="text-xs text-gray-500 mt-2">
-                                Scan with your banking app
-                            </p>
-                        </div>
-
-                        <!-- PAYMENT FORM -->
-                        <div class="space-y-4 mb-6">
-                            <div>
-                                <label class="text-sm text-gray-400 block mb-2"
-                                    >Amount You Sent (PHP)</label
+                        <!-- QR + PAYMENT FORM (2 COLUMNS) -->
+                        <div class="grid grid-cols-2 gap-4 mb-6">
+                            <!-- QR CODE -->
+                            <div class="text-center">
+                                <div
+                                    class="inline-block p-3 bg-white rounded-xl"
                                 >
-                                <input
-                                    v-model="amountSent"
-                                    type="number"
-                                    :placeholder="`Enter exact amount: ${selectedPromo.price}`"
-                                    class="w-full px-4 py-2 rounded-lg bg-black/50 border border-white/10 text-white focus:border-purple-500 focus:outline-none"
-                                />
-                                <p class="text-xs text-gray-500 mt-1">
-                                    Please send the exact amount for faster
-                                    processing
+                                    <img
+                                        :src="qrCodeImage"
+                                        alt="QR Code"
+                                        class="w-40 h-40 object-contain"
+                                        @error="
+                                            (e) =>
+                                                (e.target.style.display =
+                                                    'none')
+                                        "
+                                    />
+                                </div>
+
+                                <p class="text-xs text-gray-500 mt-2">
+                                    Scan with your banking app
                                 </p>
                             </div>
 
-                            <div>
-                                <label class="text-sm text-gray-400 block mb-2"
-                                    >Reference Number</label
-                                >
-                                <input
-                                    v-model="referenceNumber"
-                                    type="text"
-                                    placeholder="Enter transaction reference number"
-                                    class="w-full px-4 py-2 rounded-lg bg-black/50 border border-white/10 text-white focus:border-purple-500 focus:outline-none"
-                                />
-                                <p class="text-xs text-gray-500 mt-1">
-                                    Found on your bank receipt or transaction
-                                    history
-                                </p>
+                            <!-- PAYMENT FORM -->
+                            <div class="space-y-4">
+                                <div>
+                                    <label
+                                        class="text-sm text-gray-400 block mb-2"
+                                    >
+                                        Amount You Sent (PHP)
+                                    </label>
+
+                                    <input
+                                        v-model="amountSent"
+                                        type="number"
+                                        :placeholder="`Enter exact amount: ${selectedPromo.price}`"
+                                        class="w-full px-4 py-2 rounded-lg bg-black/50 border border-white/10 text-white focus:border-purple-500 focus:outline-none"
+                                    />
+
+                                    <p class="text-xs text-gray-500 mt-1">
+                                        Please send the exact amount for faster
+                                        processing
+                                    </p>
+                                </div>
+
+                                <div>
+                                    <label
+                                        class="text-sm text-gray-400 block mb-2"
+                                    >
+                                        Reference Number
+                                    </label>
+
+                                    <input
+                                        v-model="referenceNumber"
+                                        type="text"
+                                        placeholder="Enter transaction reference number"
+                                        class="w-full px-4 py-2 rounded-lg bg-black/50 border border-white/10 text-white focus:border-purple-500 focus:outline-none"
+                                    />
+
+                                    <p class="text-xs text-gray-500 mt-1">
+                                        Found on your bank receipt or
+                                        transaction history
+                                    </p>
+                                </div>
                             </div>
                         </div>
 

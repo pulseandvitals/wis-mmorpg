@@ -8,7 +8,10 @@ const props = defineProps({
 const emit = defineEmits(["close"]);
 async function healPlayer() {
     try {
-        const response = await axios.post("/heal");
+        const response = await axios.post("/heal", {
+            max_hp: props.player.max_health,
+            max_mp: props.player.max_mana,
+        });
         emit("close");
         Object.assign(props.player, response.data.player);
         pushAlert("Divine Restoration!", "success");

@@ -38,7 +38,7 @@ class WeaponSeeder extends Seeder
             foreach ($weaponTypes as $weaponType) {
 
                 $stats = [
-                    'attack' => randStat($level * 2),
+                    'attack' => randStat($level * 2.5),
                     'crit' => randStat($level * 0.2),
                     'speed' => randStat($level * 0.3),
                 ];

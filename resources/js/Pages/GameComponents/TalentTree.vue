@@ -18,11 +18,13 @@
                     ✕
                 </button>
             </div>
-
             <!-- BODY -->
             <div class="p-4">
                 <!-- LOCKED -->
-                <div class="text-center py-6" v-if="player?.current_level < 30">
+                <div
+                    class="text-center py-6"
+                    v-if="playerData?.current_level < 30"
+                >
                     <div class="text-red-400 font-bold text-lg mb-2">
                         Locked
                     </div>
@@ -32,7 +34,7 @@
                     </p>
 
                     <div class="mt-2 text-xs text-gray-500">
-                        Current Level: {{ player.current_level }}
+                        Current Level: {{ playerData?.current_level }}
                     </div>
                 </div>
 
@@ -112,16 +114,28 @@
 
                 <div class="flex gap-2">
                     <button
-                        v-if="player?.selected_talent_skills"
-                        class="px-3 py-1 text-xs rounded bg-blue-600 hover:bg-blue-500 disabled:opacity-50"
-                        @click="confirmSelection"
+                        v-if="playerData?.selected_talent_skills"
+                        class="px-3 py-1 text-xs rounded bg-red-600 hover:bg-red-500 disabled:opacity-50"
+                        @click="resetSelection"
+                    >
+                        Reset talents
+                    </button>
+                    <button
+                        v-if="
+                            selected.length > 0 &&
+                            !playerData.selected_talent_skills
+                        "
+                        class="px-3 py-1 text-xs rounded bg-red-600 hover:bg-red-500 disabled:opacity-50"
+                        @click="resetSelectedTalents"
                     >
                         Reset
                     </button>
                     <button
+                        v-if="!playerData.selected_talent_skills"
                         class="px-3 py-1 text-xs rounded bg-blue-600 hover:bg-blue-500 disabled:opacity-50"
                         :disabled="
-                            selected.length !== 3 || player.current_level < 30
+                            selected.length !== 3 ||
+                            playerData?.current_level < 30
                         "
                         @click="confirmSelection"
                     >
@@ -134,8 +148,9 @@
 </template>
 
 <script setup>
+import { pushAlert } from "@/Stores/GlobalAlert";
 import { computed, onMounted, ref } from "vue";
-
+import { router } from "@inertiajs/vue3";
 const props = defineProps({
     player: Object,
 });
@@ -145,7 +160,10 @@ const emit = defineEmits(["close", "confirm"]);
 const selected = ref([]);
 const talents = ref([]);
 const loading = ref(false);
-const activeTalents = ref([]);
+const playerData = ref({
+    current_level: props.player.current_level,
+    selected_talent_skills: props.player.selected_talent_skills,
+});
 async function getTalents() {
     try {
         loading.value = true;
@@ -176,7 +194,7 @@ function toggleTalent(talent) {
 }
 
 const parsedSelectedEffects = computed(() => {
-    return (props.player.selected_talent_skills || [])
+    return (playerData.value.selected_talent_skills || [])
         .map((item) => {
             try {
                 return JSON.parse(item); // first decode string -> array
@@ -189,7 +207,7 @@ const parsedSelectedEffects = computed(() => {
 
 const activeTalentIds = computed(() => {
     const effects = parsedSelectedEffects.value;
-    if (props.player?.selected_talent_skills?.length === 0) return [];
+    if (playerData.value.selected_talent_skills?.length === 0) return [];
     return talents.value
         .filter((talent) => {
             const talentEffects = JSON.parse(talent.effects || "[]");
@@ -201,31 +219,54 @@ const activeTalentIds = computed(() => {
         .map((t) => t.id);
 });
 
-function resetSelection() {
+function resetSelectedTalents() {
     selected.value = [];
 }
+async function resetSelection() {
+    const cost = 499;
 
-function confirmSelection() {
+    if (
+        confirm(
+            `Are you sure you want to reset your talents? This will cost ${cost} diamonds.`,
+        )
+    ) {
+        try {
+            loading.value = true;
+            const res = await axios.post("/reset-talents", {
+                cost,
+            });
+            playerData.value.selected_talent_skills = structuredClone(
+                res.data.player.selected_talent_skills,
+            );
+            selected.value = [];
+            pushAlert(res.data.message || "Talents reset!", "success");
+            loading.value = false;
+        } catch (e) {
+            pushAlert(
+                e.response?.data?.message || "Failed to reset talents.",
+                "error",
+            );
+            loading.value = false;
+        }
+    }
+}
+
+async function confirmSelection() {
     try {
         loading.value = true;
-        axios
-            .post("/store-selected-talents", {
-                talents: selected.value.map((t) => t.id),
-            })
-            .then((res) => {
-                pushAlert(res.data.message || "Talents updated!", "success");
-                Object.assign(props.player, res.data.player); // update player data
-                loading.value = false;
-            })
-            .catch((e) => {
-                pushAlert(
-                    e.response?.data?.message || "Failed to update talents.",
-                    "error",
-                );
-                loading.value = false;
-            });
+        const res = await axios.post("/store-selected-talents", {
+            talents: selected.value.map((t) => t.id),
+        });
+        console.log("incoming player:", res.data.player);
+        console.log("before update:", playerData.value);
+        pushAlert(res.data.message || "Talents updated!", "success");
+        playerData.value = structuredClone(res.data.player);
+        loading.value = false;
     } catch (e) {
-        pushAlert("An error occurred.", "error");
+        pushAlert(
+            e.response?.data?.message || "Failed to update talents.",
+            "error",
+        );
         loading.value = false;
     }
 }

@@ -24,7 +24,6 @@ async function getPartyReward() {
     );
 }
 onMounted(async () => {
-    await getMyParty();
     getPartyReward();
 });
 watch(

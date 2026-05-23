@@ -60,7 +60,7 @@ class TalentSkillSeeder extends Seeder
                         'stat' => 'crit',
                         'operation' => 'multiply',
                         'value' => 8,
-                        'value_type' => 'percent',
+                        'value_type' => 'fixed',
                     ]
                 ]),
             ],
@@ -73,7 +73,7 @@ class TalentSkillSeeder extends Seeder
                         'stat' => 'evasion',
                         'operation' => 'multiply',
                         'value' => 8,
-                        'value_type' => 'percent',
+                        'value_type' => 'fixed',
                     ]
                 ]),
             ],
@@ -100,6 +100,18 @@ class TalentSkillSeeder extends Seeder
                         'operation' => 'multiply',
                         'value' => 15,
                         'value_type' => 'percent',
+                    ]
+                ]),
+            ],
+            [
+                'name' => 'Force Break',
+                'description' => '+8% chance to stun on skills',
+                'effects' => json_encode([
+                    [
+                        'stat' => 'stun',
+                        'operation' => 'multiply',
+                        'value' => 8,
+                        'value_type' => 'fixed',
                     ]
                 ]),
             ],
