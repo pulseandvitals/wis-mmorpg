@@ -28,6 +28,7 @@ class Inventory extends Model
             'gear' => GearResource::make($this->gear),
             'material' => $this->material,
             'potion' => $this->potion,
+            'card' => $this->card,
             default => null,
         };
     }
@@ -40,5 +41,10 @@ class Inventory extends Model
     public function potion()
     {
         return $this->belongsTo(Potion::class, 'item_id');
+    }
+
+    public function card()
+    {
+        return $this->belongsTo(Card::class, 'item_id');
     }
 }

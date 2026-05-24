@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\BattleController;
+use App\Http\Controllers\CardController;
 use App\Http\Controllers\GearController;
 use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\MapController;
@@ -9,6 +10,7 @@ use App\Http\Controllers\PartyRoomController;
 use App\Http\Controllers\PlayerController;
 use App\Http\Controllers\PotionController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\PvPController;
 use App\Http\Controllers\TalentSkillController;
 use App\Http\Controllers\TopUpController;
 use App\Http\Controllers\WorldChatController;
@@ -61,8 +63,13 @@ Route::prefix('world')->group(function () {
     Route::post('/party-room/leave/{room_id}',[PartyRoomController::class,'leaveRoom']);
     Route::post('/party-room/join/{code}',[PartyRoomController::class,'joinRoom']);
 
+    Route::get('/get-cards',[CardController::class,'getCards']);
+
+    Route::post('/pvp-action',[PvPController::class,'action']);
+
     Route::post('/mini-event/bet',[MiniEventController::class,'miniEventBet']);
-    Route::post('/mini-event/trivia',[MiniEventController::class,'miniEventTrivia']);
+    Route::get('/mini-event/trivia',[MiniEventController::class,'miniEventTrivia']);
+    Route::post('/mini-event/trivia/answer',[MiniEventController::class,'miniEventTriviaAnswer']);
 
     Route::post('/submit-topup',[TopUpController::class,'submitTopUp']);
     Route::get('/get-top-ups', [TopUpController::class,'getTopUps']);

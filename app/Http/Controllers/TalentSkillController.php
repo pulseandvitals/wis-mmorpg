@@ -50,8 +50,8 @@ class TalentSkillController extends Controller
         $player->save();
 
         return response()->json([
-                'message' => 'Selected talents saved successfully.',
-                'player' => $player,
-            ]);
+            'message' => 'Selected talents saved successfully.',
+            'player' => $player,
+        ]);
     }
 }

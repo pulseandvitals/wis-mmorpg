@@ -13,10 +13,10 @@ return new class extends Migration
     {
         Schema::create('world_chats', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('player_id');
+            $table->unsignedBigInteger('player_id')->nullable();
             $table->text('message');
-            $table->foreign('player_id')->references('id')->on('players')->onDelete('cascade');
             $table->string('channel')->nullable(); //local, world, party
+            $table->boolean('is_admin')->default(false);
             $table->timestamps();
         });
     }

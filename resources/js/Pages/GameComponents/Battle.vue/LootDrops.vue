@@ -14,7 +14,13 @@ defineProps({
                     :key="item"
                     class="loot-item"
                 >
-                    <img :src="`/materials/${item}.png`" />
+                    <img
+                        :src="
+                            item.toLowerCase().includes('card')
+                                ? `/cards/${item}.png`
+                                : `/materials/${item}.png`
+                        "
+                    />
 
                     <div class="loot-info">
                         <p class="loot-name">{{ item }}</p>

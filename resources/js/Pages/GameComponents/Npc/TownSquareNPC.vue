@@ -11,6 +11,7 @@ import PotionHouse from "./PotionHouse.vue";
 import { router } from "@inertiajs/vue3";
 import { pushAlert } from "@/Stores/GlobalAlert";
 import Market from "./Market.vue";
+import CardInformation from "./CardInformation.vue";
 const props = defineProps({
     all_maps: Object,
     player: Object,
@@ -26,6 +27,7 @@ const isEventOrgOpen = ref(false);
 const isMarketOpen = ref(false);
 const isGeneralStoreOpen = ref(false);
 const isHealerOpen = ref(false);
+const isCardOpen = ref(false);
 const currentNpc = ref();
 const wisteriaVillage = props.all_maps.find(
     (map) => map.name === "Wisteria Village",
@@ -72,7 +74,7 @@ const npcData = {
         name: "Event Org",
         x: 1160,
         y: 230,
-        icon: "✨",
+        icon: "🎁",
         color: "from-purple-700 to-indigo-950",
         services: ["Learn Skills", "Magic Scrolls", "Enchant Gear"],
     },
@@ -80,16 +82,16 @@ const npcData = {
         name: "Market/Mall",
         x: 605,
         y: 550,
-        icon: "✨",
+        icon: "💸",
         color: "from-purple-700 to-indigo-950",
         services: ["Learn Skills", "Magic Scrolls", "Enchant Gear"],
     },
 
-    general: {
-        name: "General Store",
+    card: {
+        name: "Card Collection",
         x: 1265,
         y: 450,
-        icon: "✨",
+        icon: "🃏",
         color: "from-purple-700 to-indigo-950",
         services: ["Learn Skills", "Magic Scrolls", "Enchant Gear"],
     },
@@ -130,8 +132,8 @@ function openNpc(key) {
             isMarketOpen.value = true;
             break;
 
-        case "general":
-            isGeneralStoreOpen.value = true;
+        case "card":
+            isCardOpen.value = true;
             break;
         case "healer":
             isHealerOpen.value = true;
@@ -189,6 +191,7 @@ function handleOpenForWisteriaTown() {
         <Market v-if="isMarketOpen" @close="isMarketOpen = false" />
         <ArmorHouse v-if="isArmorHouseOpen" @close="isArmorHouseOpen = false" />
         <EventList v-if="isEventOrgOpen" @close="isEventOrgOpen = false" />
+        <CardInformation v-if="isCardOpen" @close="isCardOpen = false" />
         <PotionHouse
             v-if="isPotionHouseOpen"
             @close="isPotionHouseOpen = false"

@@ -452,7 +452,6 @@ function generateDrops() {
     battleMonsters.value.forEach((monster) => {
         monster.drops.forEach((drop) => {
             const roll = Math.random() * 100;
-
             if (roll <= drop.chance) {
                 if (!result[drop.item]) {
                     result[drop.item] = 0;

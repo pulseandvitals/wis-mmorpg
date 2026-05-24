@@ -11,6 +11,7 @@ class Monster extends Model
         'map',
         'element',
         'max_hp',
+        'respawn_time',
         'skill',
         'drops',
         'exp'

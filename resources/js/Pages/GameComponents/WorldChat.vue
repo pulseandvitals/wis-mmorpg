@@ -141,9 +141,17 @@ async function sendMessage() {
                 v-for="(message, index) in filteredMessages"
                 :key="index"
                 class="chat-message"
+                :class="{ 'admin-message': message.is_admin }"
             >
-                <span class="chat-name">
-                    [{{ message.channel }}] {{ message.player.name }}:
+                <!-- ADMIN MESSAGE -->
+                <span v-if="message.is_admin" class="chat-badge">
+                    📢 ANNOUNCEMENT:
+                </span>
+
+                <!-- NORMAL PLAYER MESSAGE -->
+                <span v-else class="chat-name">
+                    [{{ message.channel }}]
+                    {{ message.player?.name ?? "Unknown" }}:
                 </span>
 
                 <span class="chat-text">
@@ -204,6 +212,25 @@ async function sendMessage() {
     border-top: 2px solid transparent;
     border-radius: 50%;
     animation: spin 0.8s linear infinite;
+}
+
+.admin-message {
+    background: rgba(255, 200, 0, 0.08);
+    border-left: 3px solid #ffcc00;
+    padding: 4px 6px;
+    border-radius: 4px;
+}
+
+.chat-badge {
+    color: #ffcc00;
+    font-weight: bold;
+    margin-right: 6px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.chat-text {
+    color: #ffffff;
 }
 
 @keyframes spin {

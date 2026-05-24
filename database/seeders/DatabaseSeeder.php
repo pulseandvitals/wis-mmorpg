@@ -2,8 +2,8 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
-// use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use CardSeeder;
+use Database\Seeders\CardSeeder as SeedersCardSeeder;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -24,5 +24,7 @@ class DatabaseSeeder extends Seeder
         $this->call(PotionSeeder::class);
         $this->call(WingSeeder::class);
         $this->call(TalentSkillSeeder::class);
+        $this->call(CardSlotSeeder::class);
+        $this->call(BossMonsterSeeder::class);
     }
 }

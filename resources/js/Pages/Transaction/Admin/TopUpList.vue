@@ -62,7 +62,9 @@ onMounted(() => {
             <div
                 class="flex justify-between items-center p-4 border-b border-gray-700"
             >
-                <h2 class="text-lg font-bold">Pending Top-Ups</h2>
+                <h2 class="text-lg font-bold capitalize">
+                    {{ statusFilter }} Top-Ups
+                </h2>
                 <button
                     @click="closeModal"
                     class="text-gray-400 hover:text-white"

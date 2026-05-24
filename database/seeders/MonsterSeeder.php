@@ -22,6 +22,7 @@ class MonsterSeeder extends Seeder
                 'drops' => [
                     ['item' => 'Ice Crystal', 'chance' => 12],
                     ['item' => 'Frozen Core', 'chance' => 5],
+                    ['item' => 'Iron Skin Card', 'chance' => 0.01],
                 ],
                 'exp' => 15
             ],
@@ -35,6 +36,7 @@ class MonsterSeeder extends Seeder
                 'drops' => [
                     ['item' => 'Orc Axe', 'chance' => 8],
                     ['item' => 'War Badge', 'chance' => 10],
+                    ['item' => 'Blade Fury Card', 'chance' => 0.3],
                 ],
                 'exp' => 18
             ],
@@ -48,6 +50,7 @@ class MonsterSeeder extends Seeder
                 'drops' => [
                     ['item' => 'Rabbit Fur', 'chance' => 15],
                     ['item' => 'Small Meat', 'chance' => 8],
+                    ['item' => 'Arcane Pulse Card', 'chance' => 0.3],
                 ],
                 'exp' => 16
             ],
@@ -61,6 +64,7 @@ class MonsterSeeder extends Seeder
                 'drops' => [
                     ['item' => 'Rabbit Fur', 'chance' => 15],
                     ['item' => 'Small Meat', 'chance' => 8],
+                    ['item' => 'Swift Step Card', 'chance' => 0.3],
                 ],
                 'exp' => 18
             ],
@@ -74,6 +78,7 @@ class MonsterSeeder extends Seeder
                 'drops' => [
                     ['item' => 'Hell Core', 'chance' => 3],
                     ['item' => 'Burning Gem', 'chance' => 5],
+                    ['item' => 'Blood Thirst Card', 'chance' => 0.3],
                 ],
                 'exp' => 30
             ],
@@ -87,6 +92,7 @@ class MonsterSeeder extends Seeder
                 'drops' => [
                     ['item' => 'Goblin Ear', 'chance' => 10],
                     ['item' => 'Rusty Shield', 'chance' => 6],
+                    ['item' => 'Titan Guard Card', 'chance' => 0.3],
                 ],
                 'exp' => 25
             ],
@@ -100,6 +106,7 @@ class MonsterSeeder extends Seeder
                 'drops' => [
                     ['item' => 'Lightning Core', 'chance' => 3],
                     ['item' => 'Dragon Scale', 'chance' => 6],
+                    ['item' => 'Wind Walker Card', 'chance' => 0.3],
                 ],
                 'exp' => 27
             ],
@@ -113,6 +120,7 @@ class MonsterSeeder extends Seeder
                 'drops' => [
                     ['item' => 'Rot Flesh', 'chance' => 10],
                     ['item' => 'Zombie Bone', 'chance' => 8],
+                    ['item' => 'Stone Heart Card', 'chance' => 0.3],
                 ],
                 'exp' => 27
             ],
@@ -126,6 +134,7 @@ class MonsterSeeder extends Seeder
                 'drops' => [
                     ['item' => 'Rot Flesh', 'chance' => 10],
                     ['item' => 'Zombie Bone', 'chance' => 8],
+                    ['item' => 'Shadow Strike Card', 'chance' => 0.3],
                 ],
                 'exp' => 30
             ],
@@ -139,6 +148,7 @@ class MonsterSeeder extends Seeder
                 'drops' => [
                     ['item' => 'Dark Cloth', 'chance' => 6],
                     ['item' => 'Shadow Dagger', 'chance' => 2],
+                    ['item' => 'Elemental Flow Card', 'chance' => 0.3],
                 ],
                 'exp' => 55
             ],
@@ -152,6 +162,7 @@ class MonsterSeeder extends Seeder
                 'drops' => [
                     ['item' => 'Horn Fragment', 'chance' => 5],
                     ['item' => 'Storm Essence', 'chance' => 2],
+                    ['item' => 'Guardian Angel Card', 'chance' => 0.3],
                 ],
                 'exp' => 60
             ],
@@ -165,6 +176,7 @@ class MonsterSeeder extends Seeder
                 'drops' => [
                     ['item' => 'Lizard Scale', 'chance' => 8],
                     ['item' => 'Fire Sac', 'chance' => 4],
+                    ['item' => 'Frostbite Card', 'chance' => 0.3],
                 ],
                 'exp' => 70
             ],
@@ -178,6 +190,7 @@ class MonsterSeeder extends Seeder
                 'drops' => [
                     ['item' => 'Boar Tusks', 'chance' => 7],
                     ['item' => 'Wild Meat', 'chance' => 10],
+                    ['item' => 'Inferno Card', 'chance' => 0.3],
                 ],
                 'exp' => 65
             ],
@@ -191,6 +204,7 @@ class MonsterSeeder extends Seeder
                 'drops' => [
                     ['item' => 'Boar Tusks', 'chance' => 7],
                     ['item' => 'Wild Meat', 'chance' => 10],
+                    ['item' => 'Storm Caller Card', 'chance' => 0.3],
                 ],
                 'exp' => 75
             ],
@@ -204,6 +218,7 @@ class MonsterSeeder extends Seeder
                 'drops' => [
                     ['item' => 'Mutant Wool', 'chance' => 6],
                     ['item' => 'Strange Meat', 'chance' => 4],
+                    ['item' => 'Vampiric Card', 'chance' => 0.3],
                 ],
                 'exp' => 110
             ],
@@ -217,6 +232,7 @@ class MonsterSeeder extends Seeder
                 'drops' => [
                     ['item' => 'Vampire Fang', 'chance' => 3],
                     ['item' => 'Blood Crystal', 'chance' => 4],
+                    ['item' => 'Assassin Mark Card', 'chance' => 0.3],
                 ],
                 'exp' => 100
             ],
@@ -230,6 +246,7 @@ class MonsterSeeder extends Seeder
                 'drops' => [
                     ['item' => 'Burnt Meat', 'chance' => 10],
                     ['item' => 'Ember Core', 'chance' => 5],
+                    ['item' => 'Holy Light Card', 'chance' => 0.3],
                 ],
                 'exp' => 110
             ],
@@ -243,6 +260,7 @@ class MonsterSeeder extends Seeder
                 'drops' => [
                     ['item' => 'Ancient Scale', 'chance' => 1],
                     ['item' => 'Dragon Heart', 'chance' => 0.5],
+                    ['item' => 'Earth Shaker Card', 'chance' => 0.3],
                 ],
                 'exp' => 130
             ],
@@ -256,6 +274,7 @@ class MonsterSeeder extends Seeder
                 'drops' => [
                     ['item' => 'Wolf Pelt', 'chance' => 12],
                     ['item' => 'Sharp Fang', 'chance' => 8],
+                    ['item' => 'Void Walker Card', 'chance' => 0.3],
                 ],
                 'exp' => 120
             ],
@@ -269,10 +288,10 @@ class MonsterSeeder extends Seeder
                 'drops' => [
                     ['item' => 'Wolf Pelt', 'chance' => 12],
                     ['item' => 'Sharp Fang', 'chance' => 8],
+                    ['item' => 'Dragon Scale Card', 'chance' => 0.3],
                 ],
                 'exp' => 150
             ],
-
 
             [
                 'name' => 'Frostbite Revenant',
@@ -283,9 +302,11 @@ class MonsterSeeder extends Seeder
                 'drops' => [
                     ['item' => 'Ancient Scale', 'chance' => 3],
                     ['item' => 'Dragon Heart', 'chance' => 2],
+                    ['item' => 'Lucky Star Card', 'chance' => 0.3],
                 ],
                 'exp' => 250
             ],
+
             [
                 'name' => 'Doomclaw Titan',
                 'map' => 'Sky Islands',
@@ -295,6 +316,7 @@ class MonsterSeeder extends Seeder
                 'drops' => [
                     ['item' => 'Ancient Scale', 'chance' => 3],
                     ['item' => 'Dragon Heart', 'chance' => 2],
+                    ['item' => 'Mythic Core Card', 'chance' => 0.3],
                 ],
                 'exp' => 260
             ],
@@ -308,6 +330,7 @@ class MonsterSeeder extends Seeder
                 'drops' => [
                     ['item' => 'Ancient Scale', 'chance' => 3],
                     ['item' => 'Dragon Heart', 'chance' => 2],
+                    ['item' => 'Iron Skin Card', 'chance' => 0.3],
                 ],
                 'exp' => 280
             ],
@@ -324,8 +347,8 @@ class MonsterSeeder extends Seeder
             // SURFACE
             $m['skill'] = json_encode($m['skill']);
             $m['drops'] = json_encode(array_merge($m['drops'], [
-                ['item' => 'Celebeam Gem', 'chance' => 0.5],
-                ['item' => 'Seleri Gem', 'chance' => 0.8],
+                ['item' => 'Celebeam Gem', 'chance' => 0.8],
+                ['item' => 'Seleri Gem', 'chance' => 1],
             ]));
 
             $monsters[] = $m;
@@ -355,6 +378,7 @@ class MonsterSeeder extends Seeder
 
             $monsters[] = $u;
         }
+
         DB::table('monsters')->insert($monsters);
     }
 }

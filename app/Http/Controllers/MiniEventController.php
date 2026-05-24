@@ -68,11 +68,32 @@ class MiniEventController extends Controller
                 ->inRandomOrder()
                 ->first();
 
-        $scrambledString = StringHelper::rumble($monster);
+        $player->daily_trivia_chance -= 1;
+        $player->save();
 
         return response()->json([
-            'scrambled' => $scrambledString,
-            'answer' => $monster,
+            'question' => strtoupper(str_shuffle($monster->name)),
+            'answer' => $monster->name,
+            'hint' => $monster->map,
+            'player' => $player,
+        ]);
+    }
+
+    public function miniEventTriviaAnswer(Request $request)
+    {
+        $player = auth()->user()->player;
+        $winPrize = 2000;
+        if(strtolower($request->answer) !== strtolower($request->correct_answer)) {
+            return response()->json([
+                'message' => "Wrong! The correct answer is {$request->correct_answer}!",
+            ]);
+        }
+
+        $player->current_gold += $winPrize;
+        $player->save();
+
+        return response()->json([
+            'message' => "Correct! You got {$winPrize}! Congratulations!",
         ]);
     }
 }

@@ -47,11 +47,6 @@ const flatMap = computed(() => map.flat());
 const spriteFolder = props.playerData.data.wing
     ? `${props.playerData.data.class_type} ${props.playerData.data.wing?.gear?.name}`
     : props.playerData.data.class_type;
-const filteredMaps = computed(() => {
-    return props.all_maps.data.filter(
-        (map) => !map.name.includes("Underground"),
-    );
-});
 
 const player = reactive({
     x: props.playerData.data.x,
@@ -532,15 +527,8 @@ function smoothMovePlayers(entity, targetX, targetY, callback = null) {
 
     animate();
 }
-async function getMyParty() {
-    const res = await axios.get("/get-party");
-    party.value = res.data;
-}
-onMounted(() => {
-    window.addEventListener("keydown", handleKey);
-    moveMonsters();
-    getPlayers();
-    getMyParty();
+
+function getPlayersPosition() {
     window.Echo.channel("world").listen(".player.moved", (e) => {
         const id = Number(e.player_id);
         if (id === myPlayerId) return;
@@ -555,6 +543,23 @@ onMounted(() => {
                 current_map_id: e.current_map_id,
             });
     });
+}
+
+async function getMyParty() {
+    const res = await axios.get("/get-party");
+    party.value = res.data;
+}
+onMounted(() => {
+    // window.addEventListener("keydown", handleKey);
+    moveMonsters();
+    getPlayers();
+    getMyParty();
+    getPlayersPosition();
+});
+const filteredMaps = computed(() => {
+    return props.all_maps.data.filter(
+        (map) => !map.name.includes("Underground"),
+    );
 });
 const undergroundMap = computed(() => {
     if (!props.current_map) return null;

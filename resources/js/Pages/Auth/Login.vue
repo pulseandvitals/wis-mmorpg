@@ -29,7 +29,7 @@ const submit = () => {
     >
         <!-- BACKGROUND -->
         <div
-            class="absolute inset-0 bg-[url('/images/login-bg.jpg')] bg-cover bg-center opacity-30"
+            class="absolute inset-0 bg-[url('/loading_screens/Wisteria8.png')] bg-cover bg-center opacity-30"
         ></div>
 
         <!-- DARK OVERLAY -->

@@ -58,7 +58,7 @@ class TalentSkillSeeder extends Seeder
                 'effects' => json_encode([
                     [
                         'stat' => 'crit',
-                        'operation' => 'multiply',
+                        'operation' => 'fixed',
                         'value' => 8,
                         'value_type' => 'fixed',
                     ]
@@ -71,7 +71,7 @@ class TalentSkillSeeder extends Seeder
                 'effects' => json_encode([
                     [
                         'stat' => 'evasion',
-                        'operation' => 'multiply',
+                        'operation' => 'fixed',
                         'value' => 8,
                         'value_type' => 'fixed',
                     ]
@@ -109,7 +109,7 @@ class TalentSkillSeeder extends Seeder
                 'effects' => json_encode([
                     [
                         'stat' => 'stun',
-                        'operation' => 'multiply',
+                        'operation' => 'fixed',
                         'value' => 8,
                         'value_type' => 'fixed',
                     ]

@@ -52,7 +52,7 @@
                             :key="talent.id"
                             :class="[
                                 'flex items-center justify-between border rounded-lg p-2 transition',
-                                selected.includes(index) ||
+                                selected.includes(talent.id) ||
                                 activeTalentIds.includes(talent.id)
                                     ? 'bg-gray-800 border-green-500'
                                     : 'bg-gray-800/40 border-gray-700 opacity-50 grayscale',
@@ -82,19 +82,19 @@
                             <button
                                 v-if="
                                     selected.length < 3 ||
-                                    selected.includes(index) ||
+                                    selected.includes(talent.id) ||
                                     activeTalentIds.includes(talent.id)
                                 "
                                 class="text-[10px] px-2 py-1 rounded bg-green-600 hover:bg-green-500 flex-shrink-0"
                                 :disabled="
                                     (selected.length >= 3 &&
-                                        !selected.includes(index)) ||
+                                        !selected.includes(talent.id)) ||
                                     activeTalentIds.includes(talent.id)
                                 "
                                 @click="toggleTalent(talent)"
                             >
                                 {{
-                                    selected.includes(index) ||
+                                    selected.includes(talent.id) ||
                                     activeTalentIds.includes(talent.id)
                                         ? "✓"
                                         : "+"
@@ -145,6 +145,7 @@
             </div>
         </div>
     </div>
+    {{ selected }}
 </template>
 
 <script setup>
@@ -184,36 +185,47 @@ computed(() => {
 });
 
 function toggleTalent(talent) {
-    if (selected.value.includes(talent)) {
-        selected.value = selected.value.filter((t) => t !== talent);
+    // 🚫 HARD LOCK: must be level 30
+    if (playerData.value.current_level < 30) {
+        pushAlert("Unlock at level 30", "error");
+        return;
+    }
+
+    const id = talent.id;
+
+    if (selected.value.includes(id)) {
+        selected.value = selected.value.filter((t) => t !== id);
     } else {
         if (selected.value.length < 3) {
-            selected.value.push(talent);
+            selected.value.push(id);
         }
     }
 }
+const activeTalentIds = computed(() => {
+    const saved = playerData.value.selected_talent_skills ?? [];
 
-const parsedSelectedEffects = computed(() => {
-    return (playerData.value.selected_talent_skills || [])
+    // normalize saved effects
+    const parsedSaved = saved
         .map((item) => {
             try {
-                return JSON.parse(item); // first decode string -> array
-            } catch (e) {
+                return typeof item === "string" ? JSON.parse(item) : item;
+            } catch {
                 return [];
             }
         })
         .flat();
-});
 
-const activeTalentIds = computed(() => {
-    const effects = parsedSelectedEffects.value;
-    if (playerData.value.selected_talent_skills?.length === 0) return [];
     return talents.value
         .filter((talent) => {
-            const talentEffects = JSON.parse(talent.effects || "[]");
+            const effects = JSON.parse(talent.effects || "[]");
 
-            return effects.some((selected) =>
-                talentEffects.some((t) => t.stat === selected.stat),
+            return effects.some((effect) =>
+                parsedSaved.some(
+                    (savedEffect) =>
+                        savedEffect.stat === effect.stat &&
+                        savedEffect.value === effect.value &&
+                        savedEffect.operation === effect.operation,
+                ),
             );
         })
         .map((t) => t.id);
@@ -255,7 +267,7 @@ async function confirmSelection() {
     try {
         loading.value = true;
         const res = await axios.post("/store-selected-talents", {
-            talents: selected.value.map((t) => t.id),
+            talents: selected.value, // already IDs
         });
         console.log("incoming player:", res.data.player);
         console.log("before update:", playerData.value);
@@ -272,5 +284,6 @@ async function confirmSelection() {
 }
 onMounted(() => {
     getTalents();
+    selected.value = playerData.value.selected_talent_skills ?? [];
 });
 </script>

@@ -1,33 +1,54 @@
 <script setup>
+import { pushAlert } from "@/Stores/GlobalAlert";
 import { ref } from "vue";
 
 const emit = defineEmits(["close"]);
-
 const loading = ref(false);
 const answer = ref("");
 const result = ref(null);
 
 // server-provided rumbled monster name
-const question = ref("Gonodrake Rethyul"); // example scrambled name
+const question = ref(); // example scrambled name
+const correctAnswer = ref();
+const hint = ref();
 
 // correct answer (should come from backend in real setup)
-const correctAnswer = ref("Dragon Knight");
+async function getTrivia() {
+    try {
+        loading.value = true;
+        let res = await axios.get("/mini-event/trivia");
+        question.value = res.data.question;
+        hint.value = res.data.hint;
+        correctAnswer.value = res.data.answer;
+        pushAlert(res.data.message);
+        loading.value = false;
+    } catch (e) {
+        pushAlert(e.data.message || "Something went wrong..");
+        loading.value = false;
+    }
+}
 
 // simulate submit
-const placeBet = () => {
+async function submitAnswer() {
     if (!answer.value) return;
 
-    loading.value = true;
-
-    setTimeout(() => {
-        const isCorrect =
-            answer.value.trim().toLowerCase() ===
-            correctAnswer.value.toLowerCase();
-
-        result.value = isCorrect ? "win" : "lose";
+    try {
+        loading.value = true;
+        let res = await axios.post("/mini-event/trivia/answer", {
+            correct_answer: correctAnswer.value,
+            answer: answer.value,
+        });
+        pushAlert(res.data.message);
+        setTimeout(() => {
+            question.value = "";
+            answer.value = "";
+        }, 1000);
         loading.value = false;
-    }, 1000);
-};
+    } catch (e) {
+        pushAlert(e.data.message);
+        loading.value = true;
+    }
+}
 </script>
 
 <template>
@@ -48,7 +69,10 @@ const placeBet = () => {
             </div>
 
             <!-- BODY -->
-            <div class="flex flex-col items-center justify-center mt-10 px-4">
+            <div
+                class="flex flex-col items-center justify-center mt-10 px-4"
+                v-if="question"
+            >
                 <!-- TITLE / DESCRIPTION -->
                 <div class="text-center max-w-md mb-6">
                     <h2 class="text-lg font-bold text-white mb-2">
@@ -78,7 +102,7 @@ const placeBet = () => {
                     <div
                         class="flex justify-between text-[10px] text-gray-500 mt-2"
                     >
-                        <span>Hint: Scrambled</span>
+                        <span>Hint: {{ hint }}</span>
                         <span>Type: Trivia</span>
                     </div>
                 </div>
@@ -101,7 +125,7 @@ const placeBet = () => {
 
                 <!-- BUTTON -->
                 <button
-                    @click="placeBet"
+                    @click="submitAnswer"
                     :disabled="loading || !answer"
                     class="mt-5 px-6 py-3 text-sm font-bold rounded-lg border border-green-400/30 bg-green-500/10 text-green-300 hover:bg-green-500/20 disabled:opacity-40 disabled:cursor-not-allowed transition flex items-center gap-2"
                 >
@@ -135,6 +159,9 @@ const placeBet = () => {
                         </div>
                     </div>
                 </transition>
+            </div>
+            <div v-else>
+                <button @click="getTrivia">Generate Question</button>
             </div>
         </div>
     </div>

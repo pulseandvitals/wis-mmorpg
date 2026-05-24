@@ -9,7 +9,8 @@ class WorldChat extends Model
     protected $fillable = [
         'player_id',
         'message',
-        'channel'
+        'channel',
+        'is_admin'
     ];
 
     public function player()

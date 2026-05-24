@@ -58,7 +58,7 @@ const events = ref([
         color: "green",
         button: "Bet",
         limit: 10,
-        bg: "/images/events/trivia.jpg",
+        bg: "/event_posters/Bet.png",
     },
     {
         id: 6,
@@ -69,7 +69,7 @@ const events = ref([
         color: "green",
         button: "Answer",
         limit: 10,
-        bg: "/images/events/trivia.jpg",
+        bg: "/event_posters/Trivia.png",
     },
 ]);
 function enterEvent(event) {
@@ -117,6 +117,8 @@ function badgeClass(color) {
                     class="event-card"
                     :style="{
                         backgroundImage: `url(${event.bg})`,
+                        backgroundSize: 'cover',
+                        backgroundPosition: 'center',
                     }"
                 >
                     <!-- OVERLAY -->
@@ -153,7 +155,11 @@ function badgeClass(color) {
         </div>
     </div>
     <BetEvent v-if="isBetEventOpen" @close="isBetEventOpen = false" />
-    <TriviaEvent v-if="isTriviaEventOpen" @close="isTriviaEventOpen = false" />
+    <TriviaEvent
+        v-if="isTriviaEventOpen"
+        @updatePlayer="emit()"
+        @close="isTriviaEventOpen = false"
+    />
 </template>
 
 <style scoped>

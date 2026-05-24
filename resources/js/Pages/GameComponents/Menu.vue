@@ -27,7 +27,7 @@ const page = usePage();
 const isAdmin = page.props.auth?.user?.role === "admin";
 const emit = defineEmits(["updatePlayer", "updateParty"]);
 const map = props.all_maps.find((map) => map.name === "Wisteria Town");
-
+const playerIsonTown = map.map_id === props.player?.current_map_id;
 const menuItems = computed(() => {
     return [
         { id: 1, label: "Inventory", icon: "🎒" },
@@ -41,7 +41,9 @@ const menuItems = computed(() => {
 
         ...(isAdmin ? [{ id: 9, label: "Admin", icon: "🛡️" }] : []),
 
-        { id: 10, label: "Back to Town", icon: "🏡" },
+        ...(!playerIsonTown
+            ? [{ id: 10, label: "Back to Town", icon: "🏡" }]
+            : []),
     ];
 });
 
@@ -126,6 +128,7 @@ const handleMenuClick = (item) => {
 <style scoped>
 .hud-menu {
     position: absolute;
+    width: 150px;
     top: 12px;
     right: 12px;
 

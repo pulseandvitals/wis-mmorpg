@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('map')->nullable();
             $table->string('element')->nullable();
             $table->integer('max_hp')->nullable();
+            $table->integer('respawn_time')->nullable();
             $table->string('skill')->nullable();
             $table->json('drops')->nullable();
             $table->string('exp')->nullable();

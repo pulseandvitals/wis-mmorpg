@@ -32,16 +32,36 @@ class InactivePlayers extends Command
         $inactivePlayers = DB::table('sessions')
             ->whereNotNull('user_id')
             ->where('last_activity', '<', now()->subMinutes(30)->timestamp)
-            ->select('user_id')
-            ->distinct()
-            ->get();
+            ->pluck('user_id');
 
-        foreach ($inactivePlayers as $player) {
-            DB::table('players')
-                ->where('id', $player->user_id)
-                ->update(['is_online' => false]);
-        }
+        $activePlayers = DB::table('sessions')
+            ->whereNotNull('user_id')
+            ->where('last_activity', '>=', now()->subMinutes(30)->timestamp)
+            ->pluck('user_id');
 
-        $this->info("Marked {$inactivePlayers->count()} players as offline.");
+        /*
+        |--------------------------------------------------------------------------
+        | OFFLINE PLAYERS
+        |--------------------------------------------------------------------------
+        */
+        DB::table('players')
+            ->whereIn('id', $inactivePlayers)
+            ->update([
+                'is_online' => false
+            ]);
+
+        /*
+        |--------------------------------------------------------------------------
+        | ACTIVE PLAYERS
+        |--------------------------------------------------------------------------
+        */
+        DB::table('players')
+            ->whereIn('id', $activePlayers)
+            ->update([
+                'is_online' => true
+            ]);
+
+        $this->info("Offline: {$inactivePlayers->count()}");
+        $this->info("Online: {$activePlayers->count()}");
     }
 }

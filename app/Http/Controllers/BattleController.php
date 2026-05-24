@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Events\PartySharedReward;
 use App\Http\Resources\PlayerResource;
+use App\Models\Card;
 use App\Models\Experience;
 use App\Models\Inventory;
 use App\Models\Material;
@@ -67,12 +68,24 @@ class BattleController extends Controller
     private function insertDropstoInventory($drops = null)
     {
         foreach ($drops as $item => $qty) {
-            $getItem = Material::whereName($item)->first();
+            $isCard = str_contains(strtolower($item), 'card');
+           if ($isCard) {
+                $getItem = Card::where('name', $item)->first();
+                $itemType = 'card';
+            } else {
+                $getItem = Material::where('name', $item)->first();
+                $itemType = 'material';
+            }
+
+            if (!$getItem) {
+                return;
+            }
+
             Inventory::updateOrInsert(
                 [
                     'player_id' => $this->player->id,
-                    'item_id' => $getItem->id,
-                    'item_type' => 'material'
+                    'item_id'   => $getItem->id,
+                    'item_type' => $itemType,
                 ],
                 [
                     'quantity' => DB::raw("COALESCE(quantity, 0) + {$qty}")

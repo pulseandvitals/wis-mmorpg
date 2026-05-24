@@ -39,6 +39,10 @@ class Player extends Model
         //new fields
         'active_buff_effects',
         'selected_talent_skills',
+        'card_slot_1_effects',
+        'card_slot_2_effects',
+        'card_slot_3_effects',
+        'card_slot_4_effects',
         'daily_bet_chance',
         'daily_trivia_chance',
         'daily_mobs_kill',
@@ -48,6 +52,10 @@ class Player extends Model
     protected $casts = [
         'active_buff_effects' => 'array',
         'selected_talent_skills' => 'array',
+        'card_slot_1_effects' => 'array',
+        'card_slot_2_effects' => 'array',
+        'card_slot_3_effects' => 'array',
+        'card_slot_4_effects' => 'array',
     ];
 
     protected $appends = [
