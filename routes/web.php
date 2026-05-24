@@ -65,7 +65,8 @@ Route::prefix('world')->group(function () {
 
     Route::get('/get-cards',[CardController::class,'getCards']);
 
-    Route::post('/pvp-action',[PvPController::class,'action']);
+    Route::post('/pvp/action',[PvPController::class,'action']);
+    Route::get('/pvp/check-invite',[PvPController::class,'checkInvite']);
 
     Route::post('/mini-event/bet',[MiniEventController::class,'miniEventBet']);
     Route::get('/mini-event/trivia',[MiniEventController::class,'miniEventTrivia']);

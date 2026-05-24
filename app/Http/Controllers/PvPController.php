@@ -17,4 +17,18 @@ class PvPController extends Controller
             $request->skill_id
         );
     }
+
+    public function checkInvite()
+    {
+        $player = auth()->user()->player;
+
+        if ($player->battle_opponent_id) {
+            return [
+                'in_battle' => true,
+                'opponent_id' => $player->battle_opponent_id,
+            ];
+        }
+
+        return ['in_battle' => false];
+    }
 }
