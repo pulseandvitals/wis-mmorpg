@@ -715,6 +715,7 @@ watch(
             <Players
                 :players="players"
                 :player="playerData.data"
+                :current_map="current_map"
                 @open-battle="startPvPBattle"
                 :tileSize="tileSize"
             />

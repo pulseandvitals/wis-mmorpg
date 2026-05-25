@@ -3,6 +3,7 @@ import { pushAlert } from "@/Stores/GlobalAlert";
 const props = defineProps({
     player: Object,
     players: Object,
+    current_map: Object,
     tileSize: {
         type: Number,
         required: true,
@@ -10,10 +11,29 @@ const props = defineProps({
 });
 const emit = defineEmits(["open-battle"]);
 const cooldown = new Set();
-
+const viewGear = ref(false);
 async function handleClick(player) {
-    if (cooldown.has(player.id)) return;
+    if (props.current_map?.is_safe_zone) {
+        await getPlayerGear(player.id);
+        viewGear.value = true;
+    } else {
+        await requestBattle(player);
+    }
+}
+async function getPlayerGear(playerId) {
+    try {
+        const res = await axios.get(`/player/${playerId}/gear`);
+        return res.data.gear;
+    } catch (e) {
+        console.error(e);
+        pushAlert("Failed to load player gear.", "error");
+        return null;
+    }
+}
 
+async function requestBattle(player) {
+    if (cooldown.has(player.id)) return;
+    if (props.current_map?.is_safe_zone) return;
     cooldown.add(player.id);
 
     setTimeout(() => cooldown.delete(player.id), 1500);
@@ -47,6 +67,10 @@ async function handleClick(player) {
             v-for="p in players"
             :key="p.id"
             class="world-player"
+            :class="{
+                attackable: !current_map?.is_safe_zone,
+                self: p.id === player?.id,
+            }"
             :style="{
                 transform: `translate(${p.renderX}px, ${p.renderY}px)`,
             }"
@@ -54,7 +78,9 @@ async function handleClick(player) {
         >
             <!-- NAME TAG -->
             <div class="name-tag">
-                {{ p.name }}
+                <p :class="{ 'text-red-500': !current_map?.is_safe_zone }">
+                    {{ p.name }}
+                </p>
             </div>
             <img
                 :src="`/sprites/${p.class_type}/${p.walking ? 'walk' : 'idle'}-${p.direction}.gif`"
@@ -89,7 +115,16 @@ async function handleClick(player) {
     text-align: center;
     pointer-events: auto;
 }
-
+.world-player.attackable:hover .sprite {
+    filter: drop-shadow(0 0 6px rgba(255, 0, 0, 0.9));
+    transform: scale(1.08);
+    cursor:
+        url("/attack-cursor.cur") 16 16,
+        crosshair;
+}
+.world-player.self {
+    pointer-events: none;
+}
 /* SPRITE */
 .sprite {
     width: 100%;
