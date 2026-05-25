@@ -15,6 +15,7 @@ import Portal from "./GameComponents/Portal.vue";
 import { pushAlert } from "@/Stores/GlobalAlert";
 import PartyList from "./GameComponents/Npc/PartyList.vue";
 import ActiveBuffs from "./GameComponents/ActiveBuffs.vue";
+import Tutorial from "./GameComponents/Tutorial.vue";
 
 const props = defineProps({
     playerData: Object,
@@ -472,10 +473,10 @@ async function getPlayers() {
         targetX: p.x * tileSize,
         targetY: p.y * tileSize,
         walking: false,
-        current_experience: p.current_experience,
+        current_level: p.current_level,
         current_gold: p.current_gold,
         in_pvp: p.in_pvp,
-        pvp_battle_id: p.pvp_battle_id,
+        wing: p.wing?.gear?.name || null,
     }));
 }
 
@@ -699,7 +700,7 @@ watch(
                     top: Math.floor(index / mapWidth) * tileSize + 'px',
                 }"
             /> -->
-
+            <Tutorial v-if="playerData.data.current_level <= 6" />
             <Portal
                 v-if="undergroundMap"
                 :x="getPortalPosition(undergroundMap.name).x"

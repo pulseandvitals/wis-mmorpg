@@ -15,7 +15,7 @@ class PlayerMoved implements ShouldBroadcastNow
     public int $playerId;
     public string $name;
     public string $class_type;
-    public int $current_map_id;
+    public ?int $current_map_id;
     public int $x;
     public int $y;
     public string $direction;

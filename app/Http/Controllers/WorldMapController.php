@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\PlayerMoved;
 use App\Http\Resources\ClassSkillResource;
 use App\Http\Resources\MapResource;
 use App\Http\Resources\PlayerResource;
@@ -520,6 +521,7 @@ class WorldMapController extends Controller
             'ring.gear',
             'wing.gear',
         ])->find($user->player_id);
+
         if (!$player) {
             return response()->json(['error' => 'Character not found'], 404);
         }

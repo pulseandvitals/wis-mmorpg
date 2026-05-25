@@ -61,9 +61,13 @@ class PlayerController extends Controller
             'y',
             'direction',
             'class_type',
-            'current_experience',
-            'current_gold',
-        ])->where('id', '!=', auth()->user()->player->id)
+            'current_level',
+            'wing_id',
+            'in_pvp',
+            'current_map_id'
+        ])
+        ->with(['wing.gear'])
+        ->where('id', '!=', auth()->user()->player->id)
         ->where('current_map_id','=',auth()->user()->player->current_map_id)
         ->where('is_online', true)
         ->get();

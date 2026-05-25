@@ -1,5 +1,6 @@
 <script setup>
 import { pushAlert } from "@/Stores/GlobalAlert";
+import { ref } from "vue";
 const props = defineProps({
     player: Object,
     players: Object,
@@ -12,6 +13,7 @@ const props = defineProps({
 const emit = defineEmits(["open-battle"]);
 const cooldown = new Set();
 const viewGear = ref(false);
+
 async function handleClick(player) {
     if (props.current_map?.is_safe_zone) {
         await getPlayerGear(player.id);
@@ -59,10 +61,15 @@ async function requestBattle(player) {
         console.error(e);
     }
 }
+
+const getSpriteFolder = (p) => {
+    return p?.wing ? `${p.class_type} ${p.wing}` : p.class_type;
+};
 </script>
 
 <template>
     <div>
+        <!-- <div class="bg-white font-xl z-[9999] w-50">{{ players }}</div> -->
         <div
             v-for="p in players"
             :key="p.id"
@@ -83,7 +90,7 @@ async function requestBattle(player) {
                 </p>
             </div>
             <img
-                :src="`/sprites/${p.class_type}/${p.walking ? 'walk' : 'idle'}-${p.direction}.gif`"
+                :src="`/sprites/${getSpriteFolder(p)}/${p.walking ? 'walk' : 'idle'}-${p.direction}.gif`"
                 class="sprite"
             />
 
