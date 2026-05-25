@@ -2,165 +2,222 @@
 
 namespace App\Services;
 
+use App\Events\PvpStarted;
+use App\Http\Resources\BattlePlayerResource;
 use App\Models\Player;
+use App\Models\PvpBattle;
 use App\Models\Skill;
 
 class PvPService
 {
-    public function processAction(Player $attacker, $defenderId, $skillId)
+    public function processAction(Player $attacker, int $skillId)
     {
+        // ======================================================
+        // VALIDATE BATTLE
+        // ======================================================
+        if (!$attacker->in_pvp || !$attacker->pvp_battle_id) {
+            return response()->json(['message' => 'You are not in battle.'], 403);
+        }
+
+        $battle = PvpBattle::findOrFail($attacker->pvp_battle_id);
+
+        if ($battle->status !== 'active') {
+            return response()->json(['message' => 'Battle already finished.'], 403);
+        }
+
+        // ======================================================
+        // GET OPPONENT
+        // ======================================================
+        $defenderId = $battle->challenger_id === $attacker->id
+            ? $battle->opponent_id
+            : $battle->challenger_id;
+
         $defender = Player::findOrFail($defenderId);
+
+        // ======================================================
+        // VALIDATE TURN
+        // ======================================================
+        if ($battle->turn_player_id !== $attacker->id) {
+            return response()->json(['message' => 'Not your turn.'], 403);
+        }
+
+        // ======================================================
+        // GET ATTACKER SKILL (ONLY REAL PLAYER INPUT)
+        // ======================================================
         $skill = Skill::findOrFail($skillId);
 
+        // ======================================================
+        // OPPONENT MUST ALSO USE THEIR OWN SKILL (NO AI)
+        // If opponent has not played yet, we simulate "defense turn empty"
+        // ======================================================
+        $opponentSkill = null;
+
+        // ======================================================
+        // BUILD EVENTS
+        // ======================================================
         $events = [];
 
-        // =========================
-        // 1. PLAYER TURN
-        // =========================
-        $playerEvent = $this->calculateAttack($attacker, $defender, $skill);
+        $events[] = $this->calculateAttack($attacker, $defender, $skill);
 
-        $events[] = $playerEvent;
-
-        $defender->current_health -= $playerEvent['damage'];
-        if ($defender->current_health < 0) {
-            $defender->current_health = 0;
+        // optional: only if you want simultaneous exchange
+        // (PvP feel: both hit per turn)
+        if ($opponentSkill) {
+            $events[] = $this->calculateAttack($defender, $attacker, $opponentSkill);
         }
 
-        // CHECK WIN EARLY
-        if ($defender->current_health <= 0) {
-            $defender->save();
-            $attacker->save();
-
-            return $this->buildResponse(
-                $attacker,
-                $defender,
-                $events,
-                "{$attacker->name} defeated {$defender->name}",
-                "player"
-            );
+        // ======================================================
+        // APPLY EVENTS
+        // ======================================================
+        foreach ($events as $event) {
+            if ($event['target'] === $attacker->id) {
+                $attacker->current_health -= $event['damage'];
+            } else {
+                $defender->current_health -= $event['damage'];
+            }
         }
 
-        // =========================
-        // 2. OPPONENT TURN (AUTO)
-        // =========================
-        $enemySkill = $this->getRandomSkill($defender);
+        $attacker->current_health = max(0, $attacker->current_health);
+        $defender->current_health = max(0, $defender->current_health);
 
-        $opponentEvent = $this->calculateAttack($defender, $attacker, $enemySkill);
-
-        $events[] = $opponentEvent;
-
-        $attacker->current_health -= $opponentEvent['damage'];
-        if ($attacker->current_health < 0) {
-            $attacker->current_health = 0;
-        }
-
-        // =========================
-        // SAVE STATE
-        // =========================
+        // ======================================================
+        // SAVE
+        // ======================================================
         $attacker->save();
         $defender->save();
 
-        // =========================
-        // RESPONSE
-        // =========================
-        return $this->buildResponse(
-            $attacker,
-            $defender,
-            $events,
-            "{$attacker->name} clashed with {$defender->name}",
-            $attacker->id
-        );
+        // ======================================================
+        // CHECK WIN CONDITION
+        // ======================================================
+        if ($attacker->current_health <= 0 || $defender->current_health <= 0) {
+
+            $winner = $attacker->current_health > 0 ? $attacker : $defender;
+
+            $battle->update([
+                'status' => 'finished',
+                'winner_id' => $winner->id,
+            ]);
+
+            $this->endBattle($attacker, $defender);
+
+            return [
+                'events' => $events,
+                'player_hp' => $attacker->current_health,
+                'opponent_hp' => $defender->current_health,
+                'battle_ended' => true,
+                'winner_id' => $winner->id,
+                'log' => "{$winner->name} won the battle!"
+            ];
+        }
+
+        // ======================================================
+        // SWITCH TURN
+        // ======================================================
+        $battle->update([
+            'turn_player_id' => $defender->id,
+        ]);
+
+        return [
+            'events' => $events,
+            'player_hp' => $attacker->current_health,
+            'opponent_hp' => $defender->current_health,
+            'battle_ended' => false,
+            'next_turn' => $defender->id,
+            'log' => "{$attacker->name} used {$skill->name}"
+        ];
     }
 
-    /* =========================
-    ATTACK CALCULATION
-    ========================= */
-    private function calculateAttack($attacker, $defender, $skill)
+    // ======================================================
+    // CORE DAMAGE LOGIC (PvP ONLY)
+    // ======================================================
+    private function calculateAttack(Player $attacker, Player $defender, Skill $skill)
     {
-        $base = $attacker->attack + $skill->damage;
+        $base = $attacker->total_attack + $skill->damage;
 
-        $crit = $this->isCritical($attacker->crit);
+        $crit = rand(1, 100) <= $attacker->total_critical_percentage;
         if ($crit) {
             $base *= 1.5;
         }
 
-        $miss = $this->isMiss($defender->eva);
+        $missChance = max(40, 90 - ($defender->total_evasion_percentage * 0.6));
+        $miss = rand(1, 100) > $missChance;
 
         if ($miss) {
             return [
-                "actor" => $attacker->id,
-                "skill_name" => $skill->name,
-                "damage" => 0,
-                "crit" => false,
-                "miss" => true
+                'actor' => $attacker->id,
+                'target' => $defender->id,
+                'skill_name' => $skill->name,
+                'damage' => 0,
+                'crit' => false,
+                'miss' => true,
             ];
         }
 
-        $finalDamage = $this->applyDefense($base, $defender->def);
+        $damage = $base - ($defender->total_defense * 0.55);
 
         return [
-            "actor" => $attacker->id,
-            "skill_name" => $skill->name,
-            "damage" => (int) $finalDamage,
-            "crit" => $crit,
-            "miss" => false
+            'actor' => $attacker->id,
+            'target' => $defender->id,
+            'skill_name' => $skill->name,
+            'damage' => max(1, (int)$damage),
+            'crit' => $crit,
+            'miss' => false,
         ];
     }
 
-    /* =========================
-    DEFENSE CALCULATION
-    ========================= */
-    private function applyDefense($damage, $defense)
+    // ======================================================
+    // END BATTLE CLEANUP
+    // ======================================================
+    private function endBattle(Player $p1, Player $p2)
     {
-        $reduction = $defense * 0.55;
-        $result = $damage - $reduction;
+        $p1->update([
+            'in_pvp' => false,
+            'pvp_battle_id' => null,
+            'is_stunned' => false,
+        ]);
 
-        if ($result <= 0) {
-            return rand(3, 6);
+        $p2->update([
+            'in_pvp' => false,
+            'pvp_battle_id' => null,
+            'is_stunned' => false,
+        ]);
+    }
+
+    // ======================================================
+    // REQUEST BATTLE
+    // ======================================================
+    public function requestBattle(Player $attacker, int $targetId)
+    {
+        $defender = Player::findOrFail($targetId);
+
+        if ($attacker->in_pvp || $defender->in_pvp) {
+            return response()->json(['message' => 'One player is already in battle.'], 403);
         }
 
-        return $result;
-    }
+        if ($attacker->id === $defender->id) {
+            return response()->json(['message' => 'Invalid target.'], 403);
+        }
 
-    /* =========================
-    CRIT
-    ========================= */
-    private function isCritical($critRate)
-    {
-        return rand(1, 100) <= $critRate;
-    }
+        $battle = PvpBattle::create([
+            'challenger_id' => $attacker->id,
+            'opponent_id' => $defender->id,
+            'status' => 'active',
+            'turn_player_id' => $attacker->id,
+        ]);
 
-    /* =========================
-    MISS
-    ========================= */
-    private function isMiss($eva)
-    {
-        $hitChance = max(40, 90 - $eva * 0.6);
-        return rand(1, 100) > $hitChance;
-    }
+        $attacker->update([
+            'in_pvp' => true,
+            'pvp_battle_id' => $battle->id,
+        ]);
 
-    /* =========================
-    RANDOM SKILL
-    ========================= */
-    private function getRandomSkill($player)
-    {
-        return $player->skills()->inRandomOrder()->first();
-    }
+        $defender->update([
+            'in_pvp' => true,
+            'pvp_battle_id' => $battle->id,
+        ]);
 
-    /* =========================
-    RESPONSE BUILDER
-    ========================= */
-    private function buildResponse($player, $opponent, $events, $log, $nextTurn)
-    {
+        broadcast(new PvpStarted($battle, $attacker, $defender));
+
         return [
-            "events" => $events,
-
-            "player_hp" => $player->current_health,
-            "opponent_hp" => $opponent->current_health,
-
-            "next_turn" => $nextTurn,
-
-            "log" => $log
+            'message' => 'Battle request sent.',
         ];
     }
 }

@@ -1,5 +1,6 @@
 <script setup>
-import { ref, onMounted, onUnmounted } from "vue";
+import { pushAlert } from "@/Stores/GlobalAlert";
+import { ref } from "vue";
 
 const props = defineProps({
     player: { type: Object, required: true },
@@ -11,21 +12,38 @@ const showBattleModal = ref(false);
 const battleEnded = ref(false);
 
 const playerTurn = ref(true);
-const isPlaying = ref(false);
-
+const playerShout = ref(null);
+const opponentShout = ref(null);
+const isHurt = ref(false);
+const battleState = ref({
+    locked: false,
+});
 const logs = ref([]);
 
-/* =========================
-OPEN BATTLE
-========================= */
+// ======================================================
+// REQUIRED REFS (FIXED MISSING VARIABLES)
+// ======================================================
+const activeActor = ref(null);
+const skillEffect = ref(null);
+
+const playerDamage = ref(null);
+const opponentDamage = ref(null);
+
+// ======================================================
+// OPEN BATTLE
+// ======================================================
 function openPvPBattle(enemy) {
     showBattleModal.value = true;
     battleEnded.value = false;
-    playerTurn.value = true;
-
+    const spriteFolder = enemy.wing
+        ? `${enemy.class_type} ${enemy.wing?.gear?.name}`
+        : enemy.class_type;
     opponent.value = {
         ...enemy,
         current_health: enemy.max_health,
+        dead_gif: `/sprites/${spriteFolder}/dead.gif`,
+        battle_gif: `/sprites/${spriteFolder}/idle-left.gif`,
+        attack_gif: `/sprites/${spriteFolder}/attack.gif`,
     };
 
     logs.value = [`${enemy.name} challenged you!`];
@@ -33,89 +51,88 @@ function openPvPBattle(enemy) {
 
 defineExpose({ openPvPBattle });
 
-/* =========================
-CALL BACKEND
-========================= */
+// ======================================================
+// CALL BACKEND
+// ======================================================
 async function useSkill(skill) {
-    if (!playerTurn.value || battleEnded.value || isPlaying.value) return;
+    if (battleState.value.locked || battleEnded.value) return;
+
+    battleState.value.locked = true;
 
     try {
-        isPlaying.value = true;
-
         const res = await axios.post("/pvp/action", {
             skill_id: skill.id,
-            opponent_id: opponent.value.id,
         });
 
         await playEvents(res.data.events);
 
-        // sync HP from server
         props.player.current_health = res.data.player_hp;
         opponent.value.current_health = res.data.opponent_hp;
-
+        pushAlert(res.data.message, "success");
         logs.value.unshift(res.data.log);
 
-        checkBattle();
+        if (res.data.battle_ended) {
+            battleEnded.value = true;
+        }
 
-        playerTurn.value = res.data.next_turn === props.player.id;
+        checkBattle();
     } catch (e) {
-        console.error(e);
+        pushAlert(e.response.data.message, "error");
     } finally {
-        isPlaying.value = false;
+        battleState.value.locked = false;
     }
 }
 
-/* =========================
-ANIMATION ENGINE (IMPORTANT)
-========================= */
-function playEvents(events) {
-    let delay = 0;
-
-    events.forEach((event) => {
-        setTimeout(() => {
-            activeActor.value = event.actor;
-
-            // reconstruct fake skill object for animation
-            triggerSkillEffect({
-                name: event.skill_name,
-            });
-
-            if (event.actor === props.player.id) {
-                playerDamage.value = formatDamage(event);
-            } else {
-                opponentDamage.value = formatDamage(event);
-            }
-
-            setTimeout(() => {
-                playerDamage.value = null;
-                opponentDamage.value = null;
-            }, 800);
-        }, delay);
-
-        delay += 900;
-    });
+// ======================================================
+// ANIMATION ENGINE (FIXED)
+// ======================================================
+function delay(ms) {
+    return new Promise((r) => setTimeout(r, ms));
 }
 
-/* =========================
-UI EFFECTS
-========================= */
-const playerDamage = ref(null);
-const opponentDamage = ref(null);
+async function playEvents(events) {
+    for (const event of events) {
+        activeActor.value = event.actor;
 
+        // ✅ SHOUT (skill name or custom text)
+        if (event.actor === props.player.id) {
+            playerShout.value = event.skill_name;
+        } else {
+            opponentShout.value = event.skill_name;
+        }
+
+        triggerSkillEffect({ name: event.skill_name });
+
+        if (event.actor === props.player.id) {
+            opponentDamage.value = formatDamage(event);
+        } else {
+            playerDamage.value = formatDamage(event);
+            isHurt.value = true;
+        }
+
+        await delay(600);
+
+        playerDamage.value = null;
+        opponentDamage.value = null;
+
+        // ✅ CLEAR SHOUT (important)
+        playerShout.value = null;
+        opponentShout.value = null;
+
+        activeActor.value = null;
+        isHurt.value = false;
+
+        await delay(150);
+    }
+}
+// ======================================================
+// UI EFFECTS
+// ======================================================
 function formatDamage(e) {
     if (e.miss) return "MISS";
     return e.crit ? `${e.damage} CRIT` : `${e.damage}`;
 }
 
-function triggerPlayerAttack() {
-    isAttacking.value = true;
-    setTimeout(() => (isAttacking.value = false), 400);
-}
-
-function triggerOpponentAttack() {
-    isOpponentAttacking.value = true;
-    setTimeout(() => (isOpponentAttacking.value = false), 400);
-}
 function triggerSkillEffect(skill) {
     const skillName = skill.name
         .toLowerCase()
@@ -128,9 +145,10 @@ function triggerSkillEffect(skill) {
         skillEffect.value = null;
     }, 1000);
 }
-/* =========================
-CHECK END
-========================= */
+
+// ======================================================
+// CHECK END
+// ======================================================
 function checkBattle() {
     if (props.player.current_health <= 0) {
         battleEnded.value = true;
@@ -143,106 +161,173 @@ function checkBattle() {
     }
 }
 
-/* =========================
-UTILS
-========================= */
-function delay(ms) {
-    return new Promise((r) => setTimeout(r, ms));
-}
-
-/* =========================
-CLOSE
-========================= */
+// ======================================================
+// CLOSE
+// ======================================================
 function closeBattle() {
     showBattleModal.value = false;
 }
 </script>
+
 <template>
     <div v-if="showBattleModal" class="pve-modal-wrapper">
         <div class="pve-modal">
             <!-- HEADER -->
             <div class="modal-header">
-                <h2 class="battle-title">⚔️ PvP DUEL</h2>
-                <button class="close-btn" @click="closeBattle">✕</button>
+                <h2 class="battle-title">⚔️ PVP DUEL</h2>
+                <button @click="closeBattle" class="close-btn">✕</button>
             </div>
 
             <!-- BODY -->
+            <!-- <div class="bg-white">{{ activeActor }}</div> -->
             <div class="battle-body">
                 <!-- PLAYER -->
                 <div class="player-section">
-                    <img
-                        class="player-sprite"
-                        :class="{ 'monster-hurt': activeActor === player.id }"
-                        :src="player.battle_gif"
-                    />
-
-                    <div
-                        v-if="skillEffect && activeActor === player.id"
-                        class="skill-effect"
-                        :class="skillEffect"
-                    ></div>
-
-                    <div v-if="playerDamage" class="damage-text player-damage">
-                        -{{ playerDamage }}
-                    </div>
-
-                    <p class="player-name">{{ player.name }}</p>
-
-                    <div class="stat-bar hp-bar">
-                        <div
-                            class="stat-fill hp-fill"
-                            :style="{
-                                width:
-                                    (player.current_health /
-                                        player.max_health) *
-                                        100 +
-                                    '%',
-                            }"
+                    <div class="player-wrapper">
+                        <img
+                            :src="
+                                player.current_health <= 0
+                                    ? player.dead_gif
+                                    : activeActor === player.id
+                                      ? player.attack_gif
+                                      : player.battle_gif
+                            "
                         />
+
+                        <div class="player-floor"></div>
+                        <div v-if="playerShout" class="shout-text player-shout">
+                            {{ playerShout }}
+                        </div>
+                        <div
+                            v-if="skillEffect && activeActor === opponent.id"
+                            class="skill-effect"
+                            :class="skillEffect"
+                        ></div>
+
+                        <div
+                            v-if="playerDamage"
+                            class="damage-text player-damage"
+                        >
+                            -{{ playerDamage }}
+                        </div>
+
+                        <div class="player-ui">
+                            <p class="player-name">{{ player.name }}</p>
+
+                            <div class="player-stats">
+                                <!-- HP -->
+                                <div class="stat-row">
+                                    <div class="stat-bar">
+                                        <div
+                                            class="stat-fill hp-fill"
+                                            :style="{
+                                                width:
+                                                    (player.current_health /
+                                                        player.max_health) *
+                                                        100 +
+                                                    '%',
+                                            }"
+                                        />
+                                    </div>
+                                </div>
+
+                                <!-- MP -->
+                                <div class="stat-row">
+                                    <div class="stat-bar">
+                                        <div
+                                            class="stat-fill mp-fill"
+                                            :style="{
+                                                width:
+                                                    (player.current_mana /
+                                                        player.max_mana) *
+                                                        100 +
+                                                    '%',
+                                            }"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                <!-- OPPONENT -->
-                <div class="monsters-section">
-                    <img
-                        class="monster-sprite"
-                        :class="{
-                            'monster-hurt': activeActor === opponent?.id,
-                        }"
-                        :src="opponent?.battle_gif"
-                    />
-
-                    <div
-                        v-if="skillEffect && activeActor === opponent.id"
-                        class="skill-effect"
-                        :class="skillEffect"
-                    ></div>
-
-                    <div
-                        v-if="opponentDamage"
-                        class="damage-text monster-damage"
-                    >
-                        -{{ opponentDamage }}
-                    </div>
-
-                    <p class="monster-name">{{ opponent?.name }}</p>
-
-                    <div class="monster-hp-bar">
-                        <div
-                            class="monster-hp-fill"
-                            :style="{
-                                width:
-                                    (opponent?.current_health /
-                                        opponent?.max_health) *
-                                        100 +
-                                    '%',
+                <!-- OPPONENT (PvP version of monster section) -->
+                <div class="player-section">
+                    <div class="player-wrapper">
+                        <img
+                            :src="
+                                opponent.current_health <= 0
+                                    ? opponent.dead_gif
+                                    : activeActor === opponent.id
+                                      ? opponent.attack_gif
+                                      : opponent.battle_gif
+                            "
+                            class="player-sprite"
+                            :class="{
+                                'monster-hurt': isHurt,
                             }"
                         />
+                        <div v-if="playerShout" class="shout-text player-shout">
+                            {{ playerShout }}
+                        </div>
+
+                        <div class="player-floor"></div>
+
+                        <div
+                            v-if="skillEffect && activeActor === player.id"
+                            class="skill-effect"
+                            :class="skillEffect"
+                        ></div>
+
+                        <div
+                            v-if="opponentDamage"
+                            class="damage-text monster-damage"
+                        >
+                            -{{ opponentDamage }}
+                        </div>
+
+                        <div class="player-ui">
+                            <p class="player-name">{{ opponent.name }}</p>
+
+                            <div class="player-stats">
+                                <!-- HP -->
+                                <div class="stat-row">
+                                    <div class="stat-bar">
+                                        <div
+                                            class="stat-fill hp-fill"
+                                            :style="{
+                                                width:
+                                                    (opponent.current_health /
+                                                        opponent.max_health) *
+                                                        100 +
+                                                    '%',
+                                            }"
+                                        />
+                                    </div>
+                                </div>
+
+                                <!-- MP -->
+                                <div class="stat-row">
+                                    <div class="stat-bar">
+                                        <div
+                                            class="stat-fill mp-fill"
+                                            :style="{
+                                                width:
+                                                    (opponent.current_mana /
+                                                        opponent.max_mana) *
+                                                        100 +
+                                                    '%',
+                                            }"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <!-- SKILLS -->
+            <!-- SKILLS (UNCHANGED LOGIC) -->
             <div class="skills-panel">
                 <div
                     v-for="(skill, i) in player.skills"
@@ -270,7 +355,7 @@ function closeBattle() {
             <div class="battle-footer">
                 <p class="log-text">{{ logs[0] }}</p>
                 <p class="turn-text">
-                    {{ playerTurn ? "Your Turn" : "Enemy Turn" }}
+                    {{ playerTurn ? "🗡️ Your Turn" : "⚔️ Opponent Turn" }}
                 </p>
             </div>
         </div>
@@ -919,7 +1004,7 @@ MONSTER SELECT
 .shout-text {
     position: absolute;
 
-    top: 270px;
+    top: 230px;
     left: 50%;
 
     transform: translate(-50%, -120%);

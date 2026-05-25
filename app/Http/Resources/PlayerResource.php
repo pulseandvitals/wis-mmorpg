@@ -1,190 +1,98 @@
 <?php
 
-namespace App\Services;
+namespace App\Http\Resources;
 
-use App\Models\Player;
-use App\Models\Skill;
+use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\JsonResource;
 
-class PvPService
+class PlayerResource extends JsonResource
 {
-    public function processAction(Player $attacker, $defenderId, $skillId)
-    {
-        $defender = Player::findOrFail($defenderId);
-        $skill = Skill::findOrFail($skillId);
-
-        $events = [];
-
-        // ======================================================
-        // PLAYER TURN
-        // ======================================================
-        $playerEvent = $this->calculateAttack($attacker, $defender, $skill);
-        $events[] = $playerEvent;
-
-        $defender->current_health -= $playerEvent['damage'];
-        if ($defender->current_health < 0) {
-            $defender->current_health = 0;
-        }
-
-        // ======================================================
-        // STUN CHANCE (1 TURN)
-        // ======================================================
-        $this->applyStun($attacker, $defender, $events);
-
-        // WIN CHECK
-        if ($defender->current_health <= 0) {
-            $defender->save();
-            $attacker->save();
-
-            return $this->buildResponse(
-                $attacker,
-                $defender,
-                $events,
-                "{$attacker->name} defeated {$defender->name}",
-                $attacker->id
-            );
-        }
-
-        // ======================================================
-        // OPPONENT TURN
-        // ======================================================
-
-        if ($defender->is_stunned) {
-            // SKIP TURN + REMOVE STUN AFTER USE
-            $events[] = [
-                "actor" => $defender->id,
-                "skill_name" => null,
-                "damage" => 0,
-                "crit" => false,
-                "miss" => false,
-                "stun" => true,
-                "skip_turn" => true
-            ];
-
-            $defender->is_stunned = false;
-        } else {
-            $enemySkill = $this->getRandomSkill($defender);
-
-            $opponentEvent = $this->calculateAttack($defender, $attacker, $enemySkill);
-            $events[] = $opponentEvent;
-
-            $attacker->current_health -= $opponentEvent['damage'];
-
-            if ($attacker->current_health < 0) {
-                $attacker->current_health = 0;
-            }
-        }
-
-        $attacker->save();
-        $defender->save();
-
-        // WIN CHECK
-        if ($attacker->current_health <= 0) {
-            return $this->buildResponse(
-                $attacker,
-                $defender,
-                $events,
-                "{$defender->name} defeated {$attacker->name}",
-                $defender->id
-            );
-        }
-
-        return $this->buildResponse(
-            $attacker,
-            $defender,
-            $events,
-            "{$attacker->name} clashed with {$defender->name}",
-            $attacker->id
-        );
-    }
-
-    // ======================================================
-    // STUN SYSTEM (1 TURN ONLY)
-    // ======================================================
-    private function applyStun($attacker, $defender, &$events)
-    {
-        if (!$attacker->total_stun_percentage) return;
-
-        if (rand(1, 100) <= $attacker->total_stun_percentage) {
-            $defender->is_stunned = true;
-
-            $events[] = [
-                "actor" => $attacker->id,
-                "skill_name" => "Stun",
-                "damage" => 0,
-                "crit" => false,
-                "miss" => false,
-                "stun" => true
-            ];
-        }
-    }
-
-    // ======================================================
-    // DAMAGE CALCULATION
-    // ======================================================
-    private function calculateAttack($attacker, $defender, $skill)
-    {
-        $baseDamage = $attacker->total_attack + $skill->damage;
-
-        $crit = $this->isCritical($attacker->total_critical_percentage);
-        if ($crit) {
-            $baseDamage *= 1.5;
-        }
-
-        $miss = $this->isMiss($defender->total_evasion_percentage);
-
-        if ($miss) {
-            return [
-                "actor" => $attacker->id,
-                "skill_name" => $skill->name,
-                "damage" => 0,
-                "crit" => false,
-                "miss" => true
-            ];
-        }
-
-        $finalDamage = $this->applyDefense($baseDamage, $defender->total_defense);
-
-        return [
-            "actor" => $attacker->id,
-            "skill_name" => $skill->name,
-            "damage" => (int) $finalDamage,
-            "crit" => $crit,
-            "miss" => false
-        ];
-    }
-
-    private function applyDefense($damage, $defense)
-    {
-        $reduction = $defense * 0.55;
-        $result = $damage - $reduction;
-
-        return $result <= 0 ? rand(3, 6) : $result;
-    }
-
-    private function isCritical($critRate)
-    {
-        return rand(1, 100) <= $critRate;
-    }
-
-    private function isMiss($eva)
-    {
-        $hitChance = max(40, 90 - $eva * 0.6);
-        return rand(1, 100) > $hitChance;
-    }
-
-    private function getRandomSkill($player)
-    {
-        return $player->skills()->inRandomOrder()->first();
-    }
-
-    private function buildResponse($player, $opponent, $events, $log, $nextTurn)
+    public function toArray(Request $request): array
     {
         return [
-            "events" => $events,
-            "player_hp" => $player->current_health,
-            "opponent_hp" => $opponent->current_health,
-            "next_turn" => $nextTurn,
-            "log" => $log,
+
+            // ======================================================
+            // BASIC INFO
+            // ======================================================
+            'id' => $this->id,
+            'user_id' => $this->user_id,
+            'name' => $this->name,
+            'class_type' => $this->class_type,
+            'is_online' => $this->is_online,
+
+            // ======================================================
+            // LEVEL / PROGRESSION
+            // ======================================================
+            'current_level' => $this->current_level,
+            'current_experience' => $this->current_experience,
+
+            // ======================================================
+            // COMBAT STATS
+            // ======================================================
+            'max_health' => round($this->getAllStats()['hp']),
+            'current_health' => $this->current_health,
+
+            'max_mana' => round($this->getAllStats()['mp']),
+            'current_mana' => $this->current_mana,
+
+            'total_attack' => round($this->getAllStats()['attack']),
+            'total_defense' => round($this->getAllStats()['defense']),
+            'total_speed' => round($this->getAllStats()['speed']),
+
+            'total_evasion_percentage' => round($this->getAllStats()['evasion']),
+            'total_critical_percentage' => round($this->getAllStats()['crit']),
+
+            // ======================================================
+            // ECONOMY
+            // ======================================================
+            'current_gold' => $this->current_gold,
+            'current_diamond' => $this->current_diamond,
+
+            // ======================================================
+            // WORLD POSITION
+            // ======================================================
+            'current_map_id' => $this->current_map_id,
+            'x' => $this->x,
+            'y' => $this->y,
+            'direction' => $this->direction,
+
+            // ======================================================
+            // EQUIPMENT
+            // ======================================================
+            'helm' => $this->helm,
+            'armor' => $this->armor,
+            'pants' => $this->pants,
+            'gloves' => $this->gloves,
+            'boots' => $this->boots,
+            'weapon' => $this->weapon,
+            'shield' => $this->shield,
+            'ring' => $this->ring,
+            'wing' => $this->wing,
+
+            // ======================================================
+            // SYSTEM / GAME STATE
+            // ======================================================
+            'in_pvp' => $this->in_pvp,
+            'pvp_battle_id' => $this->pvp_battle_id,
+
+            // ======================================================
+            // BUFFS / TALENTS / CARDS
+            // ======================================================
+            'active_buff_effects' => $this->active_buff_effects,
+            'selected_talent_skills' => $this->selected_talent_skills,
+
+            'card_slot_1_effects' => $this->card_slot_1_effects,
+            'card_slot_2_effects' => $this->card_slot_2_effects,
+            'card_slot_3_effects' => $this->card_slot_3_effects,
+            'card_slot_4_effects' => $this->card_slot_4_effects,
+
+            // ======================================================
+            // DAILY LIMITS / STATS
+            // ======================================================
+            'daily_bet_chance' => $this->daily_bet_chance,
+            'daily_trivia_chance' => $this->daily_trivia_chance,
+            'daily_mobs_kill' => $this->daily_mobs_kill,
+            'daily_fishing_chance' => $this->daily_fishing_chance,
         ];
     }
 }

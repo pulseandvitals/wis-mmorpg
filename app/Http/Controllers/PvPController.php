@@ -13,8 +13,17 @@ class PvPController extends Controller
 
         return $pvp->processAction(
             $attacker,
-            $request->opponent_id,
             $request->skill_id
+        );
+    }
+
+    public function pvpRequest(Request $request, PvPService $pvp)
+    {
+        $player = auth()->user()->player;
+
+        return $pvp->requestBattle(
+            $player,
+            $request->target_id
         );
     }
 
@@ -22,13 +31,15 @@ class PvPController extends Controller
     {
         $player = auth()->user()->player;
 
-        if ($player->battle_opponent_id) {
+        if ($player->in_pvp && $player->pvp_battle_id) {
             return [
                 'in_battle' => true,
-                'opponent_id' => $player->battle_opponent_id,
+                'battle_id' => $player->pvp_battle_id,
             ];
         }
 
-        return ['in_battle' => false];
+        return [
+            'in_battle' => false
+        ];
     }
 }

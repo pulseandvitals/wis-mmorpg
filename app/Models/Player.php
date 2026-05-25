@@ -46,7 +46,10 @@ class Player extends Model
         'daily_bet_chance',
         'daily_trivia_chance',
         'daily_mobs_kill',
-        'daily_fishing_chance'
+        'daily_fishing_chance',
+
+        'in_pvp',
+        'pvp_battle_id'
     ];
 
     protected $casts = [

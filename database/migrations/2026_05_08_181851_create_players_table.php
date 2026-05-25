@@ -58,6 +58,9 @@ return new class extends Migration
             $table->integer('daily_trivia_chance')->default(10);
             $table->integer('daily_mobs_kill')->default(10);
             $table->integer('daily_fishing_chance')->default(10);
+
+            $table->boolean('in_pvp')->default(false);
+            $table->unsignedBigInteger('pvp_battle_id')->nullable();
             $table->timestamps();
         });
     }

@@ -520,7 +520,6 @@ class WorldMapController extends Controller
             'ring.gear',
             'wing.gear',
         ])->find($user->player_id);
-
         if (!$player) {
             return response()->json(['error' => 'Character not found'], 404);
         }

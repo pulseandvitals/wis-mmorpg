@@ -20,6 +20,9 @@ class PlayerMoved implements ShouldBroadcastNow
     public int $y;
     public string $direction;
 
+    public bool $in_pvp;
+    public ?int $pvp_battle_id;
+
     public function __construct($player)
     {
         $this->playerId = $player->id;
@@ -29,6 +32,8 @@ class PlayerMoved implements ShouldBroadcastNow
         $this->x = $player->x;
         $this->y = $player->y;
         $this->direction = $player->direction;
+        $this->in_pvp = $player->in_pvp;
+        $this->pvp_battle_id = $player->pvp_battle_id;
     }
 
     public function broadcastOn(): array
@@ -53,6 +58,8 @@ class PlayerMoved implements ShouldBroadcastNow
             'x' => $this->x,
             'y' => $this->y,
             'direction' => $this->direction,
+            'in_pvp' => $this->in_pvp,
+            'pvp_battle_id' => $this->pvp_battle_id
         ];
     }
 }

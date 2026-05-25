@@ -5,6 +5,7 @@ import PlayerSkill from "./GameComponents/PlayerSkill.vue";
 import WorldChat from "./GameComponents/WorldChat.vue";
 import Player from "./GameComponents/Player.vue";
 import PvE from "./GameComponents/Battle.vue/PvE.vue";
+import PvP from "./GameComponents/Battle.vue/PvP.vue";
 import Menu from "./GameComponents/Menu.vue";
 import TownSquareNPC from "./GameComponents/Npc/TownSquareNPC.vue";
 import { Head, router, usePage } from "@inertiajs/vue3";
@@ -42,6 +43,7 @@ const mapWidth = map[0].length;
 const monsters = reactive([]);
 const selectedMonster = ref(null);
 const pveRef = ref(null);
+const pvpRef = ref(null);
 const party = ref([]);
 const flatMap = computed(() => map.flat());
 const spriteFolder = props.playerData.data.wing
@@ -136,7 +138,53 @@ function moveToMonster(monster) {
     });
 }
 function startBattle(monster) {
+    if (!monster) return;
     pveRef.value.openBattle(monster);
+}
+function startPvPBattle(battle) {
+    if (!battle) return;
+    pvpRef.value?.openPvPBattle(battle.opponent);
+}
+function registerPvpListener() {
+    window.Echo.channel(`player.${props.playerData.data.id}`).listen(
+        ".pvp.started",
+        (e) => {
+            console.log("🔥 PvP EVENT RECEIVED:", e);
+
+            console.log("ME:", props.playerData.data.id);
+            console.log("ATTACKER:", e.attacker.id);
+            console.log("DEFENDER:", e.defender.id);
+
+            const me = props.playerData.data.id;
+
+            let enemy = null;
+
+            if (e.attacker.id === me) {
+                console.log("I AM ATTACKER");
+                enemy = e.defender;
+            }
+
+            if (e.defender.id === me) {
+                console.log("I AM DEFENDER");
+                enemy = e.attacker;
+            }
+
+            console.log("FINAL ENEMY:", enemy);
+
+            if (!enemy) {
+                console.warn("❌ Not part of battle");
+                return;
+            }
+
+            if (!pvpRef.value) {
+                console.warn("❌ pvpRef is NULL (component not ready)");
+                return;
+            }
+
+            pvpRef.value.openPvPBattle(enemy);
+            console.log("✅ Battle opened");
+        },
+    );
 }
 function loadMonsters() {
     const dbMonsters = Array.isArray(props.monsters)
@@ -426,6 +474,8 @@ async function getPlayers() {
         walking: false,
         current_experience: p.current_experience,
         current_gold: p.current_gold,
+        in_pvp: p.in_pvp,
+        pvp_battle_id: p.pvp_battle_id,
     }));
 }
 
@@ -528,7 +578,7 @@ function smoothMovePlayers(entity, targetX, targetY, callback = null) {
     animate();
 }
 
-function getPlayersPosition() {
+function playersPositionListener() {
     window.Echo.channel("world").listen(".player.moved", (e) => {
         const id = Number(e.player_id);
         if (id === myPlayerId) return;
@@ -554,7 +604,8 @@ onMounted(() => {
     moveMonsters();
     getPlayers();
     getMyParty();
-    getPlayersPosition();
+    playersPositionListener();
+    registerPvpListener();
 });
 const filteredMaps = computed(() => {
     return props.all_maps.data.filter(
@@ -606,6 +657,7 @@ watch(
 <template>
     <Head title="Wisteria Online - MMORPG" />
     <GameLayout>
+        <div class="bg-white font-2xl">{{ test }}</div>
         <div
             class="game-map"
             @click.self="handleMapClick"
@@ -660,7 +712,12 @@ watch(
                 :playerData="playerData.data"
                 :tileSize="tileSize"
             />
-            <Players :players="players" :tileSize="tileSize" />
+            <Players
+                :players="players"
+                :player="playerData.data"
+                @open-battle="startPvPBattle"
+                :tileSize="tileSize"
+            />
             <!-- HUD COMPONENTS -->
             <ActiveBuffs :player="playerData.data" />
             <Menu
@@ -686,6 +743,7 @@ watch(
                 :tileSize="tileSize"
                 @click-monster="handleAttackMonster"
             />
+            <PvP ref="pvpRef" :player="player" :tileSize="tileSize" />
         </div>
     </GameLayout>
 </template>

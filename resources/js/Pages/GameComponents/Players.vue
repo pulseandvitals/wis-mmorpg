@@ -1,11 +1,44 @@
 <script setup>
+import { pushAlert } from "@/Stores/GlobalAlert";
 const props = defineProps({
+    player: Object,
     players: Object,
     tileSize: {
         type: Number,
         required: true,
     },
 });
+const emit = defineEmits(["open-battle"]);
+const cooldown = new Set();
+
+async function handleClick(player) {
+    if (cooldown.has(player.id)) return;
+
+    cooldown.add(player.id);
+
+    setTimeout(() => cooldown.delete(player.id), 1500);
+
+    if (player.in_pvp) return;
+    if (player.id === props.player?.id) return;
+
+    try {
+        const res = await axios.post("/pvp/request", {
+            target_id: player.id,
+        });
+
+        if (res.data.in_battle) {
+            emit("open-battle", res.data.battle);
+            pushAlert(
+                "PvP Battle Started!",
+                `You are now battling ${player.name}.`,
+                "success",
+            );
+        }
+    } catch (e) {
+        pushAlert(e.message, "Failed to request PvP battle.");
+        console.error(e);
+    }
+}
 </script>
 
 <template>
@@ -17,6 +50,7 @@ const props = defineProps({
             :style="{
                 transform: `translate(${p.renderX}px, ${p.renderY}px)`,
             }"
+            @click="handleClick(p)"
         >
             <!-- NAME TAG -->
             <div class="name-tag">
@@ -53,7 +87,7 @@ const props = defineProps({
     width: 64px;
     height: 64px;
     text-align: center;
-    pointer-events: none;
+    pointer-events: auto;
 }
 
 /* SPRITE */
