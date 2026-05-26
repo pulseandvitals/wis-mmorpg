@@ -48,10 +48,11 @@ return new class extends Migration
 
             $table->json('active_buff_effects')->nullable();
             $table->json('selected_talent_skills')->nullable();
-            $table->json('card_slot_1_effects')->nullable();
-            $table->json('card_slot_2_effects')->nullable();
-            $table->json('card_slot_3_effects')->nullable();
-            $table->json('card_slot_4_effects')->nullable();
+
+            $table->integer('card_1_id')->nullable();
+            $table->integer('card_2_id')->nullable();
+            $table->integer('card_3_id')->nullable();
+            $table->integer('card_4_id')->nullable();
 
 
             $table->integer('daily_bet_chance')->default(10);

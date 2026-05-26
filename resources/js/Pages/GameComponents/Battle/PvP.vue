@@ -1,6 +1,6 @@
 <script setup>
 import { pushAlert } from "@/Stores/GlobalAlert";
-import { ref, nextTick, onMounted } from "vue";
+import { ref, computed, nextTick, onMounted } from "vue";
 
 const props = defineProps({
     player: { type: Object, required: true },
@@ -11,6 +11,10 @@ const opponent = ref(null);
 const showBattleModal = ref(false);
 const battleEnded = ref(false);
 const battleState = ref({ locked: false });
+const playerTurn = ref(true);
+const skillDisabled = computed(
+    () => battleEnded.value || battleState.value.locked || !playerTurn.value,
+);
 
 const logs = ref([]);
 
@@ -26,6 +30,7 @@ const events = ref(null);
 const playerDamage = ref(null);
 const opponentDamage = ref(null);
 const currentBattleId = ref(null);
+const isHurt = ref(false);
 // legacy single skill effect (kept for template compatibility)
 const skillEffect = ref(null);
 // per-side skill effects / attacking flags for accuracy
@@ -36,6 +41,7 @@ const attackingOpponent = ref(false);
 
 // ======================================================
 function openPvPBattle(id, enemy) {
+    console.log("openPvPBattle called:", id, enemy);
     showBattleModal.value = true;
     battleEnded.value = false;
     currentBattleId.value = id;
@@ -61,9 +67,10 @@ defineExpose({ openPvPBattle });
 // SKILL ACTION
 // ======================================================
 async function useSkill(skill) {
-    if (battleState.value.locked || battleEnded.value) return;
+    if (skillDisabled.value) return;
 
     battleState.value.locked = true;
+    playerTurn.value = false;
 
     try {
         await axios.post("/pvp/action", {
@@ -74,8 +81,8 @@ async function useSkill(skill) {
         // Everything comes from Echo now
     } catch (e) {
         pushAlert(e.response?.data?.message || "Error", "error");
-    } finally {
         battleState.value.locked = false;
+        playerTurn.value = true;
     }
 }
 
@@ -112,7 +119,6 @@ async function playEvents(events) {
         // Apply challenger event
         if (evCh) {
             const challengerIsPlayer = chId === Number(props.player.id);
-
             if (challengerIsPlayer) {
                 playerAction.value = true;
                 playerShout.value = evCh.skill_name;
@@ -194,12 +200,14 @@ async function playEvents(events) {
             opponentDamage.value = formatDamage(event);
             triggerSkillEffect(event.skill_name, "opponent");
             attackingOpponent.value = true;
+            isHurt.value = true;
         } else {
             opponentAction.value = true;
             opponentShout.value = event.skill_name;
             playerDamage.value = formatDamage(event);
             triggerSkillEffect(event.skill_name, "player");
             attackingPlayer.value = true;
+            isHurt.value = true;
         }
 
         await delay(700);
@@ -211,6 +219,7 @@ async function playEvents(events) {
         await delay(200);
 
         // CLEAR SHOUT + ACTION
+        isHurt.value = false;
         playerShout.value = null;
         opponentShout.value = null;
         playerAction.value = false;
@@ -225,7 +234,14 @@ async function playEvents(events) {
 // ======================================================
 function formatDamage(e) {
     if (e.miss) return "MISS";
-    return e.crit ? `${e.damage} CRIT` : `${e.damage}`;
+
+    let text = e.crit ? `${e.damage} CRIT` : `${e.damage}`;
+
+    if (e.stun) {
+        text += `STUNNED`;
+    }
+
+    return text;
 }
 
 function triggerSkillEffect(name, target) {
@@ -276,11 +292,15 @@ function listenBattle(battleId) {
 
         events.value = e;
 
-        // Pass the whole round payload so we can map challenger/opponent correctly
+        // Play animations
         await playEvents(e);
 
-        // IMPORTANT
-        if (e.challenger_id === props.player.id) {
+        // Determine side
+        const localIsChallenger =
+            Number(e.challenger_id) === Number(props.player.id);
+
+        // Sync HP correctly
+        if (localIsChallenger) {
             props.player.current_health = e.challenger_hp;
             opponent.value.current_health = e.opponent_hp;
         } else {
@@ -290,13 +310,40 @@ function listenBattle(battleId) {
 
         logs.value.unshift(`Round ${e.round} resolved`);
 
+        // ======================================================
+        // END BATTLE
+        // ======================================================
         if (e.battle_ended) {
             battleEnded.value = true;
 
-            logs.value.unshift(
-                e.winner_id === props.player.id ? "You Won!" : "You Lost!",
-            );
+            const won = Number(e.winner_id) === Number(props.player.id);
+
+            logs.value.unshift(won ? "🏆 You Won!" : "💀 You Lost!");
+
+            // lock controls
+            battleState.value.locked = true;
+
+            // auto close after 4 sec
+            setTimeout(() => {
+                closeBattle();
+
+                // leave echo channel
+                window.Echo.leave(`pvp.${battleId}`);
+
+                // reset
+                opponent.value = null;
+                currentBattleId.value = null;
+                events.value = null;
+            }, 4000);
+
+            return;
         }
+
+        // ======================================================
+        // NEXT ROUND
+        // ======================================================
+        battleState.value.locked = false;
+        playerTurn.value = true;
     });
 }
 </script>
@@ -340,9 +387,9 @@ function listenBattle(battleId) {
                         </div>
 
                         <div
-                            v-if="skillEffect && attackingOpponent"
+                            v-if="skillEffectPlayer"
                             class="skill-effect"
-                            :class="skillEffect"
+                            :class="skillEffectPlayer"
                         ></div>
 
                         <div class="player-ui">
@@ -416,9 +463,9 @@ function listenBattle(battleId) {
                             -{{ opponentDamage }}
                         </div>
                         <div
-                            v-if="skillEffect && attackingPlayer"
+                            v-if="skillEffectOpponent"
                             class="skill-effect"
-                            :class="skillEffect"
+                            :class="skillEffectOpponent"
                         ></div>
 
                         <div class="player-ui">
@@ -1195,7 +1242,7 @@ MONSTER SELECT
     z-index: 50;
 }
 .monster-shout {
-    top: 20%;
+    top: 42%;
     color: #f1f1f1;
     padding: 5px 10px;
     background-color: rgb(0, 0, 0, 0.5);
@@ -1222,6 +1269,7 @@ MONSTER SELECT
     position: absolute;
     pointer-events: none;
     z-index: 50;
+    transform: scaleX(-1);
 }
 
 .player-ui {

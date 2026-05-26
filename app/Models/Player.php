@@ -39,10 +39,12 @@ class Player extends Model
         //new fields
         'active_buff_effects',
         'selected_talent_skills',
-        'card_slot_1_effects',
-        'card_slot_2_effects',
-        'card_slot_3_effects',
-        'card_slot_4_effects',
+
+        'card_1_id',
+        'card_2_id',
+        'card_3_id',
+        'card_4_id',
+
         'daily_bet_chance',
         'daily_trivia_chance',
         'daily_mobs_kill',
@@ -55,10 +57,6 @@ class Player extends Model
     protected $casts = [
         'active_buff_effects' => 'array',
         'selected_talent_skills' => 'array',
-        'card_slot_1_effects' => 'array',
-        'card_slot_2_effects' => 'array',
-        'card_slot_3_effects' => 'array',
-        'card_slot_4_effects' => 'array',
     ];
 
     protected $appends = [
@@ -367,6 +365,7 @@ class Player extends Model
             'speed' => (int) $this->total_speed,
             'crit' => (int) $this->total_critical_percentage,
             'evasion' => (int) $this->total_evasion_percentage,
+            'stun' => (int) $this->total_stun_percentage,
             'hp' => (int) $this->max_health,
             'mp' => (int) $this->max_mana,
             'is_exp_potion_active' => (bool) $this->is_exp_potion_active,
@@ -412,6 +411,26 @@ class Player extends Model
     public function wing()
     {
         return $this->belongsTo(Inventory::class, 'wing_id');
+    }
+
+    public function card_1()
+    {
+        return $this->belongsTo(Inventory::class, 'card_1_id');
+    }
+
+    public function card_2()
+    {
+        return $this->belongsTo(Inventory::class, 'card_2_id');
+    }
+
+    public function card_3()
+    {
+        return $this->belongsTo(Inventory::class, 'card_3_id');
+    }
+
+    public function card_4()
+    {
+        return $this->belongsTo(Inventory::class, 'card_4_id');
     }
 
     public function helmet()

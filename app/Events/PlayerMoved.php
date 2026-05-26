@@ -36,11 +36,9 @@ class PlayerMoved implements ShouldBroadcastNow
         $this->pvp_battle_id = $player->pvp_battle_id;
     }
 
-    public function broadcastOn(): array
+    public function broadcastOn()
     {
-        return [
-            new Channel('world'),
-        ];
+        return new Channel("world.map.{$this->current_map_id}");
     }
 
     public function broadcastAs(): string
@@ -59,7 +57,7 @@ class PlayerMoved implements ShouldBroadcastNow
             'y' => $this->y,
             'direction' => $this->direction,
             'in_pvp' => $this->in_pvp,
-            'pvp_battle_id' => $this->pvp_battle_id
+            'pvp_battle_id' => $this->pvp_battle_id,
         ];
     }
 }

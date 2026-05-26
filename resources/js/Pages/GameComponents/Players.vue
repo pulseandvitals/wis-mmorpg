@@ -1,6 +1,7 @@
 <script setup>
 import { pushAlert } from "@/Stores/GlobalAlert";
 import { ref } from "vue";
+import { parseCache } from "vue/compiler-sfc";
 const props = defineProps({
     player: Object,
     players: Object,
@@ -94,6 +95,7 @@ const getSpriteFolder = (p) => {
             <img
                 :src="`/sprites/${getSpriteFolder(p)}/${p.walking ? 'walk' : 'idle'}-${p.direction}.gif`"
                 class="sprite"
+                :class="{ dead: p.current_health <= 0 }"
             />
 
             <!-- HP BAR -->
@@ -138,7 +140,12 @@ const getSpriteFolder = (p) => {
 .sprite {
     width: 100%;
     height: 100%;
+    object-fit: contain;
     image-rendering: pixelated;
+}
+.sprite.dead {
+    filter: grayscale(1) brightness(0.5);
+    opacity: 0.7;
 }
 
 /* NAME */

@@ -1,8 +1,13 @@
 <script setup>
-import { computed } from "vue";
+import { useForm } from "@inertiajs/vue3";
+import { computed, ref, watch } from "vue";
 
 const props = defineProps({
     player: {
+        type: Object,
+        required: true,
+    },
+    all_maps: {
         type: Object,
         required: true,
     },
@@ -15,15 +20,40 @@ const props = defineProps({
         required: true,
     },
 });
+
+const showReviveModal = ref(false);
+const form = useForm({});
+const map = props.all_maps.find((map) => map.name === "Wisteria Town");
+watch(
+    () => props.player.current_health,
+    (hp) => {
+        if (hp <= 0) {
+            showReviveModal.value = true;
+        }
+    },
+);
+
+const reviveInTown = () => {
+    showReviveModal.value = false;
+
+    form.get(route("world.map", map.map_id), {
+        onFinish: () => pushAlert(map.name, "success"),
+    });
+};
+
 const spriteFolder = computed(() => {
     return props.playerData.wing
         ? `${props.playerData.class_type} ${props.playerData.wing?.gear?.name}`
         : props.playerData.class_type;
 });
+
 const spritePath = computed(() => {
-    return `/sprites/${spriteFolder.value}/${props.player.moving ? "walk" : "idle"}-${props.player.direction}.gif`;
+    return `/sprites/${spriteFolder.value}/${
+        props.player.moving ? "walk" : "idle"
+    }-${props.player.direction}.gif`;
 });
 </script>
+
 <template>
     <div
         class="player"
@@ -36,7 +66,11 @@ const spritePath = computed(() => {
         <!-- NAME -->
         <div class="player-name">{{ player.name }}</div>
 
-        <img class="sprite" :src="spritePath" />
+        <img
+            class="sprite"
+            :class="{ dead: player.current_health <= 0 }"
+            :src="spritePath"
+        />
 
         <!-- HP & MP BARS -->
         <div class="player-stats">
@@ -70,6 +104,15 @@ const spritePath = computed(() => {
             </div>
         </div>
     </div>
+
+    <!-- REVIVE MODAL -->
+    <div v-if="showReviveModal" class="revive-overlay">
+        <div class="revive-modal">
+            <p>You died.</p>
+
+            <button @click="reviveInTown">Revive In Town</button>
+        </div>
+    </div>
 </template>
 
 <style scoped>
@@ -98,6 +141,11 @@ const spritePath = computed(() => {
     height: 100%;
     object-fit: contain;
     image-rendering: pixelated;
+}
+
+.sprite.dead {
+    filter: grayscale(1) brightness(0.5);
+    opacity: 0.7;
 }
 
 .player-stats {
@@ -148,5 +196,45 @@ const spritePath = computed(() => {
 
 .mp-fill {
     background: linear-gradient(to right, #3498db, #2980b9);
+}
+
+/* =========================
+   REVIVE MODAL
+========================= */
+
+.revive-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    z-index: 9999;
+}
+
+.revive-modal {
+    background: #1a1a1a;
+    border: 1px solid #555;
+    padding: 20px;
+    border-radius: 8px;
+
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+
+    color: white;
+    min-width: 220px;
+    text-align: center;
+}
+
+.revive-modal button {
+    background: #dc2626;
+    border: none;
+    color: white;
+    padding: 8px;
+    border-radius: 4px;
+    cursor: pointer;
 }
 </style>

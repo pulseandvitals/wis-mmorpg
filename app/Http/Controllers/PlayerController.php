@@ -64,7 +64,11 @@ class PlayerController extends Controller
             'current_level',
             'wing_id',
             'in_pvp',
-            'current_map_id'
+            'current_map_id',
+            'max_health',
+            'current_health',
+            'max_mana',
+            'current_mana',
         ])
         ->with(['wing.gear'])
         ->where('id', '!=', auth()->user()->player->id)

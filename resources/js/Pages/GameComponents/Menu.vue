@@ -9,6 +9,7 @@ import { pushAlert } from "@/Stores/GlobalAlert";
 import Topup from "../Transaction/Topup.vue";
 import TalentTree from "./TalentTree.vue";
 import TopUpList from "../Transaction/Admin/TopUpList.vue";
+import Settings from "./Npc/Settings.vue";
 const props = defineProps({
     classSkills: Object,
     all_maps: Object,
@@ -23,6 +24,7 @@ const isPartyOpen = ref(false);
 const isTopUpOpen = ref(false);
 const isTalentTreeOpen = ref(false);
 const isAdminOpen = ref(false);
+const isSettingsOpen = ref(false);
 const page = usePage();
 const isAdmin = page.props.auth?.user?.role === "admin";
 const emit = defineEmits(["updatePlayer", "updateParty"]);
@@ -63,8 +65,11 @@ const handleMenuClick = (item) => {
     if (item.id === 5) {
         isRankingOpen.value = true;
     }
-    if (item.id === 7) {
+    if (item.id === 6) {
         window.open("https://discord.com", "_blank");
+    }
+    if (item.id === 7) {
+        isSettingsOpen.value = true;
     }
     if (item.id === 8) {
         isTopUpOpen.value = true;
@@ -113,6 +118,7 @@ const handleMenuClick = (item) => {
         @close="isSkillOpen = false"
     />
     <Ranking v-if="isRankingOpen" @close="isRankingOpen = false" />
+    <Settings v-if="isSettingsOpen" @close="isSettingsOpen = false" />
     <Topup v-if="isTopUpOpen" @close="isTopUpOpen = false" />
     <TopUpList
         v-if="isAdminOpen"

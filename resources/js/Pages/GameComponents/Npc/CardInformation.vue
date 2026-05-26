@@ -59,24 +59,32 @@
 
                         <!-- PAGINATION -->
                         <div
-                            class="flex items-center justify-center gap-3 mt-3 text-white text-sm"
+                            class="flex justify-center items-center gap-4 mt-6 pt-4 border-t border-white/10"
                         >
                             <button
-                                class="px-3 py-1 bg-gray-800 border border-gray-600 rounded disabled:opacity-40"
                                 @click="prevPage"
                                 :disabled="currentPage === 1"
+                                class="px-4 py-2 rounded-lg text-sm border transition"
+                                :class="
+                                    currentPage === 1
+                                        ? 'bg-black/20 border-white/10 text-gray-500 cursor-not-allowed'
+                                        : 'bg-purple-500/20 border-purple-400 text-white hover:bg-purple-500/30'
+                                "
                             >
-                                Prev
+                                Previous
                             </button>
-
-                            <div class="text-gray-300">
-                                Page {{ currentPage }} / {{ totalPages }}
-                            </div>
-
+                            <span class="text-white text-sm">
+                                Page {{ currentPage }} of {{ totalPages }}
+                            </span>
                             <button
-                                class="px-3 py-1 bg-gray-800 border border-gray-600 rounded disabled:opacity-40"
                                 @click="nextPage"
                                 :disabled="currentPage === totalPages"
+                                class="px-4 py-2 rounded-lg text-sm border transition"
+                                :class="
+                                    currentPage === totalPages
+                                        ? 'bg-black/20 border-white/10 text-gray-500 cursor-not-allowed'
+                                        : 'bg-purple-500/20 border-purple-400 text-white hover:bg-purple-500/30'
+                                "
                             >
                                 Next
                             </button>

@@ -130,11 +130,17 @@ class PvPService
     {
         $base = $attacker->total_attack + $skill->damage;
 
+        // =========================
+        // CRITICAL HIT
+        // =========================
         $crit = rand(1, 100) <= $attacker->total_critical_percentage;
         if ($crit) {
             $base *= 1.5;
         }
 
+        // =========================
+        // MISS CALCULATION
+        // =========================
         $missChance = max(40, 90 - ($defender->total_evasion_percentage * 0.6));
         $miss = rand(1, 100) > $missChance;
 
@@ -146,11 +152,39 @@ class PvPService
                 'damage' => 0,
                 'crit' => false,
                 'miss' => true,
+                'stun' => false,
+                'stun_duration' => 0,
             ];
         }
 
+        // =========================
+        // DAMAGE CALCULATION
+        // =========================
         $damage = $base - ($defender->total_defense * 0.55);
 
+        // =========================
+        // STUN SYSTEM (FROM PLAYER STAT)
+        // =========================
+        $stunChance = $defender->total_stun_percentage ?? 0;
+
+        $isStunned = $stunChance > 0
+            ? (rand(1, 100) <= $stunChance)
+            : false;
+
+        if ($isStunned) {
+            return [
+                'actor' => $attacker->id,
+                'target' => $defender->id,
+                'skill_name' => $skill->name,
+                'damage' => 0,
+                'crit' => false,
+                'miss' => false,
+                'stun' => true,
+                'stun_duration' => 1,
+            ];
+        }
+
+        //Final damage stats
         return [
             'actor' => $attacker->id,
             'target' => $defender->id,
@@ -158,6 +192,8 @@ class PvPService
             'damage' => max(1, (int)$damage),
             'crit' => $crit,
             'miss' => false,
+            'stun' => false,
+            'stun_duration' => 0,
         ];
     }
 

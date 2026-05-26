@@ -37,6 +37,7 @@ class BattlePlayerResource extends JsonResource
 
             'total_evasion_percentage' => round($this->getAllStats()['evasion']),
             'total_critical_percentage' => round($this->getAllStats()['crit']),
+            'total_stun_percentage' => round($this->getAllStats()['stun']),
 
             'battle_gif' => "/sprites/" . trim($spriteFolder) . "/battle.gif",
             'attack_gif' => "/sprites/" . trim($spriteFolder) . "/attack.gif",

@@ -56,15 +56,33 @@ function goTo(map) {
                     </div>
 
                     <!-- LEVEL -->
-                    <div
-                        class="text-xs"
-                        :class="
-                            user.player.current_level >= map.level_requirement
-                                ? 'text-gray-400'
-                                : 'text-red-500'
-                        "
-                    >
-                        Level Required: {{ map.level_requirement }}
+                    <div class="text-xs flex items-center gap-2">
+                        <!-- LEVEL REQUIREMENT -->
+                        <span
+                            :class="
+                                user.player.current_level >=
+                                map.level_requirement
+                                    ? 'text-gray-400'
+                                    : 'text-red-500'
+                            "
+                        >
+                            Level Required: {{ map.level_requirement }}
+                        </span>
+
+                        <!-- PK ZONE -->
+                        <span
+                            v-if="map.is_pk_zone"
+                            class="px-2 py-0.5 text-[10px] rounded border border-red-500/40 bg-red-500/10 text-red-400"
+                        >
+                            PK zone
+                        </span>
+
+                        <span
+                            v-else
+                            class="px-2 py-0.5 text-[10px] rounded border border-green-500/30 bg-green-500/10 text-green-400"
+                        >
+                            Safe zone
+                        </span>
                     </div>
                 </div>
             </div>

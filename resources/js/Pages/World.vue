@@ -61,6 +61,7 @@ const player = reactive({
     direction: "down",
     moving: false,
 
+    id: props.playerData.data.id,
     name: props.playerData.data.name,
     class_type: props.playerData.data.class_type,
     is_exp_potion_active: props.playerData.data.is_exp_potion_active,
@@ -151,6 +152,12 @@ function registerPvpListener() {
     window.Echo.channel(`player.${props.playerData.data.id}`).listen(
         ".pvp.started",
         (e) => {
+            console.log(
+                "pvp.started event received",
+                e,
+                "pvpRef present:",
+                !!pvpRef.value,
+            );
             const me = props.playerData.data.id;
 
             let enemy = null;
@@ -168,6 +175,7 @@ function registerPvpListener() {
             }
 
             if (!pvpRef.value) {
+                console.warn("pvpRef is NULL (component not ready)");
                 return;
             }
 
@@ -568,19 +576,21 @@ function smoothMovePlayers(entity, targetX, targetY, callback = null) {
 }
 
 function playersPositionListener() {
-    window.Echo.channel("world").listen(".player.moved", (e) => {
+    const mapId = props.current_map?.map_id;
+
+    window.Echo.channel(`world.map.${mapId}`).listen(".player.moved", (e) => {
         const id = Number(e.player_id);
+
         if (id === myPlayerId) return;
-        if (e.current_map_id === props.current_map?.map_id)
-            updatePlayerPosition({
-                id,
-                x: Number(e.x),
-                y: Number(e.y),
-                direction: e.direction,
-                class_type: e.class_type,
-                name: e.name,
-                current_map_id: e.current_map_id,
-            });
+        updatePlayerPosition({
+            id,
+            x: Number(e.x),
+            y: Number(e.y),
+            direction: e.direction,
+            class_type: e.class_type,
+            name: e.name,
+            current_map_id: e.current_map_id,
+        });
     });
 }
 
@@ -646,7 +656,6 @@ watch(
 <template>
     <Head title="Wisteria Online - MMORPG" />
     <GameLayout>
-        <div class="bg-white font-2xl">{{ test }}</div>
         <div
             class="game-map"
             @click.self="handleMapClick"
@@ -689,6 +698,7 @@ watch(
                 }"
             /> -->
             <!-- <Gacha /> -->
+            <!-- <div class="bg-white font-2xl">{{ players }}</div> -->
             <Tutorial v-if="playerData.data.current_level <= 6" />
             <Portal
                 v-if="undergroundMap"
@@ -700,6 +710,7 @@ watch(
             <Player
                 :player="player"
                 :playerData="playerData.data"
+                :all_maps="filteredMaps"
                 :tileSize="tileSize"
             />
             <Players

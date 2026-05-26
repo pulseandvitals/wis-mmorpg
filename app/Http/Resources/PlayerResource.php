@@ -41,6 +41,7 @@ class PlayerResource extends JsonResource
 
             'total_evasion_percentage' => round($this->getAllStats()['evasion']),
             'total_critical_percentage' => round($this->getAllStats()['crit']),
+            'total_stun_percentage' => round($this->getAllStats()['stun']),
 
             // ======================================================
             // ECONOMY

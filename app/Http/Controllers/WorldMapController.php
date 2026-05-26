@@ -73,7 +73,7 @@ class WorldMapController extends Controller
         };
 
         $this->saveMap($map->map_id);
-
+        broadcast(new PlayerMoved($player->fresh()));
 
         $mapTiles =  [
             [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
@@ -109,7 +109,7 @@ class WorldMapController extends Controller
         };
 
         $this->saveMap($map->map_id);
-
+        broadcast(new PlayerMoved($player->fresh()));
 
         $mapTiles =  [
             [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
@@ -143,6 +143,7 @@ class WorldMapController extends Controller
         };
 
         $this->saveMap($map->map_id);
+        broadcast(new PlayerMoved($player->fresh()));
 
         $mapTiles =  [
             [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
@@ -177,6 +178,7 @@ class WorldMapController extends Controller
         };
 
         $this->saveMap($map->map_id);
+        broadcast(new PlayerMoved($player->fresh()));
 
         $mapTiles =  [
             [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
@@ -213,6 +215,7 @@ class WorldMapController extends Controller
         };
 
         $this->saveMap($map->map_id);
+        broadcast(new PlayerMoved($player->fresh()));
 
         $mapTiles =  [
             [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
@@ -247,6 +250,7 @@ class WorldMapController extends Controller
         };
 
         $this->saveMap($map->map_id);
+        broadcast(new PlayerMoved($player->fresh()));
 
         $mapTiles =  [
             [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
@@ -283,6 +287,7 @@ class WorldMapController extends Controller
         };
 
         $this->saveMap($map->map_id);
+        broadcast(new PlayerMoved($player->fresh()));
 
         $mapTiles =  [
             [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
@@ -318,6 +323,7 @@ class WorldMapController extends Controller
         };
 
         $this->saveMap($map->map_id);
+        broadcast(new PlayerMoved($player->fresh()));
 
         $mapTiles =  [
             [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
@@ -354,6 +360,7 @@ class WorldMapController extends Controller
         };
 
         $this->saveMap($map->map_id);
+        broadcast(new PlayerMoved($player->fresh()));
 
         $mapTiles =  [
             [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
@@ -390,6 +397,7 @@ class WorldMapController extends Controller
         };
 
         $this->saveMap($map->map_id);
+        broadcast(new PlayerMoved($player->fresh()));
 
         $mapTiles =  [
             [1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
@@ -429,6 +437,7 @@ class WorldMapController extends Controller
         };
 
         $this->saveMap($map->map_id);
+        broadcast(new PlayerMoved($player->fresh()));
 
         $mapTiles =  [
             [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
@@ -465,6 +474,7 @@ class WorldMapController extends Controller
         };
 
         $this->saveMap($map->map_id);
+        broadcast(new PlayerMoved($player->fresh()));
 
         $mapTiles =  [
             [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
