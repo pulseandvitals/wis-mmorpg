@@ -1,8 +1,9 @@
 <script setup>
-import { ref, computed } from "vue";
+import { ref, computed, onMounted } from "vue";
+
+const STORAGE_KEY = "hide_tutorial_forever";
 
 const showTutorial = ref(true);
-
 const currentStep = ref(0);
 
 const tutorials = [
@@ -69,10 +70,19 @@ const tutorials = [
 
 const tutorial = computed(() => tutorials[currentStep.value]);
 
+// ✅ auto-hide forever check
+onMounted(() => {
+    if (localStorage.getItem(STORAGE_KEY) === "true") {
+        showTutorial.value = false;
+    }
+});
+
 const nextStep = () => {
     if (currentStep.value < tutorials.length - 1) {
         currentStep.value++;
     } else {
+        // ✅ LAST STEP → save forever + close
+        localStorage.setItem(STORAGE_KEY, "true");
         showTutorial.value = false;
     }
 };
@@ -100,9 +110,7 @@ const prevStep = () => {
 
                 <h2>{{ tutorial.title }}</h2>
 
-                <p>
-                    {{ tutorial.description }}
-                </p>
+                <p>{{ tutorial.description }}</p>
             </div>
 
             <div class="tutorial-buttons">
@@ -184,10 +192,11 @@ const prevStep = () => {
     padding: 20px 24px;
     background: #0f0f0f;
     border-top: 1px solid #2a2a2a;
+    gap: 10px;
 }
 
 .btn {
-    padding: 12px 22px;
+    padding: 12px 18px;
     border: none;
     border-radius: 10px;
     font-weight: bold;
@@ -223,7 +232,6 @@ const prevStep = () => {
         opacity: 0;
         transform: scale(0.96);
     }
-
     to {
         opacity: 1;
         transform: scale(1);

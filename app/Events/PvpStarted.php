@@ -3,6 +3,7 @@
 namespace App\Events;
 
 use App\Http\Resources\BattlePlayerResource;
+use App\Http\Resources\PlayerResource;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;

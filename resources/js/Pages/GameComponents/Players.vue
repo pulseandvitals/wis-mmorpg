@@ -69,7 +69,6 @@ const getSpriteFolder = (p) => {
 
 <template>
     <div>
-        <!-- <div class="bg-white font-xl z-[9999] w-50">{{ players }}</div> -->
         <div
             v-for="p in players"
             :key="p.id"
@@ -83,6 +82,9 @@ const getSpriteFolder = (p) => {
             }"
             @click="handleClick(p)"
         >
+            <!-- PVP STATUS -->
+            <div v-if="p.in_pvp" class="pvp-indicator">⚔ IN PVP</div>
+
             <!-- NAME TAG -->
             <div class="name-tag">
                 <p :class="{ 'text-red-500': !current_map?.is_safe_zone }">
@@ -153,6 +155,42 @@ const getSpriteFolder = (p) => {
     white-space: nowrap;
     padding: 0 5px;
     background-color: rgb(0, 0, 0, 0.5);
+}
+.pvp-indicator {
+    position: absolute;
+    top: -26px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 9px;
+    font-weight: 900;
+    color: #ff4d4d;
+    background: rgba(0, 0, 0, 0.8);
+    border: 1px solid #ff0000;
+    padding: 1px 6px;
+    border-radius: 999px;
+    white-space: nowrap;
+    text-shadow: 0 0 6px red;
+    box-shadow:
+        0 0 8px rgba(255, 0, 0, 0.7),
+        inset 0 0 4px rgba(255, 0, 0, 0.5);
+    animation: pvpPulse 1s infinite;
+    pointer-events: none;
+    z-index: 5;
+}
+
+@keyframes pvpPulse {
+    0% {
+        transform: translateX(-50%) scale(1);
+        opacity: 1;
+    }
+    50% {
+        transform: translateX(-50%) scale(1.08);
+        opacity: 0.85;
+    }
+    100% {
+        transform: translateX(-50%) scale(1);
+        opacity: 1;
+    }
 }
 
 .player-stats {

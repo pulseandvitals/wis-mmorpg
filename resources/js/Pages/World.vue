@@ -4,8 +4,8 @@ import PlayerStat from "./GameComponents/PlayerStat.vue";
 import PlayerSkill from "./GameComponents/PlayerSkill.vue";
 import WorldChat from "./GameComponents/WorldChat.vue";
 import Player from "./GameComponents/Player.vue";
-import PvE from "./GameComponents/Battle.vue/PvE.vue";
-import PvP from "./GameComponents/Battle.vue/PvP.vue";
+import PvE from "./GameComponents/Battle/PvE.vue";
+import PvP from "./GameComponents/Battle/PvP.vue";
 import Menu from "./GameComponents/Menu.vue";
 import TownSquareNPC from "./GameComponents/Npc/TownSquareNPC.vue";
 import { Head, router, usePage } from "@inertiajs/vue3";
@@ -16,6 +16,7 @@ import { pushAlert } from "@/Stores/GlobalAlert";
 import PartyList from "./GameComponents/Npc/PartyList.vue";
 import ActiveBuffs from "./GameComponents/ActiveBuffs.vue";
 import Tutorial from "./GameComponents/Tutorial.vue";
+import Gacha from "./GameComponents/Gacha.vue";
 
 const props = defineProps({
     playerData: Object,
@@ -142,48 +143,35 @@ function startBattle(monster) {
     if (!monster) return;
     pveRef.value.openBattle(monster);
 }
-function startPvPBattle(battle) {
+function startPvPBattle(id, battle) {
     if (!battle) return;
-    pvpRef.value?.openPvPBattle(battle.opponent);
+    pvpRef.value?.openPvPBattle(id, battle);
 }
 function registerPvpListener() {
     window.Echo.channel(`player.${props.playerData.data.id}`).listen(
         ".pvp.started",
         (e) => {
-            console.log("🔥 PvP EVENT RECEIVED:", e);
-
-            console.log("ME:", props.playerData.data.id);
-            console.log("ATTACKER:", e.attacker.id);
-            console.log("DEFENDER:", e.defender.id);
-
             const me = props.playerData.data.id;
 
             let enemy = null;
 
             if (e.attacker.id === me) {
-                console.log("I AM ATTACKER");
                 enemy = e.defender;
             }
 
             if (e.defender.id === me) {
-                console.log("I AM DEFENDER");
                 enemy = e.attacker;
             }
 
-            console.log("FINAL ENEMY:", enemy);
-
             if (!enemy) {
-                console.warn("❌ Not part of battle");
                 return;
             }
 
             if (!pvpRef.value) {
-                console.warn("❌ pvpRef is NULL (component not ready)");
                 return;
             }
 
-            pvpRef.value.openPvPBattle(enemy);
-            console.log("✅ Battle opened");
+            pvpRef.value.openPvPBattle(e.battle?.id, enemy);
         },
     );
 }
@@ -700,6 +688,7 @@ watch(
                     top: Math.floor(index / mapWidth) * tileSize + 'px',
                 }"
             /> -->
+            <!-- <Gacha /> -->
             <Tutorial v-if="playerData.data.current_level <= 6" />
             <Portal
                 v-if="undergroundMap"

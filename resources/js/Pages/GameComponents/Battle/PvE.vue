@@ -1217,18 +1217,48 @@ FOOTER
     background: rgba(255, 255, 255, 0.015);
 }
 
+.battle-log-top {
+    position: absolute;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    text-align: center;
+    z-index: 10000;
+    pointer-events: none;
+}
+
 .log-text {
-    color: #d1d5db;
-
-    font-size: 10px;
-
-    opacity: 0.85;
+    color: #ffffff;
+    font-size: 14px;
+    opacity: 0;
+    animation: fadeLog 3s ease forwards;
 }
 
 .turn-text {
-    color: #fde047;
+    color: #9ca3af;
+    font-size: 12px;
+    margin-top: 4px;
+    opacity: 0;
+    animation: fadeLog 3s ease forwards;
+    animation-delay: 0.2s;
+}
 
-    font-size: 10px;
+@keyframes fadeLog {
+    0% {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    20% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    80% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
 }
 
 .skill-inner {

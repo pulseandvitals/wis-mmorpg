@@ -2,132 +2,129 @@
 
 namespace App\Services;
 
+use App\Events\PvpResolved;
 use App\Events\PvpStarted;
-use App\Http\Resources\BattlePlayerResource;
 use App\Models\Player;
 use App\Models\PvpBattle;
 use App\Models\Skill;
+use Illuminate\Support\Facades\DB;
 
 class PvPService
 {
-    public function processAction(Player $attacker, int $skillId)
+    public function processAction(Player $player, int $skillId)
     {
         // ======================================================
         // VALIDATE BATTLE
         // ======================================================
-        if (!$attacker->in_pvp || !$attacker->pvp_battle_id) {
+        if (!$player->in_pvp || !$player->pvp_battle_id) {
             return response()->json(['message' => 'You are not in battle.'], 403);
         }
 
-        $battle = PvpBattle::findOrFail($attacker->pvp_battle_id);
+        $battle = PvpBattle::findOrFail($player->pvp_battle_id);
 
         if ($battle->status !== 'active') {
             return response()->json(['message' => 'Battle already finished.'], 403);
         }
 
-        // ======================================================
-        // GET OPPONENT
-        // ======================================================
-        $defenderId = $battle->challenger_id === $attacker->id
-            ? $battle->opponent_id
-            : $battle->challenger_id;
-
-        $defender = Player::findOrFail($defenderId);
+        $isChallenger = $battle->challenger_id === $player->id;
 
         // ======================================================
-        // VALIDATE TURN
+        // STORE INPUT (NO RESOLVE YET)
         // ======================================================
-        if ($battle->turn_player_id !== $attacker->id) {
-            return response()->json(['message' => 'Not your turn.'], 403);
+        if ($isChallenger) {
+            $battle->challenger_skill_id = $skillId;
+        } else {
+            $battle->opponent_skill_id = $skillId;
         }
 
-        // ======================================================
-        // GET ATTACKER SKILL (ONLY REAL PLAYER INPUT)
-        // ======================================================
-        $skill = Skill::findOrFail($skillId);
+        $battle->save();
 
-        // ======================================================
-        // OPPONENT MUST ALSO USE THEIR OWN SKILL (NO AI)
-        // If opponent has not played yet, we simulate "defense turn empty"
-        // ======================================================
-        $opponentSkill = null;
-
-        // ======================================================
-        // BUILD EVENTS
-        // ======================================================
-        $events = [];
-
-        $events[] = $this->calculateAttack($attacker, $defender, $skill);
-
-        // optional: only if you want simultaneous exchange
-        // (PvP feel: both hit per turn)
-        if ($opponentSkill) {
-            $events[] = $this->calculateAttack($defender, $attacker, $opponentSkill);
-        }
-
-        // ======================================================
-        // APPLY EVENTS
-        // ======================================================
-        foreach ($events as $event) {
-            if ($event['target'] === $attacker->id) {
-                $attacker->current_health -= $event['damage'];
-            } else {
-                $defender->current_health -= $event['damage'];
-            }
-        }
-
-        $attacker->current_health = max(0, $attacker->current_health);
-        $defender->current_health = max(0, $defender->current_health);
-
-        // ======================================================
-        // SAVE
-        // ======================================================
-        $attacker->save();
-        $defender->save();
-
-        // ======================================================
-        // CHECK WIN CONDITION
-        // ======================================================
-        if ($attacker->current_health <= 0 || $defender->current_health <= 0) {
-
-            $winner = $attacker->current_health > 0 ? $attacker : $defender;
-
-            $battle->update([
-                'status' => 'finished',
-                'winner_id' => $winner->id,
-            ]);
-
-            $this->endBattle($attacker, $defender);
-
+        if (!$battle->challenger_skill_id || !$battle->opponent_skill_id) {
             return [
-                'events' => $events,
-                'player_hp' => $attacker->current_health,
-                'opponent_hp' => $defender->current_health,
-                'battle_ended' => true,
-                'winner_id' => $winner->id,
-                'log' => "{$winner->name} won the battle!"
+                'waiting' => true,
+                'message' => 'Waiting for opponent...',
             ];
         }
 
         // ======================================================
-        // SWITCH TURN
+        // HARD LOCK (ONLY ONE PROCESS CAN ENTER)
         // ======================================================
-        $battle->update([
-            'turn_player_id' => $defender->id,
-        ]);
+        return DB::transaction(function () use ($battle) {
 
-        return [
-            'events' => $events,
-            'player_hp' => $attacker->current_health,
-            'opponent_hp' => $defender->current_health,
-            'battle_ended' => false,
-            'next_turn' => $defender->id,
-            'log' => "{$attacker->name} used {$skill->name}"
-        ];
+            $battle = PvpBattle::where('id', $battle->id)
+                ->lockForUpdate()
+                ->first();
+
+            // 🔒 if already resolved this round, stop duplicates
+            if ($battle->status !== 'active') {
+                return ['waiting' => true];
+            }
+
+            // OPTIONAL SAFETY FLAG (VERY IMPORTANT)
+            if ($battle->round_processing ?? false) {
+                return ['waiting' => true];
+            }
+
+            $battle->round_processing = true;
+            $battle->save();
+
+            // reload players
+            $challenger = Player::find($battle->challenger_id);
+            $opponent = Player::find($battle->opponent_id);
+
+            $challengerSkill = Skill::find($battle->challenger_skill_id);
+            $opponentSkill = Skill::find($battle->opponent_skill_id);
+
+            // calculate
+            $challengerEvent = $this->calculateAttack($challenger, $opponent, $challengerSkill);
+            $opponentEvent = $this->calculateAttack($opponent, $challenger, $opponentSkill);
+
+            if (!isset($challengerEvent) || !isset($opponentEvent)) {
+                return ['waiting' => true];
+            }
+
+            // apply damage (ONLY ONCE)
+            $challenger->current_health = max(0, $challenger->current_health - ($opponentEvent['damage'] ?? 0));
+            $opponent->current_health = max(0, $opponent->current_health - ($challengerEvent['damage'] ?? 0));
+
+            $challenger->save();
+            $opponent->save();
+
+            // winner
+            $winner = $challenger->current_health > 0 ? $challenger : $opponent;
+
+            if ($challenger->current_health <= 0 || $opponent->current_health <= 0) {
+                $battle->status = 'finished';
+                $battle->winner_id = $winner->id;
+                $this->endBattle($challenger, $opponent);
+            }
+
+            // reset round inputs
+            $battle->challenger_skill_id = null;
+            $battle->opponent_skill_id = null;
+
+            $battle->round_processing = false;
+            $battle->round++;
+
+            $battle->save();
+
+            // broadcast (ONLY ONCE)
+            broadcast(new PvpResolved(
+                $battle,
+                $challengerEvent,
+                $opponentEvent,
+                $challenger->current_health,
+                $opponent->current_health
+            ));
+
+            return [
+                'ok' => true
+            ];
+        });
     }
 
     // ======================================================
-    // CORE DAMAGE LOGIC (PvP ONLY)
+    // DAMAGE CALCULATION (UNCHANGED CORE LOGIC)
     // ======================================================
     private function calculateAttack(Player $attacker, Player $defender, Skill $skill)
     {
@@ -165,7 +162,7 @@ class PvPService
     }
 
     // ======================================================
-    // END BATTLE CLEANUP
+    // END BATTLE
     // ======================================================
     private function endBattle(Player $p1, Player $p2)
     {
@@ -201,7 +198,7 @@ class PvPService
             'challenger_id' => $attacker->id,
             'opponent_id' => $defender->id,
             'status' => 'active',
-            'turn_player_id' => $attacker->id,
+            'round' => 1,
         ]);
 
         $attacker->update([
@@ -217,7 +214,7 @@ class PvPService
         broadcast(new PvpStarted($battle, $attacker, $defender));
 
         return [
-            'message' => 'Battle request sent.',
+            'message' => 'Battle started',
         ];
     }
 }

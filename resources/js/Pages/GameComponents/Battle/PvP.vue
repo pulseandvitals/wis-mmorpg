@@ -1,6 +1,6 @@
 <script setup>
 import { pushAlert } from "@/Stores/GlobalAlert";
-import { ref } from "vue";
+import { ref, nextTick, onMounted } from "vue";
 
 const props = defineProps({
     player: { type: Object, required: true },
@@ -10,39 +10,45 @@ const opponent = ref(null);
 
 const showBattleModal = ref(false);
 const battleEnded = ref(false);
+const battleState = ref({ locked: false });
 
-const playerTurn = ref(true);
-const playerShout = ref(null);
-const opponentShout = ref(null);
-const isHurt = ref(false);
-const battleState = ref({
-    locked: false,
-});
 const logs = ref([]);
 
 // ======================================================
-// REQUIRED REFS (FIXED MISSING VARIABLES)
+// FIXED ANIMATION STATE (SEPARATED)
 // ======================================================
-const activeActor = ref(null);
-const skillEffect = ref(null);
+const playerAction = ref(false);
+const opponentAction = ref(false);
 
+const playerShout = ref(null);
+const opponentShout = ref(null);
+const events = ref(null);
 const playerDamage = ref(null);
 const opponentDamage = ref(null);
+const currentBattleId = ref(null);
+// legacy single skill effect (kept for template compatibility)
+const skillEffect = ref(null);
+// per-side skill effects / attacking flags for accuracy
+const skillEffectPlayer = ref(null);
+const skillEffectOpponent = ref(null);
+const attackingPlayer = ref(false);
+const attackingOpponent = ref(false);
 
 // ======================================================
-// OPEN BATTLE
-// ======================================================
-function openPvPBattle(enemy) {
+function openPvPBattle(id, enemy) {
     showBattleModal.value = true;
     battleEnded.value = false;
+    currentBattleId.value = id;
+    listenBattle(currentBattleId.value);
     const spriteFolder = enemy.wing
-        ? `${enemy.class_type} ${enemy.wing?.gear?.name}`
+        ? `${enemy.class_type} ${enemy.wing}`
         : enemy.class_type;
+
     opponent.value = {
         ...enemy,
-        current_health: enemy.max_health,
+        current_health: enemy?.max_health,
         dead_gif: `/sprites/${spriteFolder}/dead.gif`,
-        battle_gif: `/sprites/${spriteFolder}/idle-left.gif`,
+        battle_gif: `/sprites/${spriteFolder}/idle-right.gif`,
         attack_gif: `/sprites/${spriteFolder}/attack.gif`,
     };
 
@@ -52,7 +58,7 @@ function openPvPBattle(enemy) {
 defineExpose({ openPvPBattle });
 
 // ======================================================
-// CALL BACKEND
+// SKILL ACTION
 // ======================================================
 async function useSkill(skill) {
     if (battleState.value.locked || battleEnded.value) return;
@@ -60,112 +66,238 @@ async function useSkill(skill) {
     battleState.value.locked = true;
 
     try {
-        const res = await axios.post("/pvp/action", {
+        await axios.post("/pvp/action", {
             skill_id: skill.id,
         });
 
-        await playEvents(res.data.events);
-
-        props.player.current_health = res.data.player_hp;
-        opponent.value.current_health = res.data.opponent_hp;
-        pushAlert(res.data.message, "success");
-        logs.value.unshift(res.data.log);
-
-        if (res.data.battle_ended) {
-            battleEnded.value = true;
-        }
-
-        checkBattle();
+        // ❗ DO NOT WAIT FOR RESPONSE
+        // Everything comes from Echo now
     } catch (e) {
-        pushAlert(e.response.data.message, "error");
+        pushAlert(e.response?.data?.message || "Error", "error");
     } finally {
         battleState.value.locked = false;
     }
 }
 
 // ======================================================
-// ANIMATION ENGINE (FIXED)
+// EVENT ENGINE (FIXED CORE)
 // ======================================================
 function delay(ms) {
     return new Promise((r) => setTimeout(r, ms));
 }
 
 async function playEvents(events) {
-    for (const event of events) {
-        activeActor.value = event.actor;
+    // If we receive the full round payload (has challenger_event), use challenger/opponent ids
+    if (events && events.challenger_event !== undefined) {
+        const evCh = events.challenger_event;
+        const evOp = events.opponent_event;
+        const chId = Number(events.challenger_id);
+        const opId = Number(events.opponent_id);
 
-        // ✅ SHOUT (skill name or custom text)
-        if (event.actor === props.player.id) {
-            playerShout.value = event.skill_name;
-        } else {
-            opponentShout.value = event.skill_name;
+        // RESET
+        playerAction.value = false;
+        opponentAction.value = false;
+        playerShout.value = null;
+        opponentShout.value = null;
+        playerDamage.value = null;
+        opponentDamage.value = null;
+        skillEffectPlayer.value = null;
+        skillEffectOpponent.value = null;
+        skillEffect.value = null;
+        attackingPlayer.value = false;
+        attackingOpponent.value = false;
+
+        await delay(100);
+
+        // Apply challenger event
+        if (evCh) {
+            const challengerIsPlayer = chId === Number(props.player.id);
+
+            if (challengerIsPlayer) {
+                playerAction.value = true;
+                playerShout.value = evCh.skill_name;
+                opponentDamage.value = formatDamage(evCh);
+                triggerSkillEffect(evCh.skill_name, "opponent");
+                attackingOpponent.value = true;
+            } else {
+                opponentAction.value = true;
+                opponentShout.value = evCh.skill_name;
+                playerDamage.value = formatDamage(evCh);
+                triggerSkillEffect(evCh.skill_name, "player");
+                attackingPlayer.value = true;
+            }
         }
 
-        triggerSkillEffect({ name: event.skill_name });
+        // Apply opponent event
+        if (evOp) {
+            const opponentIsPlayer = opId === Number(props.player.id);
 
-        if (event.actor === props.player.id) {
-            opponentDamage.value = formatDamage(event);
-        } else {
-            playerDamage.value = formatDamage(event);
-            isHurt.value = true;
+            if (opponentIsPlayer) {
+                playerAction.value = true;
+                playerShout.value = evOp.skill_name;
+                opponentDamage.value = formatDamage(evOp);
+                triggerSkillEffect(evOp.skill_name, "opponent");
+                attackingOpponent.value = true;
+            } else {
+                opponentAction.value = true;
+                opponentShout.value = evOp.skill_name;
+                playerDamage.value = formatDamage(evOp);
+                triggerSkillEffect(evOp.skill_name, "player");
+                attackingPlayer.value = true;
+            }
         }
 
-        await delay(600);
+        await delay(700);
 
+        // CLEAR DAMAGE
         playerDamage.value = null;
         opponentDamage.value = null;
 
-        // ✅ CLEAR SHOUT (important)
+        await delay(200);
+
+        // CLEAR SHOUT + ACTION + attacking flags
         playerShout.value = null;
         opponentShout.value = null;
+        playerAction.value = false;
+        opponentAction.value = false;
+        attackingPlayer.value = false;
+        attackingOpponent.value = false;
 
-        activeActor.value = null;
-        isHurt.value = false;
+        await delay(150);
+
+        return;
+    }
+
+    // Fallback: single or iterable events (preserve original behavior)
+    for (const event of events) {
+        const isPlayer = Number(event.actor) === Number(props.player.id);
+
+        // RESET
+        playerAction.value = false;
+        opponentAction.value = false;
+        playerShout.value = null;
+        opponentShout.value = null;
+        playerDamage.value = null;
+        opponentDamage.value = null;
+        skillEffectPlayer.value = null;
+        skillEffectOpponent.value = null;
+        skillEffect.value = null;
+        attackingPlayer.value = false;
+        attackingOpponent.value = false;
+
+        await delay(100);
+
+        // ATTACK STATE
+        if (isPlayer) {
+            playerAction.value = true;
+            playerShout.value = event.skill_name;
+            opponentDamage.value = formatDamage(event);
+            triggerSkillEffect(event.skill_name, "opponent");
+            attackingOpponent.value = true;
+        } else {
+            opponentAction.value = true;
+            opponentShout.value = event.skill_name;
+            playerDamage.value = formatDamage(event);
+            triggerSkillEffect(event.skill_name, "player");
+            attackingPlayer.value = true;
+        }
+
+        await delay(700);
+
+        // CLEAR DAMAGE
+        playerDamage.value = null;
+        opponentDamage.value = null;
+
+        await delay(200);
+
+        // CLEAR SHOUT + ACTION
+        playerShout.value = null;
+        opponentShout.value = null;
+        playerAction.value = false;
+        opponentAction.value = false;
+        attackingPlayer.value = false;
+        attackingOpponent.value = false;
 
         await delay(150);
     }
 }
-// ======================================================
-// UI EFFECTS
+
 // ======================================================
 function formatDamage(e) {
     if (e.miss) return "MISS";
     return e.crit ? `${e.damage} CRIT` : `${e.damage}`;
 }
 
-function triggerSkillEffect(skill) {
-    const skillName = skill.name
+function triggerSkillEffect(name, target) {
+    if (!name) return;
+
+    const skillName = name
         .toLowerCase()
         .replace(/\s+/g, "-")
         .replace(/[^a-z-]/g, "");
 
+    // Keep legacy single `skillEffect` for any existing template checks
     skillEffect.value = skillName;
 
-    setTimeout(() => {
-        skillEffect.value = null;
-    }, 1000);
+    if (target === "player") {
+        skillEffectPlayer.value = skillName;
+        attackingPlayer.value = true;
+        setTimeout(() => {
+            skillEffectPlayer.value = null;
+            attackingPlayer.value = false;
+            skillEffect.value = null;
+        }, 900);
+    } else if (target === "opponent") {
+        skillEffectOpponent.value = skillName;
+        attackingOpponent.value = true;
+        setTimeout(() => {
+            skillEffectOpponent.value = null;
+            attackingOpponent.value = false;
+            skillEffect.value = null;
+        }, 900);
+    } else {
+        // no target specified: clear generic effect after timeout
+        setTimeout(() => {
+            skillEffect.value = null;
+        }, 900);
+    }
 }
 
-// ======================================================
-// CHECK END
-// ======================================================
-function checkBattle() {
-    if (props.player.current_health <= 0) {
-        battleEnded.value = true;
-        logs.value.unshift("You lost the duel");
-    }
-
-    if (opponent.value.current_health <= 0) {
-        battleEnded.value = true;
-        logs.value.unshift("You won the duel!");
-    }
-}
-
-// ======================================================
-// CLOSE
 // ======================================================
 function closeBattle() {
     showBattleModal.value = false;
+}
+
+function listenBattle(battleId) {
+    console.log("Listening battle:", battleId);
+
+    window.Echo.channel(`pvp.${battleId}`).listen(".pvp.round", async (e) => {
+        console.log("ROUND UPDATE:", e);
+
+        events.value = e;
+
+        // Pass the whole round payload so we can map challenger/opponent correctly
+        await playEvents(e);
+
+        // IMPORTANT
+        if (e.challenger_id === props.player.id) {
+            props.player.current_health = e.challenger_hp;
+            opponent.value.current_health = e.opponent_hp;
+        } else {
+            props.player.current_health = e.opponent_hp;
+            opponent.value.current_health = e.challenger_hp;
+        }
+
+        logs.value.unshift(`Round ${e.round} resolved`);
+
+        if (e.battle_ended) {
+            battleEnded.value = true;
+
+            logs.value.unshift(
+                e.winner_id === props.player.id ? "You Won!" : "You Lost!",
+            );
+        }
+    });
 }
 </script>
 
@@ -183,33 +315,35 @@ function closeBattle() {
             <div class="battle-body">
                 <!-- PLAYER -->
                 <div class="player-section">
+                    <!-- <div class="bg-white">{{ events }}</div> -->
                     <div class="player-wrapper">
                         <img
                             :src="
                                 player.current_health <= 0
                                     ? player.dead_gif
-                                    : activeActor === player.id
+                                    : playerAction
                                       ? player.attack_gif
                                       : player.battle_gif
                             "
+                            class="player-sprite"
                         />
 
-                        <div class="player-floor"></div>
                         <div v-if="playerShout" class="shout-text player-shout">
                             {{ playerShout }}
                         </div>
-                        <div
-                            v-if="skillEffect && activeActor === opponent.id"
-                            class="skill-effect"
-                            :class="skillEffect"
-                        ></div>
-
+                        <div class="player-floor"></div>
                         <div
                             v-if="playerDamage"
                             class="damage-text player-damage"
                         >
                             -{{ playerDamage }}
                         </div>
+
+                        <div
+                            v-if="skillEffect && attackingOpponent"
+                            class="skill-effect"
+                            :class="skillEffect"
+                        ></div>
 
                         <div class="player-ui">
                             <p class="player-name">{{ player.name }}</p>
@@ -258,33 +392,34 @@ function closeBattle() {
                             :src="
                                 opponent.current_health <= 0
                                     ? opponent.dead_gif
-                                    : activeActor === opponent.id
+                                    : opponentAction
                                       ? opponent.attack_gif
                                       : opponent.battle_gif
                             "
-                            class="player-sprite"
+                            class="opponent-sprite"
                             :class="{
                                 'monster-hurt': isHurt,
                             }"
                         />
-                        <div v-if="playerShout" class="shout-text player-shout">
-                            {{ playerShout }}
-                        </div>
-
-                        <div class="player-floor"></div>
 
                         <div
-                            v-if="skillEffect && activeActor === player.id"
-                            class="skill-effect"
-                            :class="skillEffect"
-                        ></div>
-
+                            v-if="opponentShout"
+                            class="shout-text monster-shout"
+                        >
+                            {{ opponentShout }}
+                        </div>
+                        <div class="player-floor"></div>
                         <div
                             v-if="opponentDamage"
                             class="damage-text monster-damage"
                         >
                             -{{ opponentDamage }}
                         </div>
+                        <div
+                            v-if="skillEffect && attackingPlayer"
+                            class="skill-effect"
+                            :class="skillEffect"
+                        ></div>
 
                         <div class="player-ui">
                             <p class="player-name">{{ opponent.name }}</p>
@@ -539,6 +674,20 @@ PLAYER SIDE
     z-index: 2;
 
     filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.08));
+}
+
+.opponent-sprite {
+    width: 70px;
+    height: 70px;
+
+    object-fit: contain;
+    image-rendering: pixelated;
+    position: relative;
+    z-index: 2;
+
+    filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.08));
+
+    transform: scaleX(-1);
 }
 .player-floor {
     position: absolute;

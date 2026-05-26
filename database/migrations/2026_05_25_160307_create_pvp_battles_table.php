@@ -16,13 +16,17 @@ return new class extends Migration
             $table->foreignId('challenger_id');
             $table->foreignId('opponent_id');
 
-            $table->foreignId('turn_player_id');
-
+            $table->integer('round')->default(1);
+            $table->boolean('round_processing')->default(false);
+            $table->json('challenger_events')->nullable();
+            $table->json('opponent_events')->nullable();
             $table->enum('status', [
                 'active',
                 'finished'
             ])->default('active');
             $table->foreignId('winner_id')->nullable();
+            $table->integer('challenger_skill_id')->nullable();
+            $table->integer('opponent_skill_id')->nullable();
             $table->timestamps();
         });
     }
