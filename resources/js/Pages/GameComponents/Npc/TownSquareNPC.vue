@@ -12,6 +12,7 @@ import { router } from "@inertiajs/vue3";
 import { pushAlert } from "@/Stores/GlobalAlert";
 import Market from "./Market.vue";
 import CardInformation from "./CardInformation.vue";
+import PvPMaster from "./PvPMaster.vue";
 const props = defineProps({
     all_maps: Object,
     player: Object,
@@ -29,6 +30,7 @@ const isGeneralStoreOpen = ref(false);
 const isHealerOpen = ref(false);
 const isCardOpen = ref(false);
 const currentNpc = ref();
+const isPvpOpen = ref(false);
 const wisteriaVillage = props.all_maps.find(
     (map) => map.name === "Wisteria Village",
 );
@@ -103,6 +105,14 @@ const npcData = {
         color: "from-purple-700 to-indigo-950",
         services: isHealerOpen,
     },
+    pvp: {
+        name: "PvP Master",
+        x: 530,
+        y: 280,
+        icon: "⚔️",
+        color: "from-purple-700 to-indigo-950",
+        services: isPvpOpen,
+    },
 };
 const npc = computed(() => npcData[currentNpc.value]);
 function openNpc(key) {
@@ -137,6 +147,9 @@ function openNpc(key) {
             break;
         case "healer":
             isHealerOpen.value = true;
+            break;
+        case "pvp":
+            isPvpOpen.value = true;
             break;
         default:
             break;
@@ -207,6 +220,13 @@ function handleOpenForWisteriaTown() {
             :player="player"
             :npc="npc"
             @close="isHealerOpen = false"
+        />
+        <PvPMaster
+            v-if="isPvpOpen"
+            :npc="npc"
+            :all_maps="all_maps"
+            :player="player"
+            @close="isPvpOpen = false"
         />
     </template>
     <template v-if="wisteriaVillage.map_id === current_map.map_id">

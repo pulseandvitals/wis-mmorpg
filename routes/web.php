@@ -41,6 +41,7 @@ Route::prefix('world')->group(function () {
     Route::get('/get-armors',[GearController::class,'getArmors']);
     Route::get('/get-wings',[GearController::class,'getWings']);
     Route::post('/market-buy',[GearController::class,'marketBuy']);
+    Route::get('/view-gear/{id}',[GearController::class,'viewGear']);
 
     Route::get('/get-potions',[PotionController::class,'getPotions']);
     Route::post('/buy-potion',[PotionController::class,'buyPotion']);

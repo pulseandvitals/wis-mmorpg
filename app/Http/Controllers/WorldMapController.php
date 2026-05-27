@@ -618,7 +618,7 @@ class WorldMapController extends Controller
     private function getAllMaps()
     {
         return MapResource::collection(
-            Map::whereNotIn('name', ['Floating Island'])->get()
+            Map::all()
         );
     }
 

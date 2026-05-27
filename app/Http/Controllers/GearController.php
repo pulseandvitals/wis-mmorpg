@@ -3,10 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\GearResource;
+use App\Http\Resources\PlayerResource;
 use App\Models\CraftingMaterial;
 use App\Models\Gear;
 use App\Models\Inventory;
 use App\Models\Material;
+use App\Models\Player;
 use Illuminate\Http\Request;
 
 class GearController extends Controller
@@ -50,6 +52,29 @@ class GearController extends Controller
                 'price' => 999,
                 'sell_type' => 'diamond'
             ],
+        ]);
+    }
+
+    public function viewGear($id)
+    {
+        $player = Player::with([
+            'helmet.gear',
+            'weapon.gear',
+            'armor.gear',
+            'boots.gear',
+            'gloves.gear',
+            'shield.gear',
+            'pants.gear',
+            'ring.gear',
+            'wing.gear',
+        ])->find($id);
+
+        if(!$player) {
+            return response()->json(['error' => 'Character not found'], 404);
+        }
+
+        return response()->json([
+            'gear' => PlayerResource::make($player)
         ]);
     }
 

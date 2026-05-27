@@ -2,6 +2,7 @@
 import { pushAlert } from "@/Stores/GlobalAlert";
 import { ref } from "vue";
 import { parseCache } from "vue/compiler-sfc";
+import ViewGear from "./ViewGear.vue";
 const props = defineProps({
     player: Object,
     players: Object,
@@ -14,7 +15,7 @@ const props = defineProps({
 const emit = defineEmits(["open-battle"]);
 const cooldown = new Set();
 const viewGear = ref(false);
-
+const gear = ref(null);
 async function handleClick(player) {
     if (props.current_map?.is_safe_zone) {
         await getPlayerGear(player.id);
@@ -25,8 +26,8 @@ async function handleClick(player) {
 }
 async function getPlayerGear(playerId) {
     try {
-        const res = await axios.get(`/player/${playerId}/gear`);
-        return res.data.gear;
+        const res = await axios.get(`/view-gear/${playerId}`);
+        gear.value = res.data.gear;
     } catch (e) {
         console.error(e);
         pushAlert("Failed to load player gear.", "error");
@@ -116,6 +117,7 @@ const getSpriteFolder = (p) => {
             </div>
         </div>
     </div>
+    <ViewGear v-if="viewGear" :gear="gear" @close="viewGear = false" />
 </template>
 
 <style scoped>

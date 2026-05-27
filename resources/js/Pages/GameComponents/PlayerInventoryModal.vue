@@ -543,7 +543,7 @@
                                 {{ props.player.total_evasion_percentage }}%
                             </div>
                             <div class="rounded bg-gray-800 px-2 py-1">
-                                Kills: 0
+                                Stun: {{ props.player.total_stun_percentage }}%
                             </div>
                         </div>
                     </div>

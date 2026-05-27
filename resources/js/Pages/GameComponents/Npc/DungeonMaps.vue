@@ -8,7 +8,9 @@ const props = defineProps({
 const form = useForm({});
 const user = usePage().props.auth.user;
 const emit = defineEmits(["close"]);
-const maps = props.all_maps.filter((map) => map.name !== "Wisteria Village");
+const excluded = ["Wisteria Village", "Floating Island"];
+
+const maps = props.all_maps.filter((map) => !excluded.includes(map.name));
 function goTo(map) {
     form.get(route("world.map", map.map_id), {
         onStart: () => emit("close"),
