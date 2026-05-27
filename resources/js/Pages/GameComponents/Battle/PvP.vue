@@ -41,7 +41,6 @@ const attackingOpponent = ref(false);
 
 // ======================================================
 function openPvPBattle(id, enemy) {
-    console.log("openPvPBattle called:", id, enemy);
     showBattleModal.value = true;
     battleEnded.value = false;
     currentBattleId.value = id;

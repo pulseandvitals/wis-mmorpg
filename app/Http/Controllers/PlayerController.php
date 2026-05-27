@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Events\PlayerMoved;
+use App\Events\ZoneStateUpdated;
 use App\Http\Resources\PlayerResource;
 use App\Models\Player;
 use Illuminate\Http\Request;
@@ -18,6 +19,11 @@ class PlayerController extends Controller
         $player->current_health = $request->input('max_hp');
         $player->current_mana = $request->input('max_mp');
         $player->save();
+
+        broadcast(new ZoneStateUpdated($player->current_map_id,[
+            'id' => $player->id,
+            'current_health' => $player->current_health
+        ]));
 
         return response()->json([
             'status' => 'success',

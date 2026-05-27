@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Events\PlayerMoved;
+use App\Events\ZoneStateUpdated;
 use App\Http\Resources\ClassSkillResource;
 use App\Http\Resources\MapResource;
 use App\Http\Resources\PlayerResource;
@@ -56,6 +57,9 @@ class WorldMapController extends Controller
             case 'Sky Islands Underground':
                 $current_map = $this->getSkyIslandsUnderground($map);
                 break;
+            case 'Floating Island':
+                $current_map = $this->getFloatingIslandMap($map);
+                break;
             default:
                 $current_map =$this->getWisteriaVillageMap($map);
         }
@@ -72,6 +76,11 @@ class WorldMapController extends Controller
             ]);
         };
 
+
+        broadcast(new ZoneStateUpdated($player->current_map_id,[
+            'id' => $player->id,
+            'type' => 'player.leave'
+        ]));
         $this->saveMap($map->map_id);
         broadcast(new PlayerMoved($player->fresh()));
 
@@ -108,8 +117,17 @@ class WorldMapController extends Controller
             ]);
         };
 
+        broadcast(new ZoneStateUpdated($player->current_map_id,[
+            'id' => $player->id,
+            'type' => 'player.leave'
+        ]));
         $this->saveMap($map->map_id);
-        broadcast(new PlayerMoved($player->fresh()));
+
+        broadcast(new ZoneStateUpdated($player->current_map_id,[
+            'id' => $player->id,
+            'current_map_id' => $player->current_map_id,
+        ]));
+
 
         $mapTiles =  [
             [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
@@ -141,6 +159,11 @@ class WorldMapController extends Controller
         if($map->level_requirement > $player->current_level) {
             return redirect()->back();
         };
+
+        broadcast(new ZoneStateUpdated($player->current_map_id,[
+            'id' => $player->id,
+            'type' => 'player.leave'
+        ]));
 
         $this->saveMap($map->map_id);
         broadcast(new PlayerMoved($player->fresh()));
@@ -176,6 +199,11 @@ class WorldMapController extends Controller
         if($map->level_requirement > $player->current_level) {
             return redirect()->back();
         };
+
+        broadcast(new ZoneStateUpdated($player->current_map_id,[
+            'id' => $player->id,
+            'type' => 'player.leave'
+        ]));
 
         $this->saveMap($map->map_id);
         broadcast(new PlayerMoved($player->fresh()));
@@ -214,6 +242,11 @@ class WorldMapController extends Controller
             ]);
         };
 
+        broadcast(new ZoneStateUpdated($player->current_map_id,[
+            'id' => $player->id,
+            'type' => 'player.leave'
+        ]));
+
         $this->saveMap($map->map_id);
         broadcast(new PlayerMoved($player->fresh()));
 
@@ -248,6 +281,11 @@ class WorldMapController extends Controller
         if($map->level_requirement > $player->current_level) {
             return redirect()->back();
         };
+
+        broadcast(new ZoneStateUpdated($player->current_map_id,[
+            'id' => $player->id,
+            'type' => 'player.leave'
+        ]));
 
         $this->saveMap($map->map_id);
         broadcast(new PlayerMoved($player->fresh()));
@@ -286,6 +324,11 @@ class WorldMapController extends Controller
             ]);
         };
 
+        broadcast(new ZoneStateUpdated($player->current_map_id,[
+            'id' => $player->id,
+            'type' => 'player.leave'
+        ]));
+
         $this->saveMap($map->map_id);
         broadcast(new PlayerMoved($player->fresh()));
 
@@ -321,6 +364,11 @@ class WorldMapController extends Controller
                 'message' => 'Level not met.'
             ]);
         };
+
+        broadcast(new ZoneStateUpdated($player->current_map_id,[
+            'id' => $player->id,
+            'type' => 'player.leave'
+        ]));
 
         $this->saveMap($map->map_id);
         broadcast(new PlayerMoved($player->fresh()));
@@ -359,6 +407,11 @@ class WorldMapController extends Controller
             ]);
         };
 
+        broadcast(new ZoneStateUpdated($player->current_map_id,[
+            'id' => $player->id,
+            'type' => 'player.leave'
+        ]));
+
         $this->saveMap($map->map_id);
         broadcast(new PlayerMoved($player->fresh()));
 
@@ -395,6 +448,11 @@ class WorldMapController extends Controller
                 'message' => 'Level not met.'
             ]);
         };
+
+        broadcast(new ZoneStateUpdated($player->current_map_id,[
+            'id' => $player->id,
+            'type' => 'player.leave'
+        ]));
 
         $this->saveMap($map->map_id);
         broadcast(new PlayerMoved($player->fresh()));
@@ -436,6 +494,11 @@ class WorldMapController extends Controller
             ]);
         };
 
+        broadcast(new ZoneStateUpdated($player->current_map_id,[
+            'id' => $player->id,
+            'type' => 'player.leave'
+        ]));
+
         $this->saveMap($map->map_id);
         broadcast(new PlayerMoved($player->fresh()));
 
@@ -473,6 +536,11 @@ class WorldMapController extends Controller
             ]);
         };
 
+        broadcast(new ZoneStateUpdated($player->current_map_id,[
+            'id' => $player->id,
+            'type' => 'player.leave'
+        ]));
+
         $this->saveMap($map->map_id);
         broadcast(new PlayerMoved($player->fresh()));
 
@@ -500,6 +568,48 @@ class WorldMapController extends Controller
         ]);
     }
 
+    private function getFloatingIslandMap($map)
+    {
+        $player = auth()->user()->player;
+
+        if($map->level_requirement > $player->current_level) {
+            return back()->withErrors([
+                'message' => 'Level not met.'
+            ]);
+        };
+
+        broadcast(new ZoneStateUpdated($player->current_map_id,[
+            'id' => $player->id,
+            'type' => 'player.leave'
+        ]));
+
+        $this->saveMap($map->map_id);
+        broadcast(new PlayerMoved($player->fresh()));
+
+        $mapTiles =  [
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1],
+            [1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1],
+            [1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1],
+            [1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1],
+            [1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+        ];
+        return Inertia::render('World',[
+            'current_map' => $map,
+            'all_maps' => $this->getAllMaps(),
+            'map_tiles' => $mapTiles,
+            'monsters' => $this->getMonsterByMap($map->name),
+            ...$this->getPlayerData()
+        ]);
+    }
+
     private function getMonsterByMap($map)
     {
         return Monster::whereMap($map)->get() ?: null;
@@ -508,7 +618,7 @@ class WorldMapController extends Controller
     private function getAllMaps()
     {
         return MapResource::collection(
-            Map::all()
+            Map::whereNotIn('name', ['Floating Island'])->get()
         );
     }
 

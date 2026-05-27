@@ -99,6 +99,13 @@ class MapSeeder extends Seeder
                 'is_safe_zone' => true,
                 'level_requirement' => 40,
             ],
+            [
+                'name' => 'Floating Island',
+                'description' => 'Floating islands high above the clouds, where gravity is weak and the air is thin.',
+                'map_id' => random_int(10000000, 99999999),
+                'is_safe_zone' => false,
+                'level_requirement' => 15,
+            ],
         ];
 
         \Illuminate\Support\Facades\DB::table('maps')->insert($maps);

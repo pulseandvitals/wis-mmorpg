@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Events\PvpResolved;
 use App\Events\PvpStarted;
+use App\Events\ZoneStateUpdated;
 use App\Models\Player;
 use App\Models\PvpBattle;
 use App\Models\Skill;
@@ -213,6 +214,20 @@ class PvPService
             'pvp_battle_id' => null,
             'is_stunned' => false,
         ]);
+
+        broadcast(new ZoneStateUpdated($p1->current_map_id,[
+            'id' => $p1->id,
+            'type' => 'player.update',
+            'current_health' => $p1->current_health,
+            'in_pvp' => 0,
+        ]));
+
+        broadcast(new ZoneStateUpdated($p1->current_map_id,[
+            'id' => $p2->id,
+            'type' => 'player.update',
+            'current_health' => $p2->current_health,
+            'in_pvp' => 0,
+        ]));
     }
 
     // ======================================================
@@ -221,6 +236,7 @@ class PvPService
     public function requestBattle(Player $attacker, int $targetId)
     {
         $defender = Player::findOrFail($targetId);
+        $player = auth()->user()->player;
 
         if ($attacker->in_pvp || $defender->in_pvp) {
             return response()->json(['message' => 'One player is already in battle.'], 403);
@@ -248,6 +264,13 @@ class PvPService
         ]);
 
         broadcast(new PvpStarted($battle, $attacker, $defender));
+
+        broadcast(new ZoneStateUpdated($player->current_map_id,[
+            'id' => $player->id,
+            'type' => 'player.update',
+            'opponent_id' => $defender->id,
+            'in_pvp' => 1,
+        ]));
 
         return [
             'message' => 'Battle started',

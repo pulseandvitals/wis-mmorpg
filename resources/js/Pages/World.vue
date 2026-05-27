@@ -152,12 +152,6 @@ function registerPvpListener() {
     window.Echo.channel(`player.${props.playerData.data.id}`).listen(
         ".pvp.started",
         (e) => {
-            console.log(
-                "pvp.started event received",
-                e,
-                "pvpRef present:",
-                !!pvpRef.value,
-            );
             const me = props.playerData.data.id;
 
             let enemy = null;
@@ -183,6 +177,103 @@ function registerPvpListener() {
         },
     );
 }
+
+function zoneStateListener() {
+    const mapId = props.current_map?.map_id;
+
+    window.Echo.channel(`zone.${mapId}`).listen(".zone.state.updated", (e) => {
+        console.log("ZONE EVENT:", e);
+        switch (e.payload.type) {
+            case "player.update":
+                updatePlayers(e);
+                break;
+            case "player.leave":
+                removePlayer(e);
+                break;
+        }
+    });
+}
+function removePlayer(e) {
+    const id = e.id ?? e.payload?.id;
+
+    console.log("REMOVE PLAYER ID:", id);
+
+    players.value = players.value.filter((player) => {
+        return Number(player.id) !== Number(id);
+    });
+}
+function updatePlayers(e) {
+    players.value = players.value.map((player) => {
+        const isPlayer = Number(player.id) === Number(e.payload.id);
+
+        const isOpponent = Number(player.id) === Number(e.payload.opponent_id);
+
+        if (!isPlayer && !isOpponent) {
+            return player;
+        }
+
+        return {
+            ...player,
+            ...normalizeZoneUpdate({
+                ...e.payload,
+
+                // 🔥 assign correct opponent per player
+                opponent_id: isPlayer ? e.payload.opponent_id : e.payload.id,
+            }),
+        };
+    });
+}
+function normalizeZoneUpdate(e) {
+    const update = {};
+
+    // core stats
+    if (e.current_health !== undefined) {
+        update.current_health = e.current_health;
+    }
+
+    if (e.current_mana !== undefined) {
+        update.current_mana = e.current_mana;
+    }
+
+    // combat
+    if (e.in_pvp !== undefined) {
+        update.in_pvp = e.in_pvp;
+    }
+
+    if (e.opponent_id !== undefined) {
+        update.opponent_id = e.opponent_id;
+    }
+
+    if (e.opponent_current_health !== undefined) {
+        update.current_health = e.current_health;
+    }
+
+    // status
+    if (e.status !== undefined) {
+        update.status = e.status;
+    }
+
+    if (e.stun !== undefined) {
+        update.stun = e.stun;
+    }
+
+    if (e.frozen !== undefined) {
+        update.frozen = e.frozen;
+    }
+
+    // map
+    if (e.current_map_id !== undefined) {
+        update.current_map_id = e.current_map_id;
+    }
+
+    // visuals
+    if (e.wing !== undefined) {
+        update.wing = e.wing.gear.name;
+    }
+
+    return update;
+}
+
 function loadMonsters() {
     const dbMonsters = Array.isArray(props.monsters)
         ? props.monsters
@@ -605,6 +696,7 @@ onMounted(() => {
     getMyParty();
     playersPositionListener();
     registerPvpListener();
+    zoneStateListener();
 });
 const filteredMaps = computed(() => {
     return props.all_maps.data.filter(

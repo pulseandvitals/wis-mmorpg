@@ -138,11 +138,10 @@ const submit = () => {
                         </label>
 
                         <Link
-                            v-if="canResetPassword"
-                            :href="route('password.request')"
+                            :href="route('register')"
                             class="text-sm text-blue-300 hover:text-blue-200 transition"
                         >
-                            Forgot Password?
+                            No Account yet? Register here..
                         </Link>
                     </div>
 
@@ -154,7 +153,7 @@ const submit = () => {
                     >
                         <span v-if="form.processing"> Entering World... </span>
 
-                        <span v-else> Enter Valdora </span>
+                        <span v-else> Enter Wisteria </span>
                     </button>
                 </form>
 
