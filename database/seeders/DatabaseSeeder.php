@@ -26,5 +26,6 @@ class DatabaseSeeder extends Seeder
         $this->call(TalentSkillSeeder::class);
         $this->call(CardSlotSeeder::class);
         $this->call(BossMonsterSeeder::class);
+        $this->call(AdminSeeder::class);
     }
 }

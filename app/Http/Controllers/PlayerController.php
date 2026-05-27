@@ -82,7 +82,7 @@ class PlayerController extends Controller
         ->where('is_online', true)
         ->get();
 
-        return response()->json($players);
+        return response()->json(PlayerResource::collection($players));
     }
 
     public function getActivePlayer()

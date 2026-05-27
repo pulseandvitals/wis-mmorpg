@@ -116,7 +116,6 @@ canvas {
     display: flex;
     justify-content: center;
     align-items: center;
-    cursor: pointer;
     background: #111827;
     overflow: hidden;
 }

@@ -121,8 +121,9 @@
                         class="pt-4 border-t border-white/10 flex items-center justify-between"
                     >
                         <p class="text-xs text-gray-500">
-                            “Bound by oath, the party shares 10% of all
-                            experience gained in battle.”
+                            Bound by oath, the party shares 15% of all
+                            experience/gold gained in battle. (Should stay on
+                            the same map)
                         </p>
 
                         <div class="flex gap-2">

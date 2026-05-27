@@ -77,6 +77,7 @@ const getSpriteFolder = (p) => {
             class="world-player"
             :class="{
                 attackable: !current_map?.is_safe_zone,
+                viewable: current_map?.is_safe_zone,
                 self: p.id === player?.id,
             }"
             :style="{
@@ -134,6 +135,27 @@ const getSpriteFolder = (p) => {
     cursor:
         url("/attack-cursor.cur") 16 16,
         crosshair;
+}
+.world-player.viewable:hover .sprite {
+    filter: drop-shadow(0 0 6px rgba(0, 255, 120, 0.7));
+    transform: scale(1.05);
+    cursor: crosshair;
+}
+
+@keyframes hitFlash {
+    0% {
+        filter: brightness(1);
+    }
+    50% {
+        filter: brightness(2) hue-rotate(-20deg);
+    }
+    100% {
+        filter: brightness(1);
+    }
+}
+
+.world-player.hit .sprite {
+    animation: hitFlash 0.2s ease;
 }
 .world-player.self {
     pointer-events: none;

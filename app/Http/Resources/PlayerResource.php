@@ -15,7 +15,6 @@ class PlayerResource extends JsonResource
             // BASIC INFO
             // ======================================================
             'id' => $this->id,
-            'user_id' => $this->user_id,
             'name' => $this->name,
             'class_type' => $this->class_type,
             'is_online' => $this->is_online,
@@ -60,7 +59,7 @@ class PlayerResource extends JsonResource
             // ======================================================
             // EQUIPMENT
             // ======================================================
-            'helm' => $this->helm,
+            'helmet' => $this->helmet,
             'armor' => $this->armor,
             'pants' => $this->pants,
             'gloves' => $this->gloves,
@@ -69,6 +68,10 @@ class PlayerResource extends JsonResource
             'shield' => $this->shield,
             'ring' => $this->ring,
             'wing' => $this->wing,
+            'card_1' => $this->cardSlot1,
+            'card_2' => $this->cardSlot2,
+            'card_3' => $this->cardSlot3,
+            'card_4' => $this->cardSlot4,
 
             // ======================================================
             // SYSTEM / GAME STATE
@@ -81,12 +84,6 @@ class PlayerResource extends JsonResource
             // ======================================================
             'active_buff_effects' => $this->active_buff_effects,
             'selected_talent_skills' => $this->selected_talent_skills,
-
-            'card_slot_1_effects' => $this->card_slot_1_effects,
-            'card_slot_2_effects' => $this->card_slot_2_effects,
-            'card_slot_3_effects' => $this->card_slot_3_effects,
-            'card_slot_4_effects' => $this->card_slot_4_effects,
-
             // ======================================================
             // DAILY LIMITS / STATS
             // ======================================================

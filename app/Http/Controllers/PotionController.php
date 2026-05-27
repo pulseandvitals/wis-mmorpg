@@ -149,9 +149,14 @@ class PotionController extends Controller
                 'boots.gear',
                 'gloves.gear',
                 'shield.gear',
-                'pants.gear',
+                'necklace.gear',
                 'ring.gear',
+                'pants.gear',
                 'wing.gear',
+                'cardSlot1.card',
+                'cardSlot2.card',
+                'cardSlot3.card',
+                'cardSlot4.card',
             ]))
         ]);
     }

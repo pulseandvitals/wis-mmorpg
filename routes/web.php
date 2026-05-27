@@ -42,6 +42,7 @@ Route::prefix('world')->group(function () {
     Route::get('/get-wings',[GearController::class,'getWings']);
     Route::post('/market-buy',[GearController::class,'marketBuy']);
     Route::get('/view-gear/{id}',[GearController::class,'viewGear']);
+    Route::post('/unequip-gear',[GearController::class,'unequipGear']);
 
     Route::get('/get-potions',[PotionController::class,'getPotions']);
     Route::post('/buy-potion',[PotionController::class,'buyPotion']);
@@ -65,6 +66,7 @@ Route::prefix('world')->group(function () {
     Route::post('/party-room/join/{code}',[PartyRoomController::class,'joinRoom']);
 
     Route::get('/get-cards',[CardController::class,'getCards']);
+    Route::post('/use-card',[CardController::class,'useCard']);
 
     Route::post('/pvp/action',[PvPController::class,'action']);
     Route::get('/pvp/check-invite',[PvPController::class,'checkInvite']);

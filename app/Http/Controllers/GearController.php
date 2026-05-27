@@ -67,6 +67,10 @@ class GearController extends Controller
             'pants.gear',
             'ring.gear',
             'wing.gear',
+            'cardSlot1.card',
+            'cardSlot2.card',
+            'cardSlot3.card',
+            'cardSlot4.card'
         ])->find($id);
 
         if(!$player) {
@@ -86,6 +90,48 @@ class GearController extends Controller
                 'materials' => json_decode($row->materials, true),
             ];
         });
+    }
+
+    public function unequipGear(Request $request)
+    {
+        $player = auth()->user()->player;
+        $inventoryItem = Inventory::find($request->slot['inventory_id']);
+
+        if(!$inventoryItem) {
+            return response()->json(['error' => 'Item not found'], 404);
+        }
+
+        $itemKey = $request->slot['item_key'];
+        $slot = match ($inventoryItem->item_type) {
+            'card' => str_replace('card_', 'card_slot_', $itemKey),
+            default => $itemKey . '_id',
+        };
+
+        $inventoryItem->is_equipped = false;
+        $inventoryItem->save();
+
+        $player->$slot = null;
+        $player->save();
+
+        return response()->json([
+            'success' => true,
+            'player' => new PlayerResource($player->fresh([
+                'helmet.gear',
+                'weapon.gear',
+                'armor.gear',
+                'boots.gear',
+                'gloves.gear',
+                'shield.gear',
+                'necklace.gear',
+                'ring.gear',
+                'pants.gear',
+                'wing.gear',
+                'cardSlot1.card',
+                'cardSlot2.card',
+                'cardSlot3.card',
+                'cardSlot4.card',
+            ]))
+        ]);
     }
 
    public function craftGear(Request $request)

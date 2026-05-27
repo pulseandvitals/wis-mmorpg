@@ -81,8 +81,19 @@ class WorldMapController extends Controller
             'id' => $player->id,
             'type' => 'player.leave'
         ]));
+
         $this->saveMap($map->map_id);
-        broadcast(new PlayerMoved($player->fresh()));
+
+        broadcast(new ZoneStateUpdated($player->current_map_id,[
+            'id' => $player->id,
+            'type' => 'player.join',
+            'x' => $player->x,
+            'y' => $player->y,
+            'direction' => $player->direction ?: 'down',
+            'class_type' => $player->class_type,
+            'current_map_id' => $player->current_map_id,
+            'wing' => $player->wing?->gear?->name,
+        ]));
 
         $mapTiles =  [
             [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
@@ -121,11 +132,18 @@ class WorldMapController extends Controller
             'id' => $player->id,
             'type' => 'player.leave'
         ]));
+
         $this->saveMap($map->map_id);
 
         broadcast(new ZoneStateUpdated($player->current_map_id,[
             'id' => $player->id,
+            'type' => 'player.join',
+            'x' => $player->x,
+            'y' => $player->y,
+            'direction' => $player->direction ?: 'down',
+            'class_type' => $player->class_type,
             'current_map_id' => $player->current_map_id,
+            'wing' => $player->wing?->gear?->name,
         ]));
 
 
@@ -166,7 +184,18 @@ class WorldMapController extends Controller
         ]));
 
         $this->saveMap($map->map_id);
-        broadcast(new PlayerMoved($player->fresh()));
+
+        broadcast(new ZoneStateUpdated($player->current_map_id,[
+            'id' => $player->id,
+            'type' => 'player.join',
+            'x' => $player->x,
+            'y' => $player->y,
+            'direction' => $player->direction ?: 'down',
+            'class_type' => $player->class_type,
+            'current_map_id' => $player->current_map_id,
+            'wing' => $player->wing?->gear?->name,
+        ]));
+
 
         $mapTiles =  [
             [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
@@ -206,7 +235,17 @@ class WorldMapController extends Controller
         ]));
 
         $this->saveMap($map->map_id);
-        broadcast(new PlayerMoved($player->fresh()));
+
+        broadcast(new ZoneStateUpdated($player->current_map_id,[
+            'id' => $player->id,
+            'type' => 'player.join',
+            'x' => $player->x,
+            'y' => $player->y,
+            'direction' => $player->direction ?: 'down',
+            'class_type' => $player->class_type,
+            'current_map_id' => $player->current_map_id,
+            'wing' => $player->wing?->gear?->name,
+        ]));
 
         $mapTiles =  [
             [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
@@ -248,7 +287,17 @@ class WorldMapController extends Controller
         ]));
 
         $this->saveMap($map->map_id);
-        broadcast(new PlayerMoved($player->fresh()));
+
+        broadcast(new ZoneStateUpdated($player->current_map_id,[
+            'id' => $player->id,
+            'type' => 'player.join',
+            'x' => $player->x,
+            'y' => $player->y,
+            'direction' => $player->direction ?: 'down',
+            'class_type' => $player->class_type,
+            'current_map_id' => $player->current_map_id,
+            'wing' => $player->wing?->gear?->name,
+        ]));
 
         $mapTiles =  [
             [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
@@ -288,7 +337,17 @@ class WorldMapController extends Controller
         ]));
 
         $this->saveMap($map->map_id);
-        broadcast(new PlayerMoved($player->fresh()));
+
+        broadcast(new ZoneStateUpdated($player->current_map_id,[
+            'id' => $player->id,
+            'type' => 'player.join',
+            'x' => $player->x,
+            'y' => $player->y,
+            'direction' => $player->direction ?: 'down',
+            'class_type' => $player->class_type,
+            'current_map_id' => $player->current_map_id,
+            'wing' => $player->wing?->gear?->name,
+        ]));
 
         $mapTiles =  [
             [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
@@ -330,7 +389,17 @@ class WorldMapController extends Controller
         ]));
 
         $this->saveMap($map->map_id);
-        broadcast(new PlayerMoved($player->fresh()));
+
+        broadcast(new ZoneStateUpdated($player->current_map_id,[
+            'id' => $player->id,
+            'type' => 'player.join',
+            'x' => $player->x,
+            'y' => $player->y,
+            'direction' => $player->direction ?: 'down',
+            'class_type' => $player->class_type,
+            'current_map_id' => $player->current_map_id,
+            'wing' => $player->wing?->gear?->name,
+        ]));
 
         $mapTiles =  [
             [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
@@ -371,7 +440,33 @@ class WorldMapController extends Controller
         ]));
 
         $this->saveMap($map->map_id);
-        broadcast(new PlayerMoved($player->fresh()));
+
+        broadcast(new ZoneStateUpdated($player->current_map_id,[
+            'id' => $player->id,
+            'type' => 'player.join',
+            'x' => $player->x,
+            'y' => $player->y,
+            'direction' => $player->direction ?: 'down',
+            'class_type' => $player->class_type,
+            'current_map_id' => $player->current_map_id,
+            'wing' => $player->wing?->gear?->name,
+        ]));broadcast(new ZoneStateUpdated($player->current_map_id,[
+            'id' => $player->id,
+            'type' => 'player.leave'
+        ]));
+
+        $this->saveMap($map->map_id);
+
+        broadcast(new ZoneStateUpdated($player->current_map_id,[
+            'id' => $player->id,
+            'type' => 'player.join',
+            'x' => $player->x,
+            'y' => $player->y,
+            'direction' => $player->direction ?: 'down',
+            'class_type' => $player->class_type,
+            'current_map_id' => $player->current_map_id,
+            'wing' => $player->wing?->gear?->name,
+        ]));
 
         $mapTiles =  [
             [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
@@ -413,7 +508,17 @@ class WorldMapController extends Controller
         ]));
 
         $this->saveMap($map->map_id);
-        broadcast(new PlayerMoved($player->fresh()));
+
+        broadcast(new ZoneStateUpdated($player->current_map_id,[
+            'id' => $player->id,
+            'type' => 'player.join',
+            'x' => $player->x,
+            'y' => $player->y,
+            'direction' => $player->direction ?: 'down',
+            'class_type' => $player->class_type,
+            'current_map_id' => $player->current_map_id,
+            'wing' => $player->wing?->gear?->name,
+        ]));
 
         $mapTiles =  [
             [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
@@ -455,7 +560,17 @@ class WorldMapController extends Controller
         ]));
 
         $this->saveMap($map->map_id);
-        broadcast(new PlayerMoved($player->fresh()));
+
+        broadcast(new ZoneStateUpdated($player->current_map_id,[
+            'id' => $player->id,
+            'type' => 'player.join',
+            'x' => $player->x,
+            'y' => $player->y,
+            'direction' => $player->direction ?: 'down',
+            'class_type' => $player->class_type,
+            'current_map_id' => $player->current_map_id,
+            'wing' => $player->wing?->gear?->name,
+        ]));
 
         $mapTiles =  [
             [1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
@@ -500,7 +615,33 @@ class WorldMapController extends Controller
         ]));
 
         $this->saveMap($map->map_id);
-        broadcast(new PlayerMoved($player->fresh()));
+
+        broadcast(new ZoneStateUpdated($player->current_map_id,[
+            'id' => $player->id,
+            'type' => 'player.join',
+            'x' => $player->x,
+            'y' => $player->y,
+            'direction' => $player->direction ?: 'down',
+            'class_type' => $player->class_type,
+            'current_map_id' => $player->current_map_id,
+            'wing' => $player->wing?->gear?->name,
+        ]));broadcast(new ZoneStateUpdated($player->current_map_id,[
+            'id' => $player->id,
+            'type' => 'player.leave'
+        ]));
+
+        $this->saveMap($map->map_id);
+
+        broadcast(new ZoneStateUpdated($player->current_map_id,[
+            'id' => $player->id,
+            'type' => 'player.join',
+            'x' => $player->x,
+            'y' => $player->y,
+            'direction' => $player->direction ?: 'down',
+            'class_type' => $player->class_type,
+            'current_map_id' => $player->current_map_id,
+            'wing' => $player->wing?->gear?->name,
+        ]));
 
         $mapTiles =  [
             [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
@@ -542,7 +683,17 @@ class WorldMapController extends Controller
         ]));
 
         $this->saveMap($map->map_id);
-        broadcast(new PlayerMoved($player->fresh()));
+
+        broadcast(new ZoneStateUpdated($player->current_map_id,[
+            'id' => $player->id,
+            'type' => 'player.join',
+            'x' => $player->x,
+            'y' => $player->y,
+            'direction' => $player->direction ?: 'down',
+            'class_type' => $player->class_type,
+            'current_map_id' => $player->current_map_id,
+            'wing' => $player->wing?->gear?->name,
+        ]));
 
         $mapTiles =  [
             [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
@@ -584,7 +735,17 @@ class WorldMapController extends Controller
         ]));
 
         $this->saveMap($map->map_id);
-        broadcast(new PlayerMoved($player->fresh()));
+
+        broadcast(new ZoneStateUpdated($player->current_map_id,[
+            'id' => $player->id,
+            'type' => 'player.join',
+            'x' => $player->x,
+            'y' => $player->y,
+            'direction' => $player->direction ?: 'down',
+            'class_type' => $player->class_type,
+            'current_map_id' => $player->current_map_id,
+            'wing' => $player->wing?->gear?->name,
+        ]));
 
         $mapTiles =  [
             [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
@@ -630,7 +791,7 @@ class WorldMapController extends Controller
             return response()->json(['error' => 'No character found for this user'], 404);
         }
 
-            $player = Player::with([
+        $player = Player::with([
             'helmet.gear',
             'weapon.gear',
             'armor.gear',
@@ -640,6 +801,10 @@ class WorldMapController extends Controller
             'pants.gear',
             'ring.gear',
             'wing.gear',
+            'cardSlot1.card',
+            'cardSlot2.card',
+            'cardSlot3.card',
+            'cardSlot4.card'
         ])->find($user->player_id);
 
         if (!$player) {

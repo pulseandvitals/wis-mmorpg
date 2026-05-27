@@ -40,10 +40,10 @@ class Player extends Model
         'active_buff_effects',
         'selected_talent_skills',
 
-        'card_1_id',
-        'card_2_id',
-        'card_3_id',
-        'card_4_id',
+        'card_slot_1',
+        'card_slot_2',
+        'card_slot_3',
+        'card_slot_4',
 
         'daily_bet_chance',
         'daily_trivia_chance',
@@ -70,6 +70,7 @@ class Player extends Model
     const BASE_SPEED = 5;
     const BASE_EVASION = 2;
     const BASE_CRIT = 2;
+    const BASE_STUN = 1;
 
     const LEVEL_ATTACK_GAIN = 3;
     const LEVEL_DEFENSE_GAIN = 3;
@@ -87,6 +88,7 @@ class Player extends Model
                 'speed' => self::BASE_SPEED,
                 'evasion' => self::BASE_EVASION,
                 'crit' => self::BASE_CRIT + 3,
+                'stun' => self::BASE_STUN
             ],
             'assassin' => [
                 'attack' => self::BASE_ATTACK + 3,
@@ -96,6 +98,7 @@ class Player extends Model
                 'speed' => self::BASE_SPEED - 1,
                 'evasion' => self::BASE_EVASION,
                 'crit' => self::BASE_CRIT + 5,
+                'stun' => self::BASE_STUN
             ],
             'archer' => [
                 'attack' => self::BASE_ATTACK + 2,
@@ -105,6 +108,7 @@ class Player extends Model
                 'speed' => self::BASE_SPEED + 3,
                 'evasion' => self::BASE_EVASION + 2,
                 'crit' => self::BASE_CRIT + 2,
+                'stun' => self::BASE_STUN
             ],
             'knight' => [
                 'attack' => self::BASE_ATTACK + 2,
@@ -114,6 +118,7 @@ class Player extends Model
                 'speed' => self::BASE_SPEED + 2,
                 'evasion' => self::BASE_EVASION - 2,
                 'crit' => self::BASE_CRIT + 1,
+                'stun' => self::BASE_STUN
             ],
             'crusader' => [
                 'attack' => self::BASE_ATTACK + 5,
@@ -123,6 +128,7 @@ class Player extends Model
                 'speed' => self::BASE_SPEED + 2,
                 'evasion' => self::BASE_EVASION - 2,
                 'crit' => self::BASE_CRIT + 2,
+                'stun' => self::BASE_STUN
             ],
             default => [
                 'attack' => self::BASE_ATTACK,
@@ -132,6 +138,7 @@ class Player extends Model
                 'speed' => self::BASE_SPEED,
                 'evasion' => self::BASE_EVASION,
                 'crit' => self::BASE_CRIT,
+                'stun' => self::BASE_STUN
             ],
         };
     }
@@ -162,6 +169,7 @@ class Player extends Model
         $this->total_speed = $base['speed'];
         $this->total_evasion_percentage = $base['evasion'];
         $this->total_critical_percentage = $base['crit'];
+        $this->total_stun_percentage = $base['stun'];
 
         // LOCATION
         $town = Map::where('name', 'Wisteria Town')->firstOrFail();
@@ -218,7 +226,11 @@ class Player extends Model
             'necklace.gear',
             'ring.gear',
             'pants.gear',
-            'wing.gear'
+            'wing.gear',
+            'cardSlot1.card',
+            'cardSlot2.card',
+            'cardSlot3.card',
+            'cardSlot4.card'
         ])->find($this->id);
 
         $stats = [
@@ -229,9 +241,10 @@ class Player extends Model
             'mp' => 0,
             'evasion' => 0,
             'crit' => 0,
+            'stun' => 0,
         ];
 
-        $equipped = [
+        $gearSlots = [
             $player->helmet,
             $player->weapon,
             $player->armor,
@@ -244,7 +257,7 @@ class Player extends Model
             $player->wing,
         ];
 
-        foreach ($equipped as $slot) {
+        foreach ($gearSlots as $slot) {
             if (!$slot || !$slot->gear) continue;
 
             $gear = $slot->gear;
@@ -252,61 +265,82 @@ class Player extends Model
             $base = json_decode($gear->basic_stats ?? '{}', true);
             $random = json_decode($slot->random_stats ?? '{}', true);
 
-            // ✅ SIMPLE INTEGER ONLY
-            $enhanceLevel = (int) $slot->enhancement_level;
-
-            // ⚔️ FORMULA: +8% per level
-            $multiplier = 1 + ($enhanceLevel * 0.08);
+            $multiplier = 1 + ((int)$slot->enhancement_level * 0.08);
 
             foreach ([$base, $random] as $statSet) {
                 if (!$statSet) continue;
 
                 foreach ($statSet as $key => $value) {
-
-                    switch ($key) {
-                        case 'attack':
-                            $stats['attack'] += $value * $multiplier;
-                            break;
-
-                        case 'defense':
-                            $stats['defense'] += $value * $multiplier;
-                            break;
-
-                        case 'speed':
-                            $stats['speed'] += $value * $multiplier;
-                            break;
-
-                        case 'hp':
-                            $stats['hp'] += $value * $multiplier;
-                            break;
-
-                        case 'mp':
-                            $stats['mp'] += $value * $multiplier;
-                            break;
-
-                        case 'evasion':
-                            $stats['evasion'] += $value * $multiplier;
-                            break;
-
-                        case 'crit':
-                            $stats['crit'] += $value * $multiplier;
-                            break;
+                    if (isset($stats[$key])) {
+                        $stats[$key] += $value * $multiplier;
                     }
                 }
             }
         }
 
+        $cardStats = $this->getTotalCardStats();
         $baseStats = $this->getTotalBaseStats();
 
-        $this->total_attack = $baseStats['attack'] + $stats['attack'];
-        $this->total_defense = $baseStats['defense'] + $stats['defense'];
-        $this->max_health = $baseStats['hp'] + $stats['hp'];
-        $this->max_mana = $baseStats['mp'] + $stats['mp'];
-        $this->total_speed = $baseStats['speed'] + $stats['speed'];
-        $this->total_evasion_percentage = $baseStats['evasion'] + $stats['evasion'];
-        $this->total_critical_percentage = $baseStats['crit'] + $stats['crit'];
+        $this->total_attack = $baseStats['attack'] + $stats['attack'] + $cardStats['attack'];
+        $this->total_defense = $baseStats['defense'] + $stats['defense'] + $cardStats['defense'];
+        $this->max_health = $baseStats['hp'] + $stats['hp'] + $cardStats['hp'];
+        $this->max_mana = $baseStats['mp'] + $stats['mp'] + $cardStats['mp'];
+        $this->total_speed = $baseStats['speed'] + $stats['speed'] + $cardStats['speed'];
+        $this->total_evasion_percentage = $baseStats['evasion'] + $stats['evasion'] + $cardStats['evasion'];
+        $this->total_critical_percentage = $baseStats['crit'] + $stats['crit'] + $cardStats['crit'];
+        $this->total_stun_percentage = $baseStats['stun'] + $stats['stun'] + $cardStats['stun'];
 
         $this->save();
+    }
+
+    public function getTotalCardStats()
+    {
+        $player = self::with([
+            'cardSlot1.card',
+            'cardSlot2.card',
+            'cardSlot3.card',
+            'cardSlot4.card'
+        ])->find($this->id);
+
+        $stats = [
+            'attack' => 0,
+            'defense' => 0,
+            'speed' => 0,
+            'hp' => 0,
+            'mp' => 0,
+            'evasion' => 0,
+            'crit' => 0,
+            'stun' => 0,
+        ];
+
+        $cardSlots = [
+            $player->cardSlot1,
+            $player->cardSlot2,
+            $player->cardSlot3,
+            $player->cardSlot4,
+        ];
+
+        foreach ($cardSlots as $slot) {
+
+            if (!$slot || !$slot->card) continue;
+
+            $effects = json_decode($slot->card->effects ?? '[]', true);
+
+            if (!is_array($effects)) continue;
+
+            foreach ($effects as $effect) {
+
+                $stat = $effect['stat'] ?? null;
+                $value = $effect['value'] ?? 0;
+
+                if (!$stat) continue;
+                if (!isset($stats[$stat])) continue;
+
+                $stats[$stat] += $value;
+            }
+        }
+
+        return $stats;
     }
 
     public function getTotalBaseStats()
@@ -321,6 +355,7 @@ class Player extends Model
             'speed' => self::BASE_SPEED,
             'evasion' => self::BASE_EVASION,
             'crit' => self::BASE_CRIT,
+            'stun' => self::BASE_STUN
         ];
     }
 
@@ -345,6 +380,26 @@ class Player extends Model
                 return $talent ?? [];
             })
             ->values();
+    }
+
+    public function cardSlot1()
+    {
+        return $this->belongsTo(Inventory::class, 'card_slot_1');
+    }
+
+    public function cardSlot2()
+    {
+        return $this->belongsTo(Inventory::class, 'card_slot_2');
+    }
+
+    public function cardSlot3()
+    {
+        return $this->belongsTo(Inventory::class, 'card_slot_3');
+    }
+
+    public function cardSlot4()
+    {
+        return $this->belongsTo(Inventory::class, 'card_slot_4');
     }
 
     public function getAllActiveEffects()
@@ -411,26 +466,6 @@ class Player extends Model
     public function wing()
     {
         return $this->belongsTo(Inventory::class, 'wing_id');
-    }
-
-    public function card_1()
-    {
-        return $this->belongsTo(Inventory::class, 'card_1_id');
-    }
-
-    public function card_2()
-    {
-        return $this->belongsTo(Inventory::class, 'card_2_id');
-    }
-
-    public function card_3()
-    {
-        return $this->belongsTo(Inventory::class, 'card_3_id');
-    }
-
-    public function card_4()
-    {
-        return $this->belongsTo(Inventory::class, 'card_4_id');
     }
 
     public function helmet()

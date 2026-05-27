@@ -15,7 +15,7 @@ class InventoryController extends Controller
         $player = auth()->user()->player;
         $inventory = $player->inventory()
             ->where('is_equipped', false)
-            ->with(['gear', 'material', 'potion'])
+            ->with(['gear', 'material', 'potion','card'])
             ->get();
 
         return response()->json([
@@ -168,6 +168,10 @@ class InventoryController extends Controller
                 'ring.gear',
                 'pants.gear',
                 'wing.gear',
+                'cardSlot1.card',
+                'cardSlot2.card',
+                'cardSlot3.card',
+                'cardSlot4.card',
             ]))
         ]);
     }

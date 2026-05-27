@@ -105,14 +105,6 @@ const npcData = {
         color: "from-purple-700 to-indigo-950",
         services: isHealerOpen,
     },
-    pvp: {
-        name: "PvP Master",
-        x: 530,
-        y: 280,
-        icon: "⚔️",
-        color: "from-purple-700 to-indigo-950",
-        services: isPvpOpen,
-    },
 };
 const npc = computed(() => npcData[currentNpc.value]);
 function openNpc(key) {
@@ -148,9 +140,6 @@ function openNpc(key) {
         case "healer":
             isHealerOpen.value = true;
             break;
-        case "pvp":
-            isPvpOpen.value = true;
-            break;
         default:
             break;
     }
@@ -172,6 +161,9 @@ function handleOpenForWisteriaTown() {
         onStart: () => pushAlert("Entering Wisteria Town...", "success"),
         onFinish: () => pushAlert("Welcome to Wisteria Town!", "success"),
     });
+}
+function handleOpenPvpArena() {
+    isPvpOpen.value = true;
 }
 </script>
 
@@ -221,16 +213,21 @@ function handleOpenForWisteriaTown() {
             :npc="npc"
             @close="isHealerOpen = false"
         />
+    </template>
+    <template v-if="wisteriaVillage.map_id === current_map.map_id">
+        <Portal :x="480" :y="690" @open="handleOpenForWisteriaTown" />
+        <Portal
+            :x="760"
+            :y="110"
+            :is_danger="true"
+            @open="handleOpenPvpArena"
+        />
         <PvPMaster
             v-if="isPvpOpen"
-            :npc="npc"
             :all_maps="all_maps"
             :player="player"
             @close="isPvpOpen = false"
         />
-    </template>
-    <template v-if="wisteriaVillage.map_id === current_map.map_id">
-        <Portal :x="480" :y="690" @open="handleOpenForWisteriaTown" />
     </template>
 </template>
 <style scoped>

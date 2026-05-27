@@ -12,8 +12,9 @@ EVENT LIST
 const events = ref([
     {
         id: 1,
-        name: "Double EXP Weekend",
-        description: "All monsters give 2x EXP.",
+        name: "Fishing Frenzy",
+        description:
+            "Catch rare fish across special fishing zones and exchange them for gold, crafting materials, and exclusive rewards.",
         status: "Active",
         color: "green",
         button: "Enter",
@@ -22,8 +23,9 @@ const events = ref([
 
     {
         id: 2,
-        name: "Golden Drop Event",
-        description: "Rare items have increased drop rates.",
+        name: "Guild Crystal",
+        description:
+            "Gather magical crystals with your guild to unlock powerful buffs, bonus loot, and rare guild rewards.",
         status: "Upcoming",
         color: "yellow",
         button: "Enter",
@@ -32,18 +34,20 @@ const events = ref([
 
     {
         id: 3,
-        name: "PvP Tournament",
-        description: "Compete against other players for rewards.",
+        name: "Guild Showdown",
+        description:
+            "Battle rival guilds in an intense PvP competition and climb the rankings to earn legendary rewards.",
         status: "Starting Soon",
         color: "red",
         button: "Enter",
-        bg: "/images/events/trivia.jpg",
+        bg: "/event_posters/Guild Showdown.png",
     },
 
     {
         id: 4,
-        name: "Boss Raid",
-        description: "World Boss appears every 2 hours.",
+        name: "Masquerade",
+        description:
+            "Join the mysterious masquerade festival filled with hidden quests, rare encounters, and special cosmetic rewards.",
         status: "Active",
         color: "green",
         button: "Enter",

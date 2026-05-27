@@ -50,14 +50,9 @@ class PlayerMoved implements ShouldBroadcastNow
     {
         return [
             'player_id' => $this->playerId,
-            'name' => $this->name,
             'class_type' => $this->class_type,
-            'current_map_id' => $this->current_map_id,
             'x' => $this->x,
             'y' => $this->y,
-            'direction' => $this->direction,
-            'in_pvp' => $this->in_pvp,
-            'pvp_battle_id' => $this->pvp_battle_id,
         ];
     }
 }

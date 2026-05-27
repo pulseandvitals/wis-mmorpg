@@ -187,12 +187,46 @@ function zoneStateListener() {
             case "player.update":
                 updatePlayers(e);
                 break;
+
             case "player.leave":
                 removePlayer(e);
+                break;
+
+            case "player.join":
+                joinPlayer(e.payload);
                 break;
         }
     });
 }
+
+function joinPlayer(e) {
+    const existing = players.value.find((p) => p.id === e.id);
+
+    // ❌ Do not duplicate players
+    if (existing) return;
+
+    players.value.push({
+        id: e.id,
+        name: e.name,
+        class_type: e.class_type,
+        current_map_id: e.current_map_id,
+
+        x: Number(e.x),
+        y: Number(e.y),
+
+        renderX: Number(e.x) * tileSize,
+        renderY: Number(e.y) * tileSize,
+        targetX: Number(e.x) * tileSize,
+        targetY: Number(e.y) * tileSize,
+
+        direction: e.direction ?? "down",
+        walking: false,
+
+        // optional extras (safe if present)
+        wing: e.wing ?? null,
+    });
+}
+
 function removePlayer(e) {
     const id = e.id ?? e.payload?.id;
 
@@ -678,9 +712,6 @@ function playersPositionListener() {
             x: Number(e.x),
             y: Number(e.y),
             direction: e.direction,
-            class_type: e.class_type,
-            name: e.name,
-            current_map_id: e.current_map_id,
         });
     });
 }
@@ -858,7 +889,9 @@ watch(
 
     border: 4px solid #374151;
     overflow: hidden;
-    cursor: pointer;
+    cursor:
+        url("/move-cursor.cur") 16 16,
+        pointer;
     image-rendering: pixelated;
 }
 .game-map.blocked {

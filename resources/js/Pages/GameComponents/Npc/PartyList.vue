@@ -23,6 +23,9 @@ async function getPartyReward() {
         },
     );
 }
+function getMyParty() {
+    getPartyReward();
+}
 onMounted(async () => {
     getPartyReward();
 });

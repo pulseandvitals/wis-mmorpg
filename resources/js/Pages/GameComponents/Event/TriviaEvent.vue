@@ -160,8 +160,13 @@ async function submitAnswer() {
                     </div>
                 </transition>
             </div>
-            <div v-else>
-                <button @click="getTrivia">Generate Question</button>
+            <div v-else class="flex justify-center">
+                <button
+                    @click="getTrivia"
+                    class="px-5 py-2.5 rounded-lg bg-green-600 hover:bg-green-700 text-white font-semibold shadow-md transition-all duration-200 active:scale-95"
+                >
+                    Generate Question
+                </button>
             </div>
         </div>
     </div>

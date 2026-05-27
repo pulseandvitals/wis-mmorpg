@@ -4,7 +4,6 @@ import { pushAlert } from "@/Stores/GlobalAlert";
 import { useForm } from "@inertiajs/vue3";
 
 const props = defineProps({
-    npc: Object,
     player: Object,
     all_maps: Object,
 });
@@ -28,7 +27,7 @@ async function enterArena() {
             <!-- HEADER -->
             <div class="flex justify-between items-center mb-6">
                 <h1 class="text-3xl text-white font-bold tracking-wide">
-                    {{ npc.name }}
+                    PvP Master
                 </h1>
 
                 <button

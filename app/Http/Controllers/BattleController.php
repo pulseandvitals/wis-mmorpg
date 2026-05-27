@@ -81,16 +81,32 @@ class BattleController extends Controller
                 return;
             }
 
-            Inventory::updateOrInsert(
-                [
-                    'player_id' => $this->player->id,
-                    'item_id'   => $getItem->id,
-                    'item_type' => $itemType,
-                ],
-                [
-                    'quantity' => DB::raw("COALESCE(quantity, 0) + {$qty}")
-                ]
-            );
+            if ($itemType === 'card') {
+
+                // Don't stack cards
+                for ($i = 0; $i < $qty; $i++) {
+                    Inventory::create([
+                        'player_id' => $this->player->id,
+                        'item_id'   => $getItem->id,
+                        'item_type' => $itemType,
+                        'quantity'  => 1,
+                    ]);
+                }
+
+            } else {
+
+                // Stack normal items
+                Inventory::updateOrInsert(
+                    [
+                        'player_id' => $this->player->id,
+                        'item_id'   => $getItem->id,
+                        'item_type' => $itemType,
+                    ],
+                    [
+                        'quantity' => DB::raw("COALESCE(quantity, 0) + {$qty}")
+                    ]
+                );
+            }
         }
     }
 
@@ -104,8 +120,8 @@ class BattleController extends Controller
             ->with('members.player')
             ->first();
 
-        $sharedExp = intval($totalExp * 0.10);
-        $sharedGold = intval($totalGold * 0.10);
+        $sharedExp = intval($totalExp * 0.15);
+        $sharedGold = intval($totalGold * 0.15);
 
         if ($room) {
             foreach ($room->members as $member) {

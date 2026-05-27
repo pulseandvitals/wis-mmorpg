@@ -2,6 +2,7 @@
 defineProps({
     x: Number,
     y: Number,
+    is_danger: Boolean,
 });
 const emit = defineEmits(["open"]);
 const clickPortal = () => {
@@ -13,11 +14,13 @@ const clickPortal = () => {
     <button
         @click="clickPortal"
         class="rift-wrapper"
+        :class="{ danger: is_danger }"
         :style="{
             left: x + 'px',
             top: y + 'px',
         }"
     >
+        >
         <!-- aura field -->
         <div class="rift-aura"></div>
 
@@ -37,7 +40,7 @@ const clickPortal = () => {
         <div class="rift-wave"></div>
 
         <!-- label -->
-        <div class="rift-enter">WARP</div>
+        <div class="rift-enter">{{ is_danger ? "PvP Arena" : "Warp" }}</div>
     </button>
 </template>
 
@@ -59,6 +62,9 @@ const clickPortal = () => {
 
     /* Hover effect para sa button */
     transition: all 0.2s ease;
+
+    /* 👇 IMPORTANT: keep it in normal stacking flow */
+    isolation: auto;
 }
 
 .rift-wrapper:hover {
@@ -282,6 +288,142 @@ const clickPortal = () => {
     100% {
         opacity: 0.7;
         transform: translateZ(20px) scale(1);
+    }
+}
+
+/* =========================
+   DANGER MODE (PvP RIFT)
+========================= */
+.rift-wrapper.danger .rift-aura {
+    background: radial-gradient(
+        ellipse at center,
+        rgba(255, 0, 60, 0.45),
+        rgba(0, 0, 0, 0.2),
+        transparent 70%
+    );
+    filter: blur(26px);
+    animation: auraFloatDanger 3.5s infinite;
+}
+
+.rift-wrapper.danger .rift-base {
+    background: linear-gradient(135deg, #000 0%, #2a0000 40%, #000 100%);
+    box-shadow:
+        inset 0 0 40px rgba(255, 0, 60, 0.4),
+        0 0 35px rgba(255, 0, 60, 0.25);
+}
+
+.rift-wrapper.danger .rift-rim {
+    border: 1px solid rgba(255, 0, 60, 0.6);
+    box-shadow:
+        inset 0 0 25px rgba(255, 0, 60, 0.4),
+        0 0 25px rgba(255, 0, 0, 0.4);
+}
+
+.rift-wrapper.danger .rift-abyss {
+    background: radial-gradient(
+        ellipse at center,
+        #120000 0%,
+        #000 50%,
+        #000 100%
+    );
+    animation: abyssPulseDanger 2.2s infinite;
+}
+
+.rift-wrapper.danger .rift-core {
+    background: radial-gradient(
+        ellipse at center,
+        rgba(255, 0, 60, 0.55),
+        rgba(0, 0, 0, 0.2),
+        transparent 70%
+    );
+    filter: blur(3px);
+    animation: coreBreathDanger 1.6s infinite;
+}
+
+.rift-wrapper.danger .rift-wave {
+    background: conic-gradient(
+        from 0deg,
+        rgba(255, 0, 60, 0),
+        rgba(255, 0, 60, 0.35),
+        rgba(0, 0, 0, 0.8),
+        rgba(255, 0, 60, 0)
+    );
+    animation: spin 1.8s linear infinite;
+    opacity: 0.95;
+}
+
+/* text becomes aggressive */
+.rift-wrapper.danger .rift-enter {
+    color: rgba(255, 80, 80, 0.95);
+    text-shadow:
+        0 0 10px rgba(255, 0, 60, 1),
+        0 0 25px rgba(255, 0, 0, 0.8),
+        0 0 40px rgba(0, 0, 0, 0.9);
+    animation: dangerTextShake 1.2s infinite;
+}
+
+/* =========================
+   DANGER ANIMATIONS
+========================= */
+
+@keyframes auraFloatDanger {
+    0% {
+        transform: translateY(0px) scale(1);
+        opacity: 0.5;
+    }
+    50% {
+        transform: translateY(-6px) scale(1.15);
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(0px) scale(1);
+        opacity: 0.5;
+    }
+}
+
+@keyframes coreBreathDanger {
+    0% {
+        transform: scale(1);
+        opacity: 0.7;
+    }
+    50% {
+        transform: scale(1.35);
+        opacity: 1;
+    }
+    100% {
+        transform: scale(1);
+        opacity: 0.7;
+    }
+}
+
+@keyframes abyssPulseDanger {
+    0% {
+        filter: brightness(0.6) contrast(1.2);
+    }
+    50% {
+        filter: brightness(1.6) contrast(1.5);
+    }
+    100% {
+        filter: brightness(0.6);
+    }
+}
+
+/* subtle “unstable portal” shake */
+@keyframes dangerTextShake {
+    0% {
+        transform: translateZ(20px) translateX(0);
+    }
+    25% {
+        transform: translateZ(20px) translateX(-1px);
+    }
+    50% {
+        transform: translateZ(20px) translateX(1px);
+    }
+    75% {
+        transform: translateZ(20px) translateX(-1px);
+    }
+    100% {
+        transform: translateZ(20px) translateX(0);
     }
 }
 </style>

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Http\Resources\CardResource;
 use App\Http\Resources\GearResource;
 use Illuminate\Database\Eloquent\Model;
 
@@ -28,7 +29,7 @@ class Inventory extends Model
             'gear' => GearResource::make($this->gear),
             'material' => $this->material,
             'potion' => $this->potion,
-            'card' => $this->card,
+            'card' => CardResource::make($this->card),
             default => null,
         };
     }

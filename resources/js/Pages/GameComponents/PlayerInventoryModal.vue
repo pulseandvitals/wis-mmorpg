@@ -159,7 +159,13 @@
                                 </h2>
                                 <p
                                     class="text-gray-400 text-sm capitalize"
-                                    v-if="selectedItem.item_type !== 'material'"
+                                    v-if="
+                                        selectedItem.item_type.includes([
+                                            'material',
+                                            'card',
+                                            'potion',
+                                        ])
+                                    "
                                 >
                                     Lvl.{{
                                         selectedItem.item?.requirement_level
@@ -408,6 +414,13 @@
                             >
                                 Use
                             </button>
+                            <button
+                                v-if="selectedItem.item_type === 'card'"
+                                class="flex-1 bg-blue-500 hover:bg-blue-400 text-white font-bold py-2 rounded-lg transition"
+                                @click="useCard"
+                            >
+                                Use
+                            </button>
 
                             <button
                                 @click="closeItem"
@@ -427,9 +440,8 @@
                         <div class="text-sm text-gray-300 font-semibold mb-3">
                             Equipped
                         </div>
-
                         <!-- EQUIPMENT GRID -->
-                        <div class="grid grid-cols-2 gap-2">
+                        <div class="grid grid-cols-3 gap-2">
                             <div
                                 v-for="gear in armory"
                                 :key="gear.slot"
@@ -437,8 +449,17 @@
                             >
                                 <!-- SLOT BOX -->
                                 <div
-                                    class="bg-gray-800 border border-gray-700 hover:border-yellow-500 rounded-lg p-2 h-20 flex flex-col items-center justify-center transition-all duration-200 cursor-pointer"
+                                    class="relative bg-gray-800 border border-gray-700 hover:border-yellow-500 rounded-lg p-2 h-20 flex flex-col items-center justify-center transition-all duration-200"
                                 >
+                                    <!-- UNEQUIP BUTTON -->
+                                    <button
+                                        v-if="gear.icon !== '/empty.png'"
+                                        @click.stop="unequipItem(gear)"
+                                        class="absolute top-1 right-1 text-[9px] bg-red-600 hover:bg-red-500 text-white px-1.5 py-0.5 rounded"
+                                    >
+                                        X
+                                    </button>
+
                                     <!-- ICON -->
                                     <div
                                         class="w-10 h-10 rounded bg-gray-900 border border-gray-600 flex items-center justify-center overflow-hidden"
@@ -493,6 +514,41 @@
                                     </div>
                                 </div>
                             </div>
+                            <div
+                                v-for="card in cardArmory"
+                                :key="card.slot"
+                                class="relative group"
+                            >
+                                <div
+                                    class="bg-gray-800 border border-gray-700 hover:border-yellow-500 rounded-lg p-2 h-20 flex flex-col items-center justify-center transition-all duration-200 cursor-pointer"
+                                >
+                                    <!-- UNEQUIP BUTTON -->
+                                    <button
+                                        v-if="card.icon !== '/empty.png'"
+                                        @click.stop="unequipItem(card)"
+                                        class="absolute top-1 right-1 text-[9px] bg-red-600 hover:bg-red-500 text-white px-1.5 py-0.5 rounded"
+                                    >
+                                        X
+                                    </button>
+                                    <!-- ICON -->
+                                    <div
+                                        class="w-10 h-10 rounded bg-gray-900 border border-gray-600 flex items-center justify-center overflow-hidden"
+                                    >
+                                        <img
+                                            :src="card.icon"
+                                            :alt="card.name"
+                                            class="w-full h-full object-contain p-1"
+                                        />
+                                    </div>
+
+                                    <!-- SLOT -->
+                                    <div
+                                        class="text-[10px] text-gray-400 uppercase mt-1"
+                                    >
+                                        {{ card.slot }}
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     <!-- STATS -->
@@ -508,7 +564,6 @@
                                 Lv. {{ props.player.current_level }}
                             </div>
                         </div>
-
                         <!-- STATS -->
                         <div class="grid grid-cols-2 gap-1 text-xs">
                             <div class="rounded bg-gray-800 px-2 py-1">
@@ -537,7 +592,6 @@
                                 CRIT:
                                 {{ props.player.total_critical_percentage }}%
                             </div>
-
                             <div class="rounded bg-gray-800 px-2 py-1">
                                 EVA:
                                 {{ props.player.total_evasion_percentage }}%
@@ -583,6 +637,8 @@ const armory = computed(() =>
         const equip = props.player?.[s.key];
 
         return {
+            inventory_id: equip?.id,
+            item_key: s.key,
             slot: s.label,
             icon: equip ? `/${s.folder}/${equip.gear?.name}.png` : "/empty.png",
             name: equip?.gear.name || `Empty ${s.label} Slot`,
@@ -606,6 +662,49 @@ const armory = computed(() =>
     }),
 );
 
+const CARD_SLOTS = [
+    { key: "card_1", label: "Card 1", folder: "cards" },
+    { key: "card_2", label: "Card 2", folder: "cards" },
+    { key: "card_3", label: "Card 3", folder: "cards" },
+    { key: "card_4", label: "Card 4", folder: "cards" },
+];
+
+const cardArmory = computed(() =>
+    CARD_SLOTS.map((s) => {
+        const equip = props.player?.[s.key];
+
+        return {
+            inventory_id: equip?.id,
+            item_key: s.key,
+            slot: s.label,
+            icon: equip?.card
+                ? `/${s.folder}/${equip.card.name}.png`
+                : "/empty.png",
+            name: equip?.card?.name || "Empty Card Slot",
+            description: equip?.card ? `Card equipped` : "No card equipped",
+            stats: equip?.card?.stats
+                ? Object.entries(JSON.parse(equip.card.stats)).map(
+                      ([k, v]) => `+${v} ${k.toUpperCase()}`,
+                  )
+                : [],
+        };
+    }),
+);
+
+const unequipItem = async (gear) => {
+    if (!gear) return;
+
+    try {
+        let res = await axios.post("/unequip-gear", {
+            slot: gear,
+        });
+        emit("updatePlayer", res.data.player);
+        openInventory();
+    } catch (err) {
+        console.error(err);
+    }
+};
+
 async function usePotion() {
     try {
         const res = await axios.post("/use-potion", {
@@ -624,6 +723,24 @@ async function usePotion() {
     }
 }
 
+async function useCard() {
+    try {
+        const res = await axios.post("/use-card", {
+            card: selectedItem.value,
+        });
+        Object.assign(props.player, res.data.player);
+        pushAlert(res.data.message || "Card used successfully!", "success");
+        openInventory();
+        closeItem();
+    } catch (error) {
+        pushAlert(
+            error.response?.data?.message || "Failed to use card.",
+            "error",
+        );
+        console.error("Use Card Error:", error);
+    }
+}
+
 function openItem(item) {
     selectedItem.value = item;
     console.log("Selected Item:", item);
@@ -634,11 +751,7 @@ function closeItem() {
 }
 
 const basicStats = computed(() => {
-    try {
-        return selectedItem.value.item?.basic_stats || "{}";
-    } catch {
-        return {};
-    }
+    return selectedItem.value.item?.basic_stats || "{}";
 });
 
 const randomStats = computed(() => {
