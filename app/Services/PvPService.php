@@ -144,7 +144,7 @@ class PvPService
         // MISS CALCULATION
         // =========================
         $missChance = min(30, $defender->total_evasion_percentage);
-        $miss = rand(1, 100) > $missChance;
+        $miss = rand(1, 100) < $missChance;
 
         if ($miss) {
             return [

@@ -77,23 +77,7 @@ class WorldMapController extends Controller
         };
 
 
-        broadcast(new ZoneStateUpdated($player->current_map_id,[
-            'id' => $player->id,
-            'type' => 'player.leave'
-        ]));
-
-        $this->saveMap($map->map_id);
-
-        broadcast(new ZoneStateUpdated($player->current_map_id,[
-            'id' => $player->id,
-            'type' => 'player.join',
-            'x' => $player->x,
-            'y' => $player->y,
-            'direction' => $player->direction ?: 'down',
-            'class_type' => $player->class_type,
-            'current_map_id' => $player->current_map_id,
-            'wing' => $player->wing?->gear?->name,
-        ]));
+        $this->saveMapWithEvent($player, $map);
 
         $mapTiles =  [
             [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
@@ -128,23 +112,7 @@ class WorldMapController extends Controller
             ]);
         };
 
-        broadcast(new ZoneStateUpdated($player->current_map_id,[
-            'id' => $player->id,
-            'type' => 'player.leave'
-        ]));
-
-        $this->saveMap($map->map_id);
-
-        broadcast(new ZoneStateUpdated($player->current_map_id,[
-            'id' => $player->id,
-            'type' => 'player.join',
-            'x' => $player->x,
-            'y' => $player->y,
-            'direction' => $player->direction ?: 'down',
-            'class_type' => $player->class_type,
-            'current_map_id' => $player->current_map_id,
-            'wing' => $player->wing?->gear?->name,
-        ]));
+        $this->saveMapWithEvent($player, $map);
 
 
         $mapTiles =  [
@@ -178,23 +146,7 @@ class WorldMapController extends Controller
             return redirect()->back();
         };
 
-        broadcast(new ZoneStateUpdated($player->current_map_id,[
-            'id' => $player->id,
-            'type' => 'player.leave'
-        ]));
-
-        $this->saveMap($map->map_id);
-
-        broadcast(new ZoneStateUpdated($player->current_map_id,[
-            'id' => $player->id,
-            'type' => 'player.join',
-            'x' => $player->x,
-            'y' => $player->y,
-            'direction' => $player->direction ?: 'down',
-            'class_type' => $player->class_type,
-            'current_map_id' => $player->current_map_id,
-            'wing' => $player->wing?->gear?->name,
-        ]));
+        $this->saveMapWithEvent($player, $map);
 
 
         $mapTiles =  [
@@ -229,23 +181,7 @@ class WorldMapController extends Controller
             return redirect()->back();
         };
 
-        broadcast(new ZoneStateUpdated($player->current_map_id,[
-            'id' => $player->id,
-            'type' => 'player.leave'
-        ]));
-
-        $this->saveMap($map->map_id);
-
-        broadcast(new ZoneStateUpdated($player->current_map_id,[
-            'id' => $player->id,
-            'type' => 'player.join',
-            'x' => $player->x,
-            'y' => $player->y,
-            'direction' => $player->direction ?: 'down',
-            'class_type' => $player->class_type,
-            'current_map_id' => $player->current_map_id,
-            'wing' => $player->wing?->gear?->name,
-        ]));
+        $this->saveMapWithEvent($player, $map);
 
         $mapTiles =  [
             [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
@@ -281,23 +217,7 @@ class WorldMapController extends Controller
             ]);
         };
 
-        broadcast(new ZoneStateUpdated($player->current_map_id,[
-            'id' => $player->id,
-            'type' => 'player.leave'
-        ]));
-
-        $this->saveMap($map->map_id);
-
-        broadcast(new ZoneStateUpdated($player->current_map_id,[
-            'id' => $player->id,
-            'type' => 'player.join',
-            'x' => $player->x,
-            'y' => $player->y,
-            'direction' => $player->direction ?: 'down',
-            'class_type' => $player->class_type,
-            'current_map_id' => $player->current_map_id,
-            'wing' => $player->wing?->gear?->name,
-        ]));
+        $this->saveMapWithEvent($player, $map);
 
         $mapTiles =  [
             [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
@@ -331,23 +251,7 @@ class WorldMapController extends Controller
             return redirect()->back();
         };
 
-        broadcast(new ZoneStateUpdated($player->current_map_id,[
-            'id' => $player->id,
-            'type' => 'player.leave'
-        ]));
-
-        $this->saveMap($map->map_id);
-
-        broadcast(new ZoneStateUpdated($player->current_map_id,[
-            'id' => $player->id,
-            'type' => 'player.join',
-            'x' => $player->x,
-            'y' => $player->y,
-            'direction' => $player->direction ?: 'down',
-            'class_type' => $player->class_type,
-            'current_map_id' => $player->current_map_id,
-            'wing' => $player->wing?->gear?->name,
-        ]));
+        $this->saveMapWithEvent($player, $map);
 
         $mapTiles =  [
             [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
@@ -383,23 +287,7 @@ class WorldMapController extends Controller
             ]);
         };
 
-        broadcast(new ZoneStateUpdated($player->current_map_id,[
-            'id' => $player->id,
-            'type' => 'player.leave'
-        ]));
-
-        $this->saveMap($map->map_id);
-
-        broadcast(new ZoneStateUpdated($player->current_map_id,[
-            'id' => $player->id,
-            'type' => 'player.join',
-            'x' => $player->x,
-            'y' => $player->y,
-            'direction' => $player->direction ?: 'down',
-            'class_type' => $player->class_type,
-            'current_map_id' => $player->current_map_id,
-            'wing' => $player->wing?->gear?->name,
-        ]));
+        $this->saveMapWithEvent($player, $map);
 
         $mapTiles =  [
             [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
@@ -434,39 +322,7 @@ class WorldMapController extends Controller
             ]);
         };
 
-        broadcast(new ZoneStateUpdated($player->current_map_id,[
-            'id' => $player->id,
-            'type' => 'player.leave'
-        ]));
-
-        $this->saveMap($map->map_id);
-
-        broadcast(new ZoneStateUpdated($player->current_map_id,[
-            'id' => $player->id,
-            'type' => 'player.join',
-            'x' => $player->x,
-            'y' => $player->y,
-            'direction' => $player->direction ?: 'down',
-            'class_type' => $player->class_type,
-            'current_map_id' => $player->current_map_id,
-            'wing' => $player->wing?->gear?->name,
-        ]));broadcast(new ZoneStateUpdated($player->current_map_id,[
-            'id' => $player->id,
-            'type' => 'player.leave'
-        ]));
-
-        $this->saveMap($map->map_id);
-
-        broadcast(new ZoneStateUpdated($player->current_map_id,[
-            'id' => $player->id,
-            'type' => 'player.join',
-            'x' => $player->x,
-            'y' => $player->y,
-            'direction' => $player->direction ?: 'down',
-            'class_type' => $player->class_type,
-            'current_map_id' => $player->current_map_id,
-            'wing' => $player->wing?->gear?->name,
-        ]));
+        $this->saveMapWithEvent($player, $map);
 
         $mapTiles =  [
             [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
@@ -502,23 +358,7 @@ class WorldMapController extends Controller
             ]);
         };
 
-        broadcast(new ZoneStateUpdated($player->current_map_id,[
-            'id' => $player->id,
-            'type' => 'player.leave'
-        ]));
-
-        $this->saveMap($map->map_id);
-
-        broadcast(new ZoneStateUpdated($player->current_map_id,[
-            'id' => $player->id,
-            'type' => 'player.join',
-            'x' => $player->x,
-            'y' => $player->y,
-            'direction' => $player->direction ?: 'down',
-            'class_type' => $player->class_type,
-            'current_map_id' => $player->current_map_id,
-            'wing' => $player->wing?->gear?->name,
-        ]));
+        $this->saveMapWithEvent($player, $map);
 
         $mapTiles =  [
             [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
@@ -554,23 +394,7 @@ class WorldMapController extends Controller
             ]);
         };
 
-        broadcast(new ZoneStateUpdated($player->current_map_id,[
-            'id' => $player->id,
-            'type' => 'player.leave'
-        ]));
-
-        $this->saveMap($map->map_id);
-
-        broadcast(new ZoneStateUpdated($player->current_map_id,[
-            'id' => $player->id,
-            'type' => 'player.join',
-            'x' => $player->x,
-            'y' => $player->y,
-            'direction' => $player->direction ?: 'down',
-            'class_type' => $player->class_type,
-            'current_map_id' => $player->current_map_id,
-            'wing' => $player->wing?->gear?->name,
-        ]));
+        $this->saveMapWithEvent($player, $map);
 
         $mapTiles =  [
             [1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
@@ -609,39 +433,7 @@ class WorldMapController extends Controller
             ]);
         };
 
-        broadcast(new ZoneStateUpdated($player->current_map_id,[
-            'id' => $player->id,
-            'type' => 'player.leave'
-        ]));
-
-        $this->saveMap($map->map_id);
-
-        broadcast(new ZoneStateUpdated($player->current_map_id,[
-            'id' => $player->id,
-            'type' => 'player.join',
-            'x' => $player->x,
-            'y' => $player->y,
-            'direction' => $player->direction ?: 'down',
-            'class_type' => $player->class_type,
-            'current_map_id' => $player->current_map_id,
-            'wing' => $player->wing?->gear?->name,
-        ]));broadcast(new ZoneStateUpdated($player->current_map_id,[
-            'id' => $player->id,
-            'type' => 'player.leave'
-        ]));
-
-        $this->saveMap($map->map_id);
-
-        broadcast(new ZoneStateUpdated($player->current_map_id,[
-            'id' => $player->id,
-            'type' => 'player.join',
-            'x' => $player->x,
-            'y' => $player->y,
-            'direction' => $player->direction ?: 'down',
-            'class_type' => $player->class_type,
-            'current_map_id' => $player->current_map_id,
-            'wing' => $player->wing?->gear?->name,
-        ]));
+        $this->saveMapWithEvent($player, $map);
 
         $mapTiles =  [
             [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
@@ -677,23 +469,7 @@ class WorldMapController extends Controller
             ]);
         };
 
-        broadcast(new ZoneStateUpdated($player->current_map_id,[
-            'id' => $player->id,
-            'type' => 'player.leave'
-        ]));
-
-        $this->saveMap($map->map_id);
-
-        broadcast(new ZoneStateUpdated($player->current_map_id,[
-            'id' => $player->id,
-            'type' => 'player.join',
-            'x' => $player->x,
-            'y' => $player->y,
-            'direction' => $player->direction ?: 'down',
-            'class_type' => $player->class_type,
-            'current_map_id' => $player->current_map_id,
-            'wing' => $player->wing?->gear?->name,
-        ]));
+        $this->saveMapWithEvent($player, $map);
 
         $mapTiles =  [
             [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
@@ -729,23 +505,7 @@ class WorldMapController extends Controller
             ]);
         };
 
-        broadcast(new ZoneStateUpdated($player->current_map_id,[
-            'id' => $player->id,
-            'type' => 'player.leave'
-        ]));
-
-        $this->saveMap($map->map_id);
-
-        broadcast(new ZoneStateUpdated($player->current_map_id,[
-            'id' => $player->id,
-            'type' => 'player.join',
-            'x' => $player->x,
-            'y' => $player->y,
-            'direction' => $player->direction ?: 'down',
-            'class_type' => $player->class_type,
-            'current_map_id' => $player->current_map_id,
-            'wing' => $player->wing?->gear?->name,
-        ]));
+        $this->saveMapWithEvent($player, $map);
 
         $mapTiles =  [
             [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
@@ -781,6 +541,28 @@ class WorldMapController extends Controller
         return MapResource::collection(
             Map::all()
         );
+    }
+
+    private function saveMapWithEvent($player, $map)
+    {
+        broadcast(new ZoneStateUpdated($player->current_map_id,[
+            'id' => $player->id,
+            'type' => 'player.leave'
+        ]));
+
+        $this->saveMap($map->map_id);
+
+        broadcast(new ZoneStateUpdated($player->current_map_id,[
+            'id' => $player->id,
+            'name' => $player->name,
+            'type' => 'player.join',
+            'x' => $player->x,
+            'y' => $player->y,
+            'direction' => $player->direction ?: 'down',
+            'class_type' => $player->class_type,
+            'current_map_id' => $player->current_map_id,
+            'wing' => $player->wing?->gear?->name,
+        ]));
     }
 
     private function getPlayerData()
