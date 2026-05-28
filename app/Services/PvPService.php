@@ -129,20 +129,21 @@ class PvPService
     // ======================================================
     private function calculateAttack(Player $attacker, Player $defender, Skill $skill)
     {
-        $base = $attacker->total_attack + $skill->damage;
+        $base = $attacker->total_attack + $skill->damage + rand(1, 20);
 
         // =========================
         // CRITICAL HIT
         // =========================
         $crit = rand(1, 100) <= $attacker->total_critical_percentage;
         if ($crit) {
-            $base *= 1.5;
+            $critMultiplier = rand(130, 180) / 100;
+            $base = (int) ($base * $critMultiplier);
         }
 
         // =========================
         // MISS CALCULATION
         // =========================
-        $missChance = max(40, 90 - ($defender->total_evasion_percentage * 0.6));
+        $missChance = min(30, $defender->total_evasion_percentage);
         $miss = rand(1, 100) > $missChance;
 
         if ($miss) {
@@ -161,8 +162,10 @@ class PvPService
         // =========================
         // DAMAGE CALCULATION
         // =========================
-        $damage = $base - ($defender->total_defense * 0.55);
+        $reduction = ($defender->total_defense * 0.55) / ($defender->total_defense * 0.55 + 100);
 
+        $damage = $base * (1 - $reduction);
+        $damage = max(1, $damage);
         // =========================
         // STUN SYSTEM (FROM PLAYER STAT)
         // =========================
@@ -222,7 +225,7 @@ class PvPService
             'in_pvp' => 0,
         ]));
 
-        broadcast(new ZoneStateUpdated($p1->current_map_id,[
+        broadcast(new ZoneStateUpdated($p2->current_map_id,[
             'id' => $p2->id,
             'type' => 'player.update',
             'current_health' => $p2->current_health,

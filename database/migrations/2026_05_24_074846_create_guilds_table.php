@@ -16,8 +16,8 @@ return new class extends Migration
             $table->string('name');
             $table->unsignedBigInteger('leader_id');
             $table->integer('level');
-            $table->integer('gold_stash');
-            $table->string('icon');
+            $table->integer('gold_stash')->nullable();
+            $table->string('icon')->nullable();
             $table->timestamps();
         });
     }

@@ -14,6 +14,8 @@ class Guild extends Model
         'icon'
     ];
 
+    const GUILD_CREATION_COST = 500000;
+
     public function members()
     {
         return $this->hasMany(GuildMember::class);

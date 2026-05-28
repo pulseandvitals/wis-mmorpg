@@ -3,6 +3,7 @@
 use App\Http\Controllers\BattleController;
 use App\Http\Controllers\CardController;
 use App\Http\Controllers\GearController;
+use App\Http\Controllers\GuildController;
 use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\MapController;
 use App\Http\Controllers\MiniEventController;
@@ -79,6 +80,8 @@ Route::prefix('world')->group(function () {
     Route::post('/submit-topup',[TopUpController::class,'submitTopUp']);
     Route::get('/get-top-ups', [TopUpController::class,'getTopUps']);
     Route::post('/approve-top-up',[TopUpController::class,'approveTopUp']);
+
+    Route::post('/create-guild',[GuildController::class,'createGuild']);
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');

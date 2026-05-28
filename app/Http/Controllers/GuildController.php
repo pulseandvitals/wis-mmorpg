@@ -3,63 +3,52 @@
 namespace App\Http\Controllers;
 
 use App\Models\Guild;
+use App\Models\GuildMember;
 use Illuminate\Http\Request;
 
 class GuildController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function createGuild(Request $request)
     {
-        //
-    }
+        $request->validate([
+           'name' => [
+                'required',
+                'string',
+                'min:3',
+                'max:10',
+                'unique:guilds,name',
+                'regex:/^[A-Za-z0-9_]+$/'
+            ],
+        ]);
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
+        $player = auth()->user()->player;
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
+        if($player->current_gold < Guild::GUILD_CREATION_COST) {
+            return response()->json([
+            'message' => 'Not enough gold.'
+            ], 422);
+        }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Guild $guild)
-    {
-        //
-    }
+        $player->current_gold -= Guild::GUILD_CREATION_COST;
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Guild $guild)
-    {
-        //
-    }
+        $guild = Guild::create([
+            'name' => $request->name,
+            'leader_id' => $player->id,
+            'gold_stash' => 0,
+            'level' => 1
+        ]);
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Guild $guild)
-    {
-        //
-    }
+        GuildMember::create([
+            'guild_id' => $guild->id,
+            'player_id' => $player->id,
+            'rank' => 'Guild Leader',
+            'guild_contribution' => 0,
+            'joined_at' => now()
+        ]);
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Guild $guild)
-    {
-        //
+        return response()->json([
+            'message' => 'Guild created successfully!',
+            'guild' => $guild
+        ]);
     }
 }

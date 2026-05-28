@@ -24,18 +24,18 @@ class LevelExperienceSeeder extends Seeder
                 'required_experience' => $exp
             ];
 
-            if ($level >= 1 && $level <= 10) {
+            if ($level >= 1 && $level < 10) {
                 // EASY CURVE (fast leveling)
                 $exp += rand(60, 100); // 4–6 mobs early game
 
             } elseif ($level > 11 && $level < 20) {
                 // MEDIUM CURVE (noticeable grind)
-                $exp += rand(600, 800); // 3–5 mobs mid game
+                $exp += rand(700, 900); // 3–5 mobs mid game
 
             }
             elseif ($level > 21 && $level < 30) {
                 // MEDIUM CURVE (noticeable grind)
-                $exp += rand(1800, 2000); // 3–5 mobs mid game
+                $exp += rand(3000, 3500); // 3–5 mobs mid game
 
             } else {
                 // HARD CURVE (late game grind like your original idea)

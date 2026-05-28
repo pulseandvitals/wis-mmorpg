@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed } from "vue";
+import { ref, computed, proxyRefs } from "vue";
 import DungeonMaps from "./DungeonMaps.vue";
 import Healer from "./Healer.vue";
 import BlackSmith from "./BlackSmith.vue";
@@ -13,6 +13,7 @@ import { pushAlert } from "@/Stores/GlobalAlert";
 import Market from "./Market.vue";
 import CardInformation from "./CardInformation.vue";
 import PvPMaster from "./PvPMaster.vue";
+import Guild from "./Guild.vue";
 const props = defineProps({
     all_maps: Object,
     player: Object,
@@ -31,6 +32,7 @@ const isHealerOpen = ref(false);
 const isCardOpen = ref(false);
 const currentNpc = ref();
 const isPvpOpen = ref(false);
+const isGuildOpen = ref(false);
 const wisteriaVillage = props.all_maps.find(
     (map) => map.name === "Wisteria Village",
 );
@@ -222,12 +224,14 @@ function handleOpenPvpArena() {
             :is_danger="true"
             @open="handleOpenPvpArena"
         />
+
         <PvPMaster
             v-if="isPvpOpen"
             :all_maps="all_maps"
             :player="player"
             @close="isPvpOpen = false"
         />
+        <Guild />
     </template>
 </template>
 <style scoped>
