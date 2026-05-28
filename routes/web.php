@@ -82,6 +82,10 @@ Route::prefix('world')->group(function () {
     Route::post('/approve-top-up',[TopUpController::class,'approveTopUp']);
 
     Route::post('/create-guild',[GuildController::class,'createGuild']);
+    Route::get('/get-guilds',[GuildController::class,'getGuilds']);
+    Route::get('/my-guild',[GuildController::class,'myGuild']);
+    Route::post('/join-guild',[GuildController::class,'joinGuild']);
+    Route::post('/contribute-guild',[GuildController::class,'contributeGuild']);
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');

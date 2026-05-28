@@ -63,6 +63,7 @@ const player = reactive({
 
     id: props.playerData.data.id,
     name: props.playerData.data.name,
+    guild: props.playerData.data.guild,
     class_type: props.playerData.data.class_type,
     is_exp_potion_active: props.playerData.data.is_exp_potion_active,
     current_health: props.playerData.data.current_health,
@@ -265,8 +266,15 @@ function normalizeZoneUpdate(e) {
         update.current_health = e.current_health;
     }
 
+    if (e.max_health !== undefined) {
+        update.max_health = e.max_health;
+    }
+
     if (e.current_mana !== undefined) {
         update.current_mana = e.current_mana;
+    }
+    if (e.max_mana !== undefined) {
+        update.max_mana = e.max_mana;
     }
 
     // combat
@@ -289,10 +297,6 @@ function normalizeZoneUpdate(e) {
 
     if (e.stun !== undefined) {
         update.stun = e.stun;
-    }
-
-    if (e.frozen !== undefined) {
-        update.frozen = e.frozen;
     }
 
     // map

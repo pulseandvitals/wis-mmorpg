@@ -18,7 +18,7 @@ class PlayerResource extends JsonResource
             'name' => $this->name,
             'class_type' => $this->class_type,
             'is_online' => $this->is_online,
-
+            'guild' => $this->guild,
             // ======================================================
             // LEVEL / PROGRESSION
             // ======================================================

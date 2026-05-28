@@ -63,8 +63,15 @@ const spritePath = computed(() => {
             transform: `translate(${player.renderX}px, ${player.renderY}px)`,
         }"
     >
+        <!-- GUILD NAME (ABOVE PLAYER NAME) -->
+        <div v-if="player.guild" class="guild-name">
+            <{{ player.guild.name }}>
+        </div>
+
         <!-- NAME -->
-        <div class="player-name">{{ player.name }}</div>
+        <div class="player-name">
+            {{ player.name }}
+        </div>
 
         <img
             class="sprite"
@@ -134,6 +141,31 @@ const spritePath = computed(() => {
     white-space: nowrap;
     padding: 0 5px;
     background-color: rgb(0, 0, 0, 0.5);
+}
+.guild-name {
+    position: absolute;
+    top: -22px;
+    left: 50%;
+    transform: translateX(-50%);
+
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+
+    color: #fbbf24; /* gold-ish MMO guild color */
+
+    padding: 1px 2px;
+
+    background: rgba(0, 0, 0, 0.55);
+
+    text-shadow:
+        0 1px 2px rgba(0, 0, 0, 0.9),
+        0 0 6px rgba(251, 191, 36, 0.25);
+
+    white-space: nowrap;
+    pointer-events: none;
+
+    transition: all 0.15s ease;
 }
 
 .sprite {

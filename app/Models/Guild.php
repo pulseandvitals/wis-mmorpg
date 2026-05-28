@@ -15,9 +15,14 @@ class Guild extends Model
     ];
 
     const GUILD_CREATION_COST = 500000;
-
+    const MAX_MEMBER = 5;
     public function members()
     {
         return $this->hasMany(GuildMember::class);
+    }
+
+    public function leader()
+    {
+        return $this->belongsTo(Player::class);
     }
 }

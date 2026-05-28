@@ -13,4 +13,9 @@ class GuildMember extends Model
         'gold_contribution',
         'joined_at'
     ];
+
+    public function player()
+    {
+        return $this->belongsTo(Player::class);
+    }
 }

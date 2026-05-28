@@ -1,43 +1,18 @@
 <script setup>
 import { pushAlert } from "@/Stores/GlobalAlert";
-import { ref } from "vue";
+import { onMounted, ref } from "vue";
 
 const isGuildOpen = ref(false);
 const activeTab = ref("list");
-
-const guilds = ref([
-    {
-        id: 1,
-        name: "Crimson Order",
-        leader_name: "Aldric",
-        level: 12,
-        members_count: 34,
-        power: 9850,
-    },
-    {
-        id: 2,
-        name: "Shadow Hunters",
-        leader_name: "Luna",
-        level: 18,
-        members_count: 52,
-        power: 15240,
-    },
-]);
-
-const myGuild = ref({
-    id: 2,
-    name: "Shadow Hunters",
-    leader_name: "Luna",
-    level: 18,
-    members_count: 52,
-    power: 15240,
-});
 const showCreateGuild = ref(false);
+const showOpenContribution = ref(false);
 const createGuildCost = 500000;
 const loading = ref(false);
 const guild = ref(null);
+const guilds = ref(null);
 const createGuildForm = ref({
     name: "",
+    contribution: "",
 });
 
 function openCreateGuild() {
@@ -64,6 +39,60 @@ async function createGuild() {
         showCreateGuild.value = false;
     }
 }
+
+async function joinGuild(guild) {
+    try {
+        loading.value = true;
+        let res = await axios.post("/join-guild", {
+            guild: guild,
+        });
+        pushAlert(res.data.message, "success");
+        myGuild();
+        loading.value = false;
+    } catch (e) {
+        pushAlert(e.response.data.message, "error");
+        loading.value = false;
+    }
+}
+async function contributeGuild() {
+    try {
+        loading.value = true;
+        let res = await axios.post("/contribute-guild", {
+            contribute: createGuildForm.value.contribution,
+        });
+        pushAlert(res.data.message, "success");
+        myGuild();
+        loading.value = false;
+        showOpenContribution.value = false;
+    } catch (e) {
+        pushAlert(e.response.data.message, "error");
+        loading.value = false;
+        showOpenContribution.value = false;
+    }
+}
+async function myGuild() {
+    try {
+        loading.value = true;
+        let res = await axios.get("/my-guild");
+        guild.value = res.data.guild;
+        loading.value = false;
+    } catch (e) {
+        pushAlert(e.response.data.message, "error");
+        loading.value = false;
+    }
+}
+
+async function getGuilds() {
+    try {
+        loading.value = true;
+        let res = await axios.get("/get-guilds");
+        guilds.value = res.data.guilds;
+        loading.value = false;
+    } catch (e) {
+        pushAlert(e.response.data.message, "error");
+        loading.value = false;
+    }
+}
 function viewGuild(guild) {
     console.log(guild);
 }
@@ -71,6 +100,11 @@ function viewGuild(guild) {
 function leaveGuild() {
     myGuild.value = null;
 }
+
+onMounted(async () => {
+    await getGuilds();
+    await myGuild();
+});
 </script>
 
 <template>
@@ -107,6 +141,7 @@ function leaveGuild() {
                 </button>
 
                 <button
+                    v-if="guild"
                     @click="activeTab = 'my'"
                     :class="{ active: activeTab === 'my' }"
                 >
@@ -125,48 +160,163 @@ function leaveGuild() {
                     <div
                         v-for="(guild, i) in guilds"
                         :key="guild.id"
-                        class="row"
+                        class="flex items-center justify-between bg-gray-900 border border-gray-700 hover:border-yellow-500 transition rounded-lg px-4 py-3 mb-2 cursor-pointer"
                         @click="viewGuild(guild)"
                     >
-                        <div class="left">
-                            <div class="rank">#{{ i + 1 }}</div>
-                            <div>
-                                <div class="name">{{ guild.name }}</div>
-                                <div class="sub">
-                                    Leader: {{ guild.leader_name }}
+                        <!-- LEFT SIDE -->
+                        <div class="flex items-center gap-3">
+                            <div class="text-xs font-bold text-yellow-400 w-10">
+                                #{{ i + 1 }}
+                            </div>
+
+                            <div class="flex flex-col">
+                                <div class="text-white font-semibold">
+                                    {{ guild.name }}
+                                </div>
+                                <div class="text-xs text-gray-400">
+                                    Leader: {{ guild.leader?.name }}
                                 </div>
                             </div>
                         </div>
 
-                        <div class="right">
-                            <div>Lv {{ guild.level }}</div>
-                            <div class="sub">{{ guild.power }}</div>
+                        <!-- RIGHT SIDE -->
+                        <div class="flex items-center gap-4">
+                            <div class="text-right text-xs text-gray-400">
+                                <div>Lv {{ guild.level }}</div>
+                                <div class="text-yellow-400 font-semibold">
+                                    {{ guild.gold_stash }}
+                                </div>
+                            </div>
+
+                            <!-- JOIN BUTTON -->
+                            <button
+                                v-if="!$page.props.auth.user.player?.guild_id"
+                                class="px-3 py-1 text-xs rounded-md bg-green-600 hover:bg-green-500 text-white font-semibold transition"
+                                @click.stop="joinGuild(guild)"
+                            >
+                                Join
+                            </button>
                         </div>
                     </div>
                 </div>
 
                 <!-- MY GUILD -->
-                <div v-else class="my">
-                    <div v-if="guild" class="box">
-                        <div class="title">{{ guild.name }}</div>
-                        <div class="sub">Leader: {{ guild.leader_id }}</div>
+                <div v-else class="my space-y-3">
+                    <!-- GUILD DETAILS -->
+                    <div
+                        v-if="guild"
+                        class="box p-4 rounded-lg bg-gray-900 border border-gray-700"
+                    >
+                        <div class="flex items-start justify-between gap-4">
+                            <!-- LEFT: ICON + INFO -->
+                            <div class="flex items-start gap-3">
+                                <!-- GUILD ICON -->
+                                <div
+                                    class="w-12 h-12 rounded-md bg-gray-800 border border-gray-700 overflow-hidden flex items-center justify-center"
+                                >
+                                    <img
+                                        src="/Monarch.png"
+                                        alt="Guild Icon"
+                                        class="w-full h-full object-cover"
+                                    />
+                                    <!-- <span v-else class="text-gray-500 text-xs">
+                                        No Icon
+                                    </span> -->
+                                </div>
 
-                        <div class="stats">
-                            <div>Lv {{ guild.level }}</div>
-                            <div>{{ guild?.members }} Members</div>
-                            <div>{{ guild.guild_contribution }} Power</div>
+                                <!-- TEXT INFO -->
+                                <div>
+                                    <div class="text-lg font-bold text-white">
+                                        {{ guild.name }}
+                                    </div>
+                                    <div class="text-sm text-gray-400">
+                                        Leader: {{ guild.leader?.name }}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- RIGHT STATS -->
+                            <div class="text-right text-xs text-gray-400">
+                                <div>Lv {{ guild.level }}</div>
+                                <div>{{ guild?.members.length }} Members</div>
+                                <div class="text-yellow-400 font-semibold">
+                                    {{ guild.gold_stash }} Power
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- GLOBAL ACTION -->
+                        <div class="flex justify-end mt-3">
+                            <button
+                                class="px-4 py-2 text-xs rounded-md bg-yellow-500 hover:bg-yellow-400 text-black font-semibold transition"
+                                @click="showOpenContribution = true"
+                            >
+                                Contribute
+                            </button>
                         </div>
                     </div>
 
-                    <div v-else class="empty">You are not part of a guild.</div>
+                    <!-- MEMBERS SECTION -->
+                    <div
+                        v-if="guild"
+                        class="box p-4 rounded-lg bg-gray-900 border border-gray-700"
+                    >
+                        <div class="text-white font-semibold mb-2">Members</div>
 
-                    <button v-if="guild" class="leave" @click="leaveGuild">
-                        Leave Guild
-                    </button>
+                        <div class="space-y-2">
+                            <div
+                                v-for="member in guild.members"
+                                :key="member.id"
+                                class="flex items-center justify-between bg-gray-800/60 hover:bg-gray-800 transition rounded-md px-3 py-2"
+                            >
+                                <!-- LEFT -->
+                                <div class="flex flex-col">
+                                    <div class="text-white font-medium">
+                                        {{ member.player?.name }}
+                                    </div>
+                                    <div class="text-xs text-gray-400">
+                                        Lvl.{{ member?.player?.current_level }}
+                                    </div>
+                                    <div class="text-xs text-yellow-400">
+                                        Contribution:
+                                        {{ member?.gold_contribution }}
+                                    </div>
+                                </div>
+
+                                <!-- RIGHT ACTION -->
+                                <button
+                                    v-if="
+                                        $page.props.auth.user.player.id ===
+                                        guild?.leader?.id
+                                    "
+                                    class="text-xs px-3 py-1 rounded-md bg-red-600 hover:bg-red-500 text-white font-semibold transition"
+                                    @click="kickMember(member)"
+                                >
+                                    Kick
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- EMPTY STATE -->
+                    <div v-else class="text-gray-400 text-center py-4">
+                        You are not part of a guild.
+                    </div>
+
+                    <!-- LEAVE BUTTON -->
+                    <div v-if="guild" class="flex justify-end">
+                        <button
+                            class="px-4 py-2 text-sm bg-red-600 hover:bg-red-500 text-white rounded-md transition"
+                            @click="leaveGuild"
+                        >
+                            Leave Guild
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
+
     <div class="create-modal" v-if="showCreateGuild">
         <div class="create-box">
             <h2>Create Guild</h2>
@@ -184,6 +334,28 @@ function leaveGuild() {
                 <button class="cancel" @click="closeCreateGuild">Cancel</button>
 
                 <button class="confirm" @click="createGuild">Create</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="create-modal" v-if="showOpenContribution && guild">
+        <div class="create-box">
+            <h2>Guild Contribution</h2>
+
+            <label>Contribute for guild: {{ guild?.name }}</label>
+            <input
+                v-model="createGuildForm.contribution"
+                placeholder="Enter amount"
+            />
+
+            <div class="actions">
+                <button class="cancel" @click="showOpenContribution = false">
+                    Cancel
+                </button>
+
+                <button class="confirm" @click="contributeGuild">
+                    Contribute
+                </button>
             </div>
         </div>
     </div>

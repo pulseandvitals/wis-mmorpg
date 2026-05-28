@@ -51,7 +51,9 @@ class Player extends Model
         'daily_fishing_chance',
 
         'in_pvp',
-        'pvp_battle_id'
+        'pvp_battle_id',
+
+        'guild_id'
     ];
 
     protected $casts = [
@@ -461,6 +463,11 @@ class Player extends Model
         }
 
         return false;
+    }
+
+    public function guild()
+    {
+        return $this->belongsTo(Guild::class, 'guild_id');
     }
 
     public function wing()

@@ -2,12 +2,81 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\GuildResource;
 use App\Models\Guild;
 use App\Models\GuildMember;
 use Illuminate\Http\Request;
 
 class GuildController extends Controller
 {
+    public function getGuilds()
+    {
+        $guilds = Guild::query()
+            ->orderByDesc('gold_stash')
+            ->get();
+
+        return response()->json([
+            'guilds' => GuildResource::collection($guilds)
+        ]);
+    }
+
+    public function myGuild()
+    {
+        $player = auth()->user()->player;
+        $myGuild = Guild::find($player->guild_id);
+
+        if(!$myGuild) {
+            return response()->json([
+                'guild' => null
+            ]);
+        }
+
+        $myGuild->load('members.player');
+
+        return response()->json([
+            'guild' => $myGuild ? GuildResource::make($myGuild) : null
+        ]);
+    }
+
+    public function joinGuild(Request $request)
+    {
+        $player = auth()->user()->player;
+
+        if($player->guild_id) {
+            return response()->json([
+                'message' => 'You already have guild.'
+            ],422);
+        }
+        $guild = Guild::find($request->guild['id']);
+
+        if(!$guild) {
+            return response()->json([
+                'message' => 'Guild not found.'
+            ],404);
+        }
+
+        if($guild->members->count() >= Guild::MAX_MEMBER) {
+            return response()->json([
+                'message' =>'Guild has reached its maximum capacity.'
+            ],422);
+        }
+
+        $player->guild_id = $guild->id;
+        $player->save();
+
+        $guild->members()->create([
+            'player_id' => $player->id,
+            'rank' => 'Member',
+            'gold_contribution' => 0,
+            'joined_at' => now()
+        ]);
+
+        return response()->json([
+            'message' => "You joined {$guild->name}!",
+            'guild' => $guild ? GuildResource::make($guild) : null
+        ]);
+    }
+
     public function createGuild(Request $request)
     {
         $request->validate([
@@ -46,9 +115,54 @@ class GuildController extends Controller
             'joined_at' => now()
         ]);
 
+        $player->guild_id = $guild->id;
+        $player->save();
+
         return response()->json([
             'message' => 'Guild created successfully!',
             'guild' => $guild
+        ]);
+    }
+
+    public function contributeGuild(Request $request)
+    {
+        $player = auth()->user()->player;
+        $playerContribute = (int) $request->contribute;
+
+        if($player->current_gold < $playerContribute) {
+            return response()->json([
+            'message' => 'Not enough gold. Enter an exact amount.'
+            ], 422);
+        }
+
+        $guild = Guild::find($player->guild_id);
+
+        if(!$guild) {
+            return response()->json([
+            'message' => 'Guild not found.'
+            ], 422);
+        }
+
+        $member = $guild->members()->where('player_id', $player->id)->first();
+
+        if(!$member) {
+            return response()->json([
+                'message' => 'Member not found.'
+            ], 422);
+        }
+
+        $member->gold_contribution += $playerContribute;
+        $member->save();
+
+        $guild->gold_stash += $playerContribute;
+        $guild->save();
+
+        $player->current_gold -= $playerContribute;
+        $player->save();
+
+        return response()->json([
+            'message' => 'Contributed!',
+            'guild' => $guild->load('members')
         ]);
     }
 }

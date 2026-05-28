@@ -62,6 +62,8 @@ return new class extends Migration
 
             $table->boolean('in_pvp')->default(false);
             $table->unsignedBigInteger('pvp_battle_id')->nullable();
+
+            $table->unsignedBigInteger('guild_id')->nullable();
             $table->timestamps();
         });
     }
