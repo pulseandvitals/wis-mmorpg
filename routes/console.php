@@ -11,3 +11,4 @@ Artisan::command('inspire', function () {
 Schedule::command('app:multiple-session')->everyMinute();
 Schedule::command('app:inactive-players')->everyMinute();
 Schedule::command('app:helper-message')->hourly();
+Schedule::command('app:daily-reset')->dailyAt('18:00'); //6pm

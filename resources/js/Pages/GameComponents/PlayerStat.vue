@@ -72,12 +72,13 @@ const props = defineProps({
                         class="fill exp-fill"
                         :style="{
                             width:
-                                Math.min(player.current_experience, 100) + '%',
+                                Math.min(player.experience_percentage, 100) +
+                                '%',
                         }"
                     ></div>
                 </div>
 
-                <span class="value"> {{ player.current_experience }}% </span>
+                <span class="value"> {{ player.experience_percentage }}% </span>
             </div>
         </div>
     </div>

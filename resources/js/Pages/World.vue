@@ -75,6 +75,7 @@ const player = reactive({
     max_mana: props.playerData.data.max_mana,
     current_level: props.playerData.data.current_level,
     current_experience: props.playerData.data.current_experience,
+    experience_percentage: props.playerData.data.experience_percentage,
     attack: props.playerData.data.total_attack,
     def: props.playerData.data.total_defense,
     crit: props.playerData.data.total_critical_percentage,

@@ -13,36 +13,34 @@ class LevelExperienceSeeder extends Seeder
      */
     public function run(): void
     {
-        $experiences = [];
-
         $exp = 0;
+$experiences = [];
 
-        for ($level = 1; $level <= 50; $level++) {
+for ($level = 1; $level <= 50; $level++) {
 
-            $experiences[] = [
-                'level' => $level,
-                'required_experience' => $exp
-            ];
+    $experiences[] = [
+        'level' => $level,
+        'required_experience' => $exp
+    ];
 
-            if ($level >= 1 && $level < 10) {
-                // EASY CURVE (fast leveling)
-                $exp += rand(60, 100); // 4–6 mobs early game
+    if ($level >= 1 && $level < 10) {
+        // Early game
+        $exp += rand(50, 80);
 
-            } elseif ($level > 11 && $level < 20) {
-                // MEDIUM CURVE (noticeable grind)
-                $exp += rand(700, 900); // 3–5 mobs mid game
+    } elseif ($level >= 10 && $level <= 20) {
+        // Mid game
+        $exp += rand(150, 250);
 
-            }
-            elseif ($level > 21 && $level < 30) {
-                // MEDIUM CURVE (noticeable grind)
-                $exp += rand(3000, 3500); // 3–5 mobs mid game
+    } elseif ($level >= 20 && $level <= 30) {
+        // Late-mid game
+        $exp += rand(600, 850);
 
-            } else {
-                // HARD CURVE (late game grind like your original idea)
-                $exp += floor(90 * pow($level, 1.2)); // 2–4 mobs late game
-            }
-        }
+    } else {
+        // End game
+        $exp += floor(70 * pow($level, 1.18));
+    }
+}
 
-        DB::table('experiences')->insert($experiences);
+DB::table('experiences')->insert($experiences);
     }
 }

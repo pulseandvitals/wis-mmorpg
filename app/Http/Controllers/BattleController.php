@@ -38,12 +38,11 @@ class BattleController extends Controller
 
         /* SIMPLE LEVEL SYSTEM */
         $multiplier = $this->player->is_exp_potion_active ? 2 : 1;
+        $levelUp = false;
         $this->player->current_experience += (int)($totalExp * $multiplier);
         $this->player->current_gold += $totalGold;
-
-        $levelUp = false;
         $neededExp = Experience::whereLevel($this->player->current_level)->value('required_experience');
-        if ($this->player->current_experience >= $neededExp) {
+        if ($this->player->current_experience >= (int) $neededExp) {
             $this->player->current_level += 1;
             $this->player->current_experience -= $neededExp;
 

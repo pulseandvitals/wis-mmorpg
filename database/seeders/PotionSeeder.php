@@ -94,7 +94,7 @@ class PotionSeeder extends Seeder
             'type' => 'buff',
             'effect' => json_encode([
                 [
-                    'stat' => 'crit_rate',
+                    'stat' => 'crit',
                     'operation' => 'multiply',
                     'value' => 20,
                     'value_type' => 'percent',

@@ -66,7 +66,7 @@ const handleMenuClick = (item) => {
         isRankingOpen.value = true;
     }
     if (item.id === 6) {
-        window.open("https://discord.com", "_blank");
+        window.open("https://discord.gg/DZF8KnM9f", "_blank");
     }
     if (item.id === 7) {
         isSettingsOpen.value = true;

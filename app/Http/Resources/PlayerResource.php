@@ -23,6 +23,7 @@ class PlayerResource extends JsonResource
             // LEVEL / PROGRESSION
             // ======================================================
             'current_level' => $this->current_level,
+            'experience_percentage' => $this->getExpPercentage(),
             'current_experience' => $this->current_experience,
 
             // ======================================================
