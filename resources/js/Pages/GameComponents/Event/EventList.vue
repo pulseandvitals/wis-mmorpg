@@ -18,6 +18,7 @@ const events = ref([
         status: "Coming Soon",
         color: "red",
         button: "Enter",
+        is_available: false,
         bg: "/images/events/trivia.jpg",
     },
 
@@ -29,6 +30,7 @@ const events = ref([
         status: "Coming Soon",
         color: "red",
         button: "Enter",
+        is_available: false,
         bg: "/images/events/trivia.jpg",
     },
 
@@ -40,6 +42,7 @@ const events = ref([
         status: "Coming Soon",
         color: "red",
         button: "Enter",
+        is_available: false,
         bg: "/event_posters/Guild Showdown.png",
     },
 
@@ -51,6 +54,7 @@ const events = ref([
         status: "Coming Soon",
         color: "red",
         button: "Enter",
+        is_available: false,
         bg: "/images/events/trivia.jpg",
     },
     {
@@ -61,6 +65,7 @@ const events = ref([
         status: "Daily",
         color: "green",
         button: "Bet",
+        is_available: true,
         limit: 10,
         bg: "/event_posters/Bet.png",
     },
@@ -72,6 +77,7 @@ const events = ref([
         status: "Daily",
         color: "green",
         button: "Answer",
+        is_available: true,
         limit: 10,
         bg: "/event_posters/Trivia.png",
     },
@@ -150,7 +156,12 @@ function badgeClass(color) {
                         </p>
 
                         <!-- BUTTON -->
-                        <button class="event-button" @click="enterEvent(event)">
+                        <button
+                            class="event-button"
+                            :class="{ 'opacity-50': !event.is_available }"
+                            @click="enterEvent(event)"
+                            :disable="!event.is_available"
+                        >
                             {{ event.button ?? "Enter Event" }}
                         </button>
                     </div>

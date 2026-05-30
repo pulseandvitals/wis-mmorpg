@@ -14,33 +14,33 @@ class LevelExperienceSeeder extends Seeder
     public function run(): void
     {
         $exp = 0;
-$experiences = [];
+        $experiences = [];
 
-for ($level = 1; $level <= 50; $level++) {
+        for ($level = 1; $level <= 50; $level++) {
 
-    $experiences[] = [
-        'level' => $level,
-        'required_experience' => $exp
-    ];
+            $experiences[] = [
+                'level' => $level,
+                'required_experience' => $exp
+            ];
 
-    if ($level >= 1 && $level < 10) {
-        // Early game
-        $exp += rand(50, 80);
+            if ($level >= 1 && $level < 10) {
+                // Early game
+                $exp += rand(50, 80);
 
-    } elseif ($level >= 10 && $level <= 20) {
-        // Mid game
-        $exp += rand(200, 350);
+            } elseif ($level >= 10 && $level <= 20) {
+                // Mid game
+                $exp += rand(200, 350);
 
-    } elseif ($level >= 20 && $level <= 30) {
-        // Late-mid game
-        $exp += rand(600, 850);
+            } elseif ($level >= 20 && $level <= 30) {
+                // Late-mid game
+                $exp += rand(600, 850);
 
-    } else {
-        // End game
-        $exp += floor(70 * pow($level, 1.18));
-    }
-}
+            } else {
+                // End game
+                $exp += floor(70 * pow($level, 1.4));
+            }
+        }
 
-DB::table('experiences')->insert($experiences);
+        DB::table('experiences')->insert($experiences);
     }
 }

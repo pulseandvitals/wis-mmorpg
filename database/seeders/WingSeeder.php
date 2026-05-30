@@ -20,16 +20,16 @@ class WingSeeder extends Seeder
                     'attack' => 5,
                     'defense' => 2,
                 ]),
-                'requirement_level' => 1,
+                'requirement_level' => 15,
             ],
             [
                 'name' => 'Azure Wings',
                 'type' => 'wing',
                 'basic_stats' => json_encode([
-                    'attack' => 1,
+                    'attack' => 3,
                     'speed' => 2,
                 ]),
-                'requirement_level' => 1,
+                'requirement_level' => 15,
             ],
             [
                 'name' => 'Angelus Wings',
@@ -38,25 +38,25 @@ class WingSeeder extends Seeder
                     'hp' => 30,
                     'mp' => 15,
                 ]),
-                'requirement_level' => 1,
+                'requirement_level' => 15,
             ],
             [
                 'name' => 'Celestial Wings',
                 'type' => 'wing',
                 'basic_stats' => json_encode([
                     'crit' => 1,
-                    'defense' => 2,
+                    'defense' => 3,
                 ]),
-                'requirement_level' => 1,
+                'requirement_level' => 15,
             ],
             [
                 'name' => 'Shadow Wings',
                 'type' => 'wing',
                 'basic_stats' => json_encode([
-                    'evasion' => 2,
-                    'attack' => 1,
+                    'evasion' => 1,
+                    'attack' => 3,
                 ]),
-                'requirement_level' => 1,
+                'requirement_level' => 15,
             ],
         ]);
     }

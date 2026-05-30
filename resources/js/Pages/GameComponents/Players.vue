@@ -91,7 +91,7 @@ const getSpriteFolder = (p) => {
             <!-- PVP STATUS -->
             <div v-if="p.in_pvp" class="pvp-indicator">⚔ IN PVP</div>
             <!-- GUILD NAME (ABOVE PLAYER NAME) -->
-            <div v-if="p.guild" class="guild-name"><{{ p.guild.name }}></div>
+            <div v-if="p.guild" class="guild-name">[{{ p.guild.name }}]</div>
             <!-- NAME TAG -->
             <div class="name-tag">
                 <p :class="{ 'text-red-500': !current_map?.is_safe_zone }">

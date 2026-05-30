@@ -31,12 +31,12 @@ class InactivePlayers extends Command
 
         $inactivePlayers = DB::table('sessions')
             ->whereNotNull('user_id')
-            ->where('last_activity', '<', now()->subMinutes(30)->timestamp)
+            ->where('last_activity', '<', now()->subMinutes(10)->timestamp)
             ->pluck('user_id');
 
         $activePlayers = DB::table('sessions')
             ->whereNotNull('user_id')
-            ->where('last_activity', '>=', now()->subMinutes(30)->timestamp)
+            ->where('last_activity', '>=', now()->subMinutes(10)->timestamp)
             ->pluck('user_id');
 
         /*

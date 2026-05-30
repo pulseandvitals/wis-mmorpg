@@ -22,7 +22,7 @@ class MonsterSeeder extends Seeder
                 'drops' => [
                     ['item' => 'Ice Crystal', 'chance' => 12],
                     ['item' => 'Frozen Core', 'chance' => 5],
-                    ['item' => 'Iron Skin Card', 'chance' => 0.01],
+                    ['item' => 'Iron Skin Card', 'chance' => 0.03],
                 ],
                 'exp' => 15
             ],
@@ -348,7 +348,7 @@ class MonsterSeeder extends Seeder
             $m['skill'] = json_encode($m['skill']);
             $m['drops'] = json_encode(array_merge($m['drops'], [
                 ['item' => 'Celebeam Gem', 'chance' => 0.5],
-                ['item' => 'Seleri Gem', 'chance' => 0.8],
+                ['item' => 'Seleri Gem', 'chance' => 0.7],
             ]));
 
             $monsters[] = $m;
