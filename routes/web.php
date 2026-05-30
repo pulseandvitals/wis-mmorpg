@@ -22,7 +22,7 @@ use Inertia\Inertia;
 
 Route::get('/',[MapController::class,'index']);
 
-Route::middleware('auth')->group(function () {
+Route::middleware(['auth'])->group(function () {
 Route::prefix('world')->group(function () {
     Route::get('/map/{map_id}', [\App\Http\Controllers\WorldMapController::class, 'worldMap'])->name('world.map');
 });

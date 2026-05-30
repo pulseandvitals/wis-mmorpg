@@ -1,6 +1,13 @@
 <script setup>
-import { Head, Link } from "@inertiajs/vue3";
+import { Head, Link, router } from "@inertiajs/vue3";
 import { ref, onMounted } from "vue";
+
+const route = (name, params = {}) => {
+    const routes = {
+        login: "/login",
+    };
+    return routes[name] || "/login";
+};
 
 const hoveredClass = ref(null);
 const isMobile = ref(false);
@@ -38,17 +45,18 @@ const jsonLd = ref({
 <template>
     <Head>
         <title>
-            Wisteria Online - Free MMORPG Browser Game | Mobile & Desktop Ready
+            Wisteria Online - Free MMORPG Browser Game | PvP, Raids, Crafting &
+            Guild Wars
         </title>
 
         <!-- Primary Meta -->
         <meta
             name="description"
-            content="Wisteria Online - Free MMORPG browser game. Play on mobile or desktop. Explore a fantasy world, battle monsters, complete quests, join PvP fights, and level up your hero online."
+            content="Wisteria Online is a free MMORPG browser game with live PvP, PvE boss raids, crafting, guild wars, weapon upgrades, and mini events. Play instantly on mobile or desktop."
         />
         <meta
             name="keywords"
-            content="wisteria online, mmorpg browser game, free mmorpg, online rpg, fantasy browser game, 2d mmorpg, multiplayer rpg, free online rpg game, mobile mmorpg, desktop mmorpg"
+            content="wisteria online, mmorpg browser game, free mmorpg, online rpg, fantasy browser game, 2d mmorpg, pvp browser game, crafting rpg, guild wars, boss raids, mini events"
         />
         <meta name="robots" content="index, follow" />
         <meta
@@ -62,11 +70,11 @@ const jsonLd = ref({
         <!-- Open Graph / Social -->
         <meta
             property="og:title"
-            content="Wisteria Online - Free MMORPG | Play on Mobile & Desktop"
+            content="Wisteria Online - Free MMORPG | Live PvP, Boss Raids & Guild Wars"
         />
         <meta
             property="og:description"
-            content="Join Wisteria Online, a free MMORPG browser game with dungeons, PvP battles, quests, and endless progression. Play on any device."
+            content="Step into Wisteria Online: a browser-based MMORPG with PvP arenas, PvE boss raids, crafting, guild wars, weapon upgrades, and weekly mini events. Mobile & desktop ready."
         />
         <meta property="og:type" content="website" />
         <meta property="og:url" content="https://wisteria-online.com" />
@@ -82,7 +90,7 @@ const jsonLd = ref({
         <meta name="twitter:title" content="Wisteria Online - Free MMORPG" />
         <meta
             name="twitter:description"
-            content="Play Wisteria Online on mobile or desktop. Free MMORPG browser game."
+            content="Play Wisteria Online with live PvP, boss raids, crafting, guild wars, weapon upgrades, and mini events. Free browser MMORPG."
         />
     </Head>
     <div class="fixed inset-0 z-0">
@@ -165,11 +173,12 @@ const jsonLd = ref({
                 </nav>
 
                 <!-- Play Now Button in Navbar -->
-                <button
+                <a
+                    :href="route('login')"
                     class="px-4 sm:px-6 py-1.5 sm:py-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white font-bold rounded-lg hover:from-purple-400 hover:to-pink-400 transition duration-300 transform hover:scale-105 shadow-lg shadow-purple-500/30 text-xs sm:text-sm"
                 >
                     Play Now
-                </button>
+                </a>
             </div>
         </header>
 
@@ -208,12 +217,13 @@ const jsonLd = ref({
                     <p
                         class="text-sm sm:text-base text-gray-300 mt-4 sm:mt-6 max-w-3xl mx-auto leading-relaxed"
                     >
-                        A legendary 2D MMORPG where thousands of players battle,
-                        quest, and grind together.
+                        Dive into Wisteria Online, a browser MMORPG filled with
+                        arena PvP, epic boss raids, guild wars, crafting, and
+                        flash mini events.
                         <span class="text-purple-400 font-semibold"
-                            >Play on your phone or computer</span
+                            >Play now on mobile or desktop</span
                         >
-                        — your adventure follows you everywhere.
+                        — your adventure never stops.
                     </p>
                 </div>
 
@@ -222,11 +232,12 @@ const jsonLd = ref({
                     class="flex flex-col sm:flex-row justify-center gap-3 sm:gap-6 pt-4 sm:pt-8"
                 >
                     <!-- PLAY NOW - Primary CTA -->
-                    <button
-                        class="group relative px-8 sm:px-12 py-4 sm:py-5 bg-gradient-to-r from-purple-500 to-pink-500 text-white font-bold text-base sm:text-lg rounded-xl overflow-hidden transform hover:scale-110 transition duration-300 shadow-2xl shadow-purple-500/50 hover:shadow-pink-500/50"
+                    <a
+                        href="#classes"
+                        class="group relative inline-flex items-center justify-center px-8 sm:px-12 py-4 sm:py-5 bg-gradient-to-r from-purple-500 to-pink-500 text-white font-bold text-base sm:text-lg rounded-xl overflow-hidden transform hover:scale-110 transition duration-300 shadow-2xl shadow-purple-500/50 hover:shadow-pink-500/50"
                     >
                         <span class="relative z-10 flex items-center gap-2">
-                            ▶ PLAY NOW - FREE
+                            PLAY NOW - FREE
                             <span class="text-xs opacity-70 hidden sm:inline"
                                 >(No Download)</span
                             >
@@ -237,7 +248,7 @@ const jsonLd = ref({
                         <div
                             class="absolute -inset-1 bg-gradient-to-r from-purple-600 to-pink-600 rounded-xl blur-xl opacity-0 group-hover:opacity-30 transition duration-300"
                         ></div>
-                    </button>
+                    </a>
 
                     <button
                         class="px-8 sm:px-10 py-4 sm:py-5 border-2 border-purple-400 text-purple-400 font-bold text-base sm:text-lg rounded-xl hover:bg-purple-400 hover:text-black transition duration-300 transform hover:scale-105"
@@ -444,6 +455,108 @@ const jsonLd = ref({
             </div>
         </section>
 
+        <!-- Gameplay Ring Section -->
+        <section
+            id="gameplay"
+            class="relative z-10 py-24 sm:py-32 px-4 sm:px-6 bg-gradient-to-b from-transparent via-slate-950/10 to-transparent"
+        >
+            <div class="max-w-7xl mx-auto">
+                <div class="text-center mb-12 sm:mb-20">
+                    <p
+                        class="text-pink-400 font-bold text-sm sm:text-lg uppercase tracking-widest mb-3 sm:mb-4"
+                    >
+                        What Makes Wisteria Legendary
+                    </p>
+                    <h3
+                        class="text-2xl sm:text-3xl font-black mb-4 sm:mb-6 bg-gradient-to-r from-purple-300 to-pink-300 bg-clip-text text-transparent"
+                    >
+                        Live Systems Built for Addictive Play
+                    </h3>
+                    <p class="text-sm text-gray-400 max-w-2xl mx-auto px-4">
+                        Fight in fast-paced PvP, conquer massive boss raids,
+                        craft gear, lead guild wars, and chase exclusive rewards
+                        in dynamic mini events.
+                    </p>
+                </div>
+
+                <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                    <div
+                        class="group relative bg-gradient-to-br from-blue-950/60 to-slate-900/50 backdrop-blur border border-blue-500/20 p-6 rounded-3xl hover:shadow-2xl hover:shadow-blue-500/20 transition"
+                    >
+                        <div class="text-4xl mb-4">⚔️</div>
+                        <h4 class="text-lg font-bold text-white mb-3">
+                            PvP Arenas
+                        </h4>
+                        <p class="text-sm text-gray-300 leading-relaxed">
+                            Climb the ranks in arena combat, duel rivals, earn
+                            honor, and unlock rare PvP gear every season.
+                        </p>
+                    </div>
+                    <div
+                        class="group relative bg-gradient-to-br from-purple-950/60 to-slate-900/50 backdrop-blur border border-purple-500/20 p-6 rounded-3xl hover:shadow-2xl hover:shadow-purple-500/20 transition"
+                    >
+                        <div class="text-4xl mb-4">🐉</div>
+                        <h4 class="text-lg font-bold text-white mb-3">
+                            Boss Raids
+                        </h4>
+                        <p class="text-sm text-gray-300 leading-relaxed">
+                            Team up with friends to take down world bosses,
+                            unlock legendary loot, and earn progression rewards.
+                        </p>
+                    </div>
+                    <div
+                        class="group relative bg-gradient-to-br from-green-950/60 to-slate-900/50 backdrop-blur border border-green-500/20 p-6 rounded-3xl hover:shadow-2xl hover:shadow-green-500/20 transition"
+                    >
+                        <div class="text-4xl mb-4">🛠️</div>
+                        <h4 class="text-lg font-bold text-white mb-3">
+                            Crafting & Upgrades
+                        </h4>
+                        <p class="text-sm text-gray-300 leading-relaxed">
+                            Forge weapons, enchant armor, and upgrade gear with
+                            rare materials gathered from dungeons and events.
+                        </p>
+                    </div>
+                    <div
+                        class="group relative bg-gradient-to-br from-red-950/60 to-slate-900/50 backdrop-blur border border-red-500/20 p-6 rounded-3xl hover:shadow-2xl hover:shadow-red-500/20 transition"
+                    >
+                        <div class="text-4xl mb-4">🏰</div>
+                        <h4 class="text-lg font-bold text-white mb-3">
+                            Guild Wars
+                        </h4>
+                        <p class="text-sm text-gray-300 leading-relaxed">
+                            Form alliances, declare war, siege enemy
+                            strongholds, and fight for territory with your
+                            guild.
+                        </p>
+                    </div>
+                    <div
+                        class="group relative bg-gradient-to-br from-yellow-950/60 to-slate-900/50 backdrop-blur border border-yellow-500/20 p-6 rounded-3xl hover:shadow-2xl hover:shadow-yellow-500/20 transition"
+                    >
+                        <div class="text-4xl mb-4">🎯</div>
+                        <h4 class="text-lg font-bold text-white mb-3">
+                            PvE Adventures
+                        </h4>
+                        <p class="text-sm text-gray-300 leading-relaxed">
+                            Explore sprawling dungeons, complete quests, and
+                            earn powerful rewards while leveling your champion.
+                        </p>
+                    </div>
+                    <div
+                        class="group relative bg-gradient-to-br from-pink-950/60 to-slate-900/50 backdrop-blur border border-pink-500/20 p-6 rounded-3xl hover:shadow-2xl hover:shadow-pink-500/20 transition"
+                    >
+                        <div class="text-4xl mb-4">✨</div>
+                        <h4 class="text-lg font-bold text-white mb-3">
+                            Mini Events
+                        </h4>
+                        <p class="text-sm text-gray-300 leading-relaxed">
+                            Join limited-time quests, surprise drop events, and
+                            weekend challenges for bonus rewards and rare loot.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
         <!-- Classes Section -->
         <section id="classes" class="relative z-10 py-24 sm:py-32 px-4 sm:px-6">
             <div class="max-w-7xl mx-auto">
@@ -621,8 +734,9 @@ const jsonLd = ref({
                         >
                         — mobile, tablet, or desktop.
                     </p>
-                    <button
-                        class="group relative px-10 sm:px-14 py-5 sm:py-6 bg-gradient-to-r from-purple-500 to-pink-500 text-white font-bold text-base sm:text-lg rounded-xl overflow-hidden transform hover:scale-110 transition duration-300 shadow-2xl shadow-purple-500/50 hover:shadow-pink-500/50"
+                    <a
+                        :href="route('login')"
+                        class="group relative px-10 sm:px-14 py-5 sm:py-6 bg-gradient-to-r from-purple-500 to-pink-500 text-white font-bold text-base sm:text-lg rounded-xl overflow-hidden transform hover:scale-110 transition duration-300 shadow-2xl shadow-purple-500/50 hover:shadow-pink-500/50 inline-block"
                     >
                         <span class="relative z-10 text-xl sm:text-2xl"
                             >▶ PLAY NOW</span
@@ -633,7 +747,7 @@ const jsonLd = ref({
                         <div
                             class="absolute -inset-1 bg-gradient-to-r from-purple-600 to-pink-600 rounded-xl blur-xl opacity-0 group-hover:opacity-30 transition duration-300"
                         ></div>
-                    </button>
+                    </a>
                     <p class="mt-4 text-xs text-gray-400">
                         Free to play · No download · Mobile & desktop
                     </p>
@@ -757,7 +871,7 @@ const jsonLd = ref({
                             </li>
                             <li>
                                 <a
-                                    href="#"
+                                    :href="route('login')"
                                     class="hover:text-purple-300 transition"
                                     >Play Now</a
                                 >

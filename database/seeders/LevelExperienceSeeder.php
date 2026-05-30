@@ -29,7 +29,7 @@ for ($level = 1; $level <= 50; $level++) {
 
     } elseif ($level >= 10 && $level <= 20) {
         // Mid game
-        $exp += rand(150, 250);
+        $exp += rand(200, 350);
 
     } elseif ($level >= 20 && $level <= 30) {
         // Late-mid game

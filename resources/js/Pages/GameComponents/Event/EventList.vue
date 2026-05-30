@@ -15,8 +15,8 @@ const events = ref([
         name: "Fishing Frenzy",
         description:
             "Catch rare fish across special fishing zones and exchange them for gold, crafting materials, and exclusive rewards.",
-        status: "Active",
-        color: "green",
+        status: "Coming Soon",
+        color: "red",
         button: "Enter",
         bg: "/images/events/trivia.jpg",
     },
@@ -26,8 +26,8 @@ const events = ref([
         name: "Guild Crystal",
         description:
             "Gather magical crystals with your guild to unlock powerful buffs, bonus loot, and rare guild rewards.",
-        status: "Upcoming",
-        color: "yellow",
+        status: "Coming Soon",
+        color: "red",
         button: "Enter",
         bg: "/images/events/trivia.jpg",
     },
@@ -37,7 +37,7 @@ const events = ref([
         name: "Guild Showdown",
         description:
             "Battle rival guilds in an intense PvP competition and climb the rankings to earn legendary rewards.",
-        status: "Starting Soon",
+        status: "Coming Soon",
         color: "red",
         button: "Enter",
         bg: "/event_posters/Guild Showdown.png",
@@ -48,8 +48,8 @@ const events = ref([
         name: "Masquerade",
         description:
             "Join the mysterious masquerade festival filled with hidden quests, rare encounters, and special cosmetic rewards.",
-        status: "Active",
-        color: "green",
+        status: "Coming Soon",
+        color: "red",
         button: "Enter",
         bg: "/images/events/trivia.jpg",
     },

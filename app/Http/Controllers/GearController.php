@@ -247,7 +247,7 @@ class GearController extends Controller
 
         $inventory = Inventory::with('gear')->findOrFail($player->{$key});
 
-        if(!$inventoryMaterial) {
+        if(!$inventoryMaterial || $inventoryMaterial->quantity <= 0) {
             return response()->json([
                 'message' => 'Upgrade material not found.'
             ], 404);
@@ -279,7 +279,7 @@ class GearController extends Controller
         }
 
         // success rate (decreases as level increases)
-        $successRate = max(10, 100 - ($currentLevel * 10));
+        $successRate = max(5, 100 - ($currentLevel * 12));
         $roll = rand(1, 100);
 
         if ($roll <= $successRate) {
@@ -303,7 +303,7 @@ class GearController extends Controller
          * FAIL CASE
          * Now we check if item breaks
          */
-        $breakChance = max(5, $currentLevel * 6);
+        $breakChance = max(8, min(70, $currentLevel * 7));
         $breakRoll = rand(1, 100);
 
         if ($breakRoll <= $breakChance) {

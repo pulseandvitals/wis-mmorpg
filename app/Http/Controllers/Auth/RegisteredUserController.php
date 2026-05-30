@@ -39,6 +39,7 @@ class RegisteredUserController extends Controller
                 'string',
                 'max:10',
                 'regex:/^[A-Za-z0-9_]+$/',
+                'unique:'.User::class,
             ],
             'email' => 'required|string|lowercase|email|max:255|unique:'.User::class,
             'password' => ['required', 'confirmed', Rules\Password::defaults()],

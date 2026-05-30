@@ -347,8 +347,8 @@ class MonsterSeeder extends Seeder
             // SURFACE
             $m['skill'] = json_encode($m['skill']);
             $m['drops'] = json_encode(array_merge($m['drops'], [
-                ['item' => 'Celebeam Gem', 'chance' => 0.8],
-                ['item' => 'Seleri Gem', 'chance' => 1],
+                ['item' => 'Celebeam Gem', 'chance' => 0.5],
+                ['item' => 'Seleri Gem', 'chance' => 0.8],
             ]));
 
             $monsters[] = $m;

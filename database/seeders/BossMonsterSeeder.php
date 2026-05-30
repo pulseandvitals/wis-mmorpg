@@ -24,7 +24,7 @@ class BossMonsterSeeder extends Seeder
                     ['item' => 'Celebeam Gem', 'chance' => 80],
                     ['item' => 'Seleri Gem', 'chance' => 80],
                 ]),
-                'exp' => 2000
+                'exp' => 300
             ],
 
             [
@@ -41,7 +41,7 @@ class BossMonsterSeeder extends Seeder
                     ['item' => 'Celebeam Gem', 'chance' => 80],
                     ['item' => 'Seleri Gem', 'chance' => 80],
                 ]),
-                'exp' => 2800
+                'exp' => 300
             ],
 
             [
@@ -58,7 +58,7 @@ class BossMonsterSeeder extends Seeder
                     ['item' => 'Celebeam Gem', 'chance' => 80],
                     ['item' => 'Seleri Gem', 'chance' => 80],
                 ]),
-                'exp' => 3500
+                'exp' => 400
             ],
 
             [
@@ -75,7 +75,7 @@ class BossMonsterSeeder extends Seeder
                     ['item' => 'Celebeam Gem', 'chance' => 80],
                     ['item' => 'Seleri Gem', 'chance' => 80],
                 ]),
-                'exp' => 4200
+                'exp' => 400
             ],
 
             [
@@ -92,7 +92,7 @@ class BossMonsterSeeder extends Seeder
                     ['item' => 'Celebeam Gem', 'chance' => 80],
                     ['item' => 'Seleri Gem', 'chance' => 80],
                 ]),
-                'exp' => 3300
+                'exp' => 600
             ],
 
             [
@@ -109,7 +109,7 @@ class BossMonsterSeeder extends Seeder
                     ['item' => 'Celebeam Gem', 'chance' => 80],
                     ['item' => 'Seleri Gem', 'chance' => 80],
                 ]),
-                'exp' => 4000
+                'exp' => 600
             ]
         ];
 

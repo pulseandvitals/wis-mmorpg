@@ -26,30 +26,19 @@ class MultipleSession extends Command
      */
     public function handle()
     {
-        // Get all users with more than 1 session
-        $users = DB::table('sessions')
-            ->select('user_id')
-            ->whereNotNull('user_id')
-            ->groupBy('user_id')
-            ->havingRaw('COUNT(*) > 1')
+        $userId = auth()->id();
+
+        $sessions = DB::table('sessions')
+            ->where('user_id', $userId)
+            ->orderBy('last_activity', 'desc')
             ->get();
 
-        foreach ($users as $user) {
+        if ($sessions->count() > 1) {
+            $sessionsToDelete = $sessions->slice(1);
 
-            // Get all sessions of that user ordered by last activity
-            $sessions = DB::table('sessions')
-                ->where('user_id', $user->user_id)
-                ->orderByDesc('last_activity')
-                ->get();
-
-            // Keep the latest session, delete the rest
-            $keepSession = $sessions->shift();
-
-            foreach ($sessions as $session) {
-                DB::table('sessions')
-                    ->where('id', $session->id)
-                    ->delete();
-            }
+            DB::table('sessions')
+                ->whereIn('id', $sessionsToDelete->pluck('id'))
+                ->delete();
         }
 
         $this->info('Multiple sessions cleaned successfully.');

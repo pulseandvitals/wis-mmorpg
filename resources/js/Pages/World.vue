@@ -180,7 +180,6 @@ function registerPvpListener() {
             }
 
             if (!pvpRef.value) {
-                console.warn("pvpRef is NULL (component not ready)");
                 return;
             }
 
@@ -193,7 +192,6 @@ function zoneStateListener() {
     const mapId = props.current_map?.map_id;
 
     window.Echo.channel(`zone.${mapId}`).listen(".zone.state.updated", (e) => {
-        console.log("ZONE EVENT:", e);
         switch (e.payload.type) {
             case "player.update":
                 updatePlayers(e);
@@ -235,6 +233,7 @@ function joinPlayer(e) {
 
         // optional extras (safe if present)
         wing: e.wing ?? null,
+        guild: e.guild ?? null,
     });
 }
 
@@ -319,6 +318,9 @@ function normalizeZoneUpdate(e) {
 
     if (e.emoji !== undefined) {
         update.emoji = e.emoji;
+    }
+    if (e.current_experience !== undefined) {
+        update.current_experience = e.current_experience;
     }
 
     return update;
@@ -614,6 +616,7 @@ async function getPlayers() {
         current_gold: p.current_gold,
         in_pvp: p.in_pvp,
         wing: p.wing?.gear?.name || null,
+        guild: p.guild,
     }));
 }
 

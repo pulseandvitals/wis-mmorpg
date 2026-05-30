@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\ZoneStateUpdated;
 use App\Http\Resources\GuildResource;
 use App\Models\Guild;
 use App\Models\GuildMember;
@@ -72,6 +73,12 @@ class GuildController extends Controller
             'joined_at' => now()
         ]);
 
+        broadcast(new ZoneStateUpdated($player->current_map_id,[
+            'id' => $player->id,
+            'type' => 'player.update',
+            'guild' => $player->guild,
+        ]));
+
         return response()->json([
             'message' => "You joined {$guild->name}!",
             'guild' => $guild ? GuildResource::make($guild) : null
@@ -89,17 +96,30 @@ class GuildController extends Controller
                 'unique:guilds,name',
                 'regex:/^[A-Za-z0-9_]+$/'
             ],
+            'payment_type' => ['required','in:diamond,gold']
         ]);
 
         $player = auth()->user()->player;
 
-        if($player->current_gold < Guild::GUILD_CREATION_COST) {
+        if($request->payment_type === 'gold' && $player->current_gold < Guild::GUILD_CREATION_COST) {
             return response()->json([
             'message' => 'Not enough gold.'
             ], 422);
         }
 
-        $player->current_gold -= Guild::GUILD_CREATION_COST;
+        if($request->payment_type === 'diamond' && $player->current_gold < Guild::GUILD_CREATION_COST_DIAMOND) {
+            return response()->json([
+                'message' => 'Not enough diamond.'
+            ], 422);
+        }
+
+        if($request->payment_type === 'gold') {
+            $player->current_gold -= Guild::GUILD_CREATION_COST;
+        }
+
+        if($request->payment_type === 'diamond') {
+            $player->current_diamond -= Guild::GUILD_CREATION_COST_DIAMOND;
+        }
 
         $guild = Guild::create([
             'name' => $request->name,
@@ -118,6 +138,12 @@ class GuildController extends Controller
 
         $player->guild_id = $guild->id;
         $player->save();
+
+        broadcast(new ZoneStateUpdated($player->current_map_id,[
+            'id' => $player->id,
+            'type' => 'player.update',
+            'guild' => $player->guild,
+        ]));
 
         return response()->json([
             'message' => 'Guild created successfully!',

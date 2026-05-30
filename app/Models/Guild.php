@@ -15,6 +15,7 @@ class Guild extends Model
     ];
 
     const GUILD_CREATION_COST = 500000;
+    const GUILD_CREATION_COST_DIAMOND = 599;
     const MAX_MEMBER = 5;
     const COST_FOR_MULTIPLE_FILE_UPLOAD = 299;
     public function members()

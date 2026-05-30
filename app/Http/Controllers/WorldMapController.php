@@ -562,6 +562,7 @@ class WorldMapController extends Controller
             'class_type' => $player->class_type,
             'current_map_id' => $player->current_map_id,
             'wing' => $player->wing?->gear?->name,
+            'guild' => $player->guild,
         ]));
     }
 

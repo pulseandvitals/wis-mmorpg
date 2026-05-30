@@ -79,7 +79,6 @@ class PlayerResource extends JsonResource
             // ======================================================
             'in_pvp' => $this->in_pvp,
             'pvp_battle_id' => $this->pvp_battle_id,
-
             // ======================================================
             // BUFFS / TALENTS / CARDS
             // ======================================================

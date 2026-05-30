@@ -90,6 +90,7 @@ class PlayerController extends Controller
             'current_health',
             'max_mana',
             'current_mana',
+            'guild_id'
         ])
         ->with(['wing.gear','guild'])
         ->where('id', '!=', auth()->user()->player->id)

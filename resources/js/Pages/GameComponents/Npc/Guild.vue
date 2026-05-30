@@ -7,6 +7,7 @@ const activeTab = ref("list");
 const showCreateGuild = ref(false);
 const showOpenContribution = ref(false);
 const createGuildCost = 500000;
+const createGuildDiamondCost = 599;
 const loading = ref(false);
 const guild = ref(null);
 const guilds = ref(null);
@@ -14,6 +15,7 @@ const guilds = ref(null);
 const createGuildForm = ref({
     name: "",
     contribution: "",
+    payment_type: "",
 });
 const fileInput = ref(null);
 
@@ -78,6 +80,7 @@ async function createGuild() {
         loading.value = true;
         let res = await axios.post("/create-guild", {
             name: createGuildForm.value.name,
+            payment_type: createGuildForm.value.payment_type,
         });
         guild.value = res.data.guild;
         pushAlert(res.data.message, "success");
@@ -225,13 +228,17 @@ onMounted(async () => {
                         <!-- LEFT SIDE -->
                         <div class="flex items-center gap-3">
                             <div
-                                class="w-10 h-10 flex items-center justify-center"
+                                class="w-12 h-12 rounded-md bg-gray-800 border border-gray-700 overflow-hidden flex items-center justify-center cursor-pointer hover:opacity-80"
                             >
                                 <img
+                                    v-if="guild.icon"
                                     :src="guild.icon"
-                                    alt="icon"
-                                    class="w-10 h-10 object-cover rounded-md"
+                                    alt="Guild Icon"
+                                    class="w-full h-full object-cover"
                                 />
+                                <span v-else class="text-gray-500 text-xs">
+                                    No Icon
+                                </span>
                             </div>
                             <div class="flex flex-col">
                                 <div class="text-white font-semibold">
@@ -397,17 +404,58 @@ onMounted(async () => {
 
             <label>Guild Name</label>
             <input
-                v-model="createGuildForm.name"
+                v-model.trim="createGuildForm.name"
                 placeholder="Enter guild name"
             />
+
+            <!-- PAYMENT TYPE BUTTONS -->
+            <div class="payment-type-buttons">
+                <button
+                    class="choice-btn"
+                    :class="{ active: createGuildForm.payment_type === 'gold' }"
+                    @click="createGuildForm.payment_type = 'gold'"
+                >
+                    Gold
+                </button>
+
+                <button
+                    class="choice-btn"
+                    :class="{
+                        active: createGuildForm.payment_type === 'diamond',
+                    }"
+                    @click="createGuildForm.payment_type = 'diamond'"
+                >
+                    Diamond
+                </button>
+            </div>
+
+            <!-- COST -->
             <div class="cost">
-                Cost: <span>{{ createGuildCost }} Gold</span>
+                Cost:
+                <span>
+                    {{
+                        createGuildForm.payment_type === "diamond"
+                            ? createGuildDiamondCost
+                            : createGuildCost
+                    }}
+                    {{
+                        createGuildForm.payment_type === "diamond"
+                            ? "Diamonds"
+                            : "Gold"
+                    }}
+                </span>
             </div>
 
             <div class="actions">
                 <button class="cancel" @click="closeCreateGuild">Cancel</button>
 
-                <button class="confirm" @click="createGuild">Create</button>
+                <button
+                    class="confirm"
+                    @click="createGuild"
+                    :disabled="!createGuildForm.name"
+                >
+                    Create
+                </button>
             </div>
         </div>
     </div>
@@ -764,5 +812,30 @@ onMounted(async () => {
 
 .confirm:hover {
     background: #22c55e;
+}
+.payment-type-buttons {
+    display: flex;
+    gap: 10px;
+    margin: 10px 0;
+}
+
+.choice-btn {
+    padding: 2px 8px;
+    border: 1px solid #444;
+    background: #1f2937;
+    color: #fff;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: 0.2s;
+}
+
+.choice-btn:hover {
+    background: #374151;
+}
+
+.choice-btn.active {
+    background: #facc15;
+    color: #111;
+    border-color: #facc15;
 }
 </style>
