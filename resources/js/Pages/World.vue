@@ -17,6 +17,7 @@ import PartyList from "./GameComponents/Npc/PartyList.vue";
 import ActiveBuffs from "./GameComponents/ActiveBuffs.vue";
 import Tutorial from "./GameComponents/Tutorial.vue";
 import Gacha from "./GameComponents/Gacha.vue";
+import Emoji from "./GameComponents/Emoji.vue";
 
 const props = defineProps({
     playerData: Object,
@@ -47,6 +48,8 @@ const selectedMonster = ref(null);
 const pveRef = ref(null);
 const pvpRef = ref(null);
 const party = ref([]);
+const activeEmoji = ref(null);
+const playersEmoji = ref(null);
 const flatMap = computed(() => map.flat());
 const spriteFolder = props.playerData.data.wing
     ? `${props.playerData.data.class_type} ${props.playerData.data.wing?.gear?.name}`
@@ -100,6 +103,12 @@ const updatePlayer = (newUpdate) => {
 };
 const updateParty = (newParty) => {
     party.value = newParty;
+};
+const handleSelectedEmoji = (newEmoji) => {
+    activeEmoji.value = newEmoji;
+    setTimeout(() => {
+        activeEmoji.value = null;
+    }, 3000);
 };
 function handleAttackMonster(monster) {
     selectedMonster.value = monster;
@@ -231,8 +240,6 @@ function joinPlayer(e) {
 function removePlayer(e) {
     const id = e.id ?? e.payload?.id;
 
-    console.log("REMOVE PLAYER ID:", id);
-
     players.value = players.value.filter((player) => {
         return Number(player.id) !== Number(id);
     });
@@ -307,6 +314,10 @@ function normalizeZoneUpdate(e) {
     // visuals
     if (e.wing !== undefined) {
         update.wing = e.wing.gear.name;
+    }
+
+    if (e.emoji !== undefined) {
+        update.emoji = e.emoji;
     }
 
     return update;
@@ -824,8 +835,8 @@ watch(
                     top: Math.floor(index / mapWidth) * tileSize + 'px',
                 }"
             /> -->
-            <!-- <Gacha /> -->
-            <!-- <div class="bg-white font-2xl">{{ players }}</div> -->
+            <!-- <div class="bg-white">{{ players }}</div> -->
+            <Emoji @select="handleSelectedEmoji" />
             <Tutorial v-if="playerData.data.current_level <= 6" />
             <Portal
                 v-if="undergroundMap"
@@ -837,6 +848,7 @@ watch(
             <Player
                 :player="player"
                 :playerData="playerData.data"
+                :activeEmoji="activeEmoji"
                 :all_maps="filteredMaps"
                 :tileSize="tileSize"
             />

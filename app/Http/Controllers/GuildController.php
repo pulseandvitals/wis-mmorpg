@@ -6,6 +6,7 @@ use App\Http\Resources\GuildResource;
 use App\Models\Guild;
 use App\Models\GuildMember;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class GuildController extends Controller
 {
@@ -163,6 +164,74 @@ class GuildController extends Controller
         return response()->json([
             'message' => 'Contributed!',
             'guild' => $guild->load('members')
+        ]);
+    }
+
+    public function applyGuildIcon(Request $request)
+    {
+        $request->validate([
+            'icon' => 'required|image|max:2048',
+        ]);
+
+        if (!$request->hasFile('icon')) {
+            return response()->json([
+                'message' => 'No file uploaded'
+            ], 422);
+        }
+
+        $player = auth()->user()->player;
+
+        $file = $request->file('icon');
+
+        $guild = $player->guild;
+
+        $isFirstUpload = empty($guild->icon);
+
+        if (!$isFirstUpload) {
+            if ($player->current_diamond < Guild::COST_FOR_MULTIPLE_FILE_UPLOAD) {
+                return response()->json([
+                    'message' => 'Not enough diamond.'
+                ], 422);
+            }
+
+            $player->current_diamond -= Guild::COST_FOR_MULTIPLE_FILE_UPLOAD;
+            $player->save();
+        }
+
+        $path = "guild_icons/{$guild->id}";
+        $file_name = Str::random(16) . '.' . $file->getClientOriginalExtension();
+
+        $file->move(public_path($path), $file_name);
+
+        $guild->icon = url("{$path}/{$file_name}");
+        $guild->save();
+
+        return response()->json([
+            'message' => 'Guild icon updated successfully',
+            'guild' => $guild
+        ]);
+    }
+
+    public function leaveGuild()
+    {
+        $player = auth()->user()->player;
+
+        if(!$player->guild) {
+            return response()->json([
+                'message' => 'Not enough diamond.'
+            ], 422);
+        }
+
+        GuildMember::where('player_id', $player->id)
+            ->where('guild_id', $player->guild_id)
+            ->delete();
+
+        $player->guild_id = null;
+        $player->save();
+
+        return response()->json([
+            'message' => 'You leave guild.',
+            'guild' => null
         ]);
     }
 }

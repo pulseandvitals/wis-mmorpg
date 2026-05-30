@@ -32,6 +32,21 @@ class PlayerController extends Controller
         ]);
     }
 
+    public function sendEmoji(Request $request)
+    {
+        $player = auth()->user()->player;
+
+        broadcast(new ZoneStateUpdated($player->current_map_id,[
+                'id' => $player->id,
+                'type' => 'player.update',
+                'emoji' => $request->emoji['image'],
+        ]));
+
+        return response()->json([
+            'emoji' => $request->emoji['image']
+        ]);
+    }
+
     public function getPlayerRanking()
     {
         $players = Player::query()
@@ -76,7 +91,7 @@ class PlayerController extends Controller
             'max_mana',
             'current_mana',
         ])
-        ->with(['wing.gear'])
+        ->with(['wing.gear','guild'])
         ->where('id', '!=', auth()->user()->player->id)
         ->where('current_map_id','=',auth()->user()->player->current_map_id)
         ->where('is_online', true)

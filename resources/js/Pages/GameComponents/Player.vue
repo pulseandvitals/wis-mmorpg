@@ -19,6 +19,9 @@ const props = defineProps({
         type: Number,
         required: true,
     },
+    activeEmoji: {
+        type: String,
+    },
 });
 
 const showReviveModal = ref(false);
@@ -63,6 +66,10 @@ const spritePath = computed(() => {
             transform: `translate(${player.renderX}px, ${player.renderY}px)`,
         }"
     >
+        <!-- EMOJI REACTION -->
+        <div v-if="activeEmoji" class="player-emoji">
+            <img :src="activeEmoji" />
+        </div>
         <!-- GUILD NAME (ABOVE PLAYER NAME) -->
         <div v-if="player.guild" class="guild-name">
             <{{ player.guild.name }}>
@@ -158,9 +165,7 @@ const spritePath = computed(() => {
 
     background: rgba(0, 0, 0, 0.55);
 
-    text-shadow:
-        0 1px 2px rgba(0, 0, 0, 0.9),
-        0 0 6px rgba(251, 191, 36, 0.25);
+    text-shadow: 0 0 6px rgba(251, 191, 36, 0.25);
 
     white-space: nowrap;
     pointer-events: none;
@@ -268,5 +273,26 @@ const spritePath = computed(() => {
     padding: 8px;
     border-radius: 4px;
     cursor: pointer;
+}
+.player-emoji {
+    position: absolute;
+    top: -30px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 14px;
+    pointer-events: none;
+    z-index: 9999;
+    animation: emojiFloat 0.8s ease-out;
+}
+
+@keyframes emojiFloat {
+    0% {
+        transform: translate(-50%, 10px);
+        opacity: 0;
+    }
+    100% {
+        transform: translate(-50%, 0px);
+        opacity: 1;
+    }
 }
 </style>

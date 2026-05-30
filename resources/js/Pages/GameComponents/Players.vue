@@ -85,9 +85,15 @@ const getSpriteFolder = (p) => {
             }"
             @click="handleClick(p)"
         >
+            <div v-if="p.emoji" class="player-emoji">
+                <img :src="p.emoji" />
+            </div>
             <!-- PVP STATUS -->
             <div v-if="p.in_pvp" class="pvp-indicator">⚔ IN PVP</div>
-
+            <!-- GUILD NAME (ABOVE PLAYER NAME) -->
+            <div v-if="player.guild" class="guild-name">
+                <{{ player.guild.name }}>
+            </div>
             <!-- NAME TAG -->
             <div class="name-tag">
                 <p :class="{ 'text-red-500': !current_map?.is_safe_zone }">
@@ -272,5 +278,50 @@ const getSpriteFolder = (p) => {
 
 .mp-fill {
     background: linear-gradient(to right, #3498db, #2980b9);
+}
+
+.player-emoji {
+    position: absolute;
+    top: -30px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 14px;
+    pointer-events: none;
+    z-index: 9999;
+    animation: emojiFloat 0.8s ease-out;
+}
+@keyframes emojiFloat {
+    0% {
+        transform: translate(-50%, 10px);
+        opacity: 0;
+    }
+    100% {
+        transform: translate(-50%, 0px);
+        opacity: 1;
+    }
+}
+
+.guild-name {
+    position: absolute;
+    top: -22px;
+    left: 50%;
+    transform: translateX(-50%);
+
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+
+    color: #fbbf24; /* gold-ish MMO guild color */
+
+    padding: 1px 2px;
+
+    background: rgba(0, 0, 0, 0.55);
+
+    text-shadow: 0 0 6px rgba(251, 191, 36, 0.25);
+
+    white-space: nowrap;
+    pointer-events: none;
+
+    transition: all 0.15s ease;
 }
 </style>

@@ -28,6 +28,7 @@ Route::prefix('world')->group(function () {
 });
     Route::post('/battle/save',[BattleController::class,'saveBattle']);
     Route::post('/heal', [PlayerController::class,'healPlayer']);
+    Route::post('/send-emoji',[PlayerController::class,'sendEmoji']);
     Route::get('/open-inventory', [InventoryController::class,'openInventory']);
 
     Route::prefix('streams')->group(function () {
@@ -86,6 +87,8 @@ Route::prefix('world')->group(function () {
     Route::get('/my-guild',[GuildController::class,'myGuild']);
     Route::post('/join-guild',[GuildController::class,'joinGuild']);
     Route::post('/contribute-guild',[GuildController::class,'contributeGuild']);
+    Route::post('/apply-icon',[GuildController::class,'applyGuildIcon']);
+    Route::post('/leave-guild',[GuildController::class,'leaveGuild']);
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');

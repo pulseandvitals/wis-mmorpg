@@ -10,11 +10,61 @@ const createGuildCost = 500000;
 const loading = ref(false);
 const guild = ref(null);
 const guilds = ref(null);
+
 const createGuildForm = ref({
     name: "",
     contribution: "",
 });
+const fileInput = ref(null);
 
+const triggerUpload = () => {
+    fileInput.value?.click();
+};
+
+const handleUpload = async (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const isFree = !guild.value.icon;
+    const GUILD_ICON_COST = 299;
+    if (!isFree) {
+        const confirmUpload = confirm(
+            `Changing your guild icon will cost ${GUILD_ICON_COST} diamonds. Do you want to continue?`,
+        );
+
+        if (!confirmUpload) {
+            event.target.value = null; // reset input
+            return;
+        }
+    }
+
+    // preview locally
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        guild.value.icon = e.target.result;
+    };
+    reader.readAsDataURL(file);
+    try {
+        loading.value = true;
+
+        const formData = new FormData();
+        formData.append("icon", file);
+
+        const res = await axios.post("/apply-icon", formData, {
+            headers: {
+                "Content-Type": "multipart/form-data",
+            },
+        });
+
+        guild.value = res.data.guild;
+
+        pushAlert(res.data.message, "success");
+    } catch (e) {
+        pushAlert(e?.response?.data?.message || "Upload failed", "error");
+    } finally {
+        loading.value = false;
+    }
+};
 function openCreateGuild() {
     showCreateGuild.value = true;
 }
@@ -98,7 +148,16 @@ function viewGuild(guild) {
 }
 
 function leaveGuild() {
-    myGuild.value = null;
+    try {
+        loading.value = true;
+        let res = axios.post("/leave-guild");
+        pushAlert(res.data.message, "success");
+        myGuild();
+        loading.value = false;
+    } catch (e) {
+        pushAlert(e.response.data.message, "error");
+        loading.value = false;
+    }
 }
 
 onMounted(async () => {
@@ -165,10 +224,15 @@ onMounted(async () => {
                     >
                         <!-- LEFT SIDE -->
                         <div class="flex items-center gap-3">
-                            <div class="text-xs font-bold text-yellow-400 w-10">
-                                #{{ i + 1 }}
+                            <div
+                                class="w-10 h-10 flex items-center justify-center"
+                            >
+                                <img
+                                    :src="guild.icon"
+                                    alt="icon"
+                                    class="w-10 h-10 object-cover rounded-md"
+                                />
                             </div>
-
                             <div class="flex flex-col">
                                 <div class="text-white font-semibold">
                                     {{ guild.name }}
@@ -184,7 +248,7 @@ onMounted(async () => {
                             <div class="text-right text-xs text-gray-400">
                                 <div>Lv {{ guild.level }}</div>
                                 <div class="text-yellow-400 font-semibold">
-                                    {{ guild.gold_stash }}
+                                    Power: {{ guild.gold_stash }}
                                 </div>
                             </div>
 
@@ -212,16 +276,26 @@ onMounted(async () => {
                             <div class="flex items-start gap-3">
                                 <!-- GUILD ICON -->
                                 <div
-                                    class="w-12 h-12 rounded-md bg-gray-800 border border-gray-700 overflow-hidden flex items-center justify-center"
+                                    class="w-12 h-12 rounded-md bg-gray-800 border border-gray-700 overflow-hidden flex items-center justify-center cursor-pointer hover:opacity-80"
+                                    @click="triggerUpload"
                                 >
                                     <img
-                                        src="/Monarch.png"
+                                        v-if="guild.icon"
+                                        :src="guild.icon"
                                         alt="Guild Icon"
                                         class="w-full h-full object-cover"
                                     />
-                                    <!-- <span v-else class="text-gray-500 text-xs">
+                                    <span v-else class="text-gray-500 text-xs">
                                         No Icon
-                                    </span> -->
+                                    </span>
+
+                                    <input
+                                        ref="fileInput"
+                                        type="file"
+                                        class="hidden"
+                                        accept="image/*"
+                                        @change="handleUpload"
+                                    />
                                 </div>
 
                                 <!-- TEXT INFO -->
