@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Player;
 use App\Models\TopUp;
+use App\Models\WorldChat;
 use Illuminate\Http\Request;
 
 class TopUpController extends Controller
@@ -56,6 +57,13 @@ class TopUpController extends Controller
 
         $details->status = 'completed';
         $details->save();
+
+        WorldChat::create([
+            'message' => "{$player->name} has successfully topped up!",
+            'channel' => 'world',
+            'player_id' => null,
+            'is_admin' => true,
+        ]);
 
         return response()->json([
             'message' => 'Purchase approve successfully.',
