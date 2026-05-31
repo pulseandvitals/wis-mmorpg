@@ -319,7 +319,7 @@ const emit = defineEmits(["close"]);
                                     <img
                                         :src="qrCodeImage"
                                         alt="QR Code"
-                                        class="w-40 h-40 object-contain"
+                                        class="w-[200px] h-[200px] object-contain"
                                         @error="
                                             (e) =>
                                                 (e.target.style.display =

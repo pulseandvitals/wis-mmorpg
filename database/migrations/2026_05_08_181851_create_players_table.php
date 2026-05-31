@@ -60,6 +60,8 @@ return new class extends Migration
             $table->integer('daily_mobs_kill')->default(10);
             $table->integer('daily_fishing_chance')->default(10);
 
+            $table->string('activity_status')->nullable(); //fishing, expeditions
+
             $table->boolean('in_pvp')->default(false);
             $table->unsignedBigInteger('pvp_battle_id')->nullable();
 

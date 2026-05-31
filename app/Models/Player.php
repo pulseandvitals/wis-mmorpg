@@ -50,6 +50,8 @@ class Player extends Model
         'daily_mobs_kill',
         'daily_fishing_chance',
 
+        'activity_status',
+
         'in_pvp',
         'pvp_battle_id',
 
@@ -203,6 +205,7 @@ class Player extends Model
     {
         return $this->hasMany(Inventory::class);
     }
+
 
     public function getExpPercentage()
     {

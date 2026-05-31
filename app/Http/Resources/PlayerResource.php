@@ -91,6 +91,8 @@ class PlayerResource extends JsonResource
             'daily_trivia_chance' => $this->daily_trivia_chance,
             'daily_mobs_kill' => $this->daily_mobs_kill,
             'daily_fishing_chance' => $this->daily_fishing_chance,
+
+            'activity_status' => $this->activity_stats,
         ];
     }
 }

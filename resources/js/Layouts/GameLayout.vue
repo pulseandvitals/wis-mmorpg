@@ -66,57 +66,57 @@ onUnmounted(() => {
     removeFinish();
 });
 
-const TAB_KEY = "wisteria_active_tab";
-function generateTabId() {
-    if (window.crypto && crypto.randomUUID) {
-        return crypto.randomUUID();
-    }
+// const TAB_KEY = "wisteria_active_tab";
+// function generateTabId() {
+//     if (window.crypto && crypto.randomUUID) {
+//         return crypto.randomUUID();
+//     }
 
-    // fallback for older browsers
-    return (
-        Date.now().toString(36) + Math.random().toString(36).substring(2, 10)
-    );
-}
+//     // fallback for older browsers
+//     return (
+//         Date.now().toString(36) + Math.random().toString(36).substring(2, 10)
+//     );
+// }
 
-const tabId = generateTabId();
+// const tabId = generateTabId();
 
-// Set ONLY ONCE per tab load
-localStorage.setItem(TAB_KEY, tabId);
+// // Set ONLY ONCE per tab load
+// localStorage.setItem(TAB_KEY, tabId);
 
-// Listen for other tabs changing it
-window.addEventListener("storage", (event) => {
-    if (event.key !== TAB_KEY) return;
+// // Listen for other tabs changing it
+// window.addEventListener("storage", (event) => {
+//     if (event.key !== TAB_KEY) return;
 
-    // If value is same or empty → ignore
-    if (!event.newValue) return;
+//     // If value is same or empty → ignore
+//     if (!event.newValue) return;
 
-    // If it's NOT my tab → I'm the old one → logout
-    if (event.newValue !== tabId) {
-        document.body.innerHTML = `
-            <div style="color:white;background:black;height:100vh;display:flex;align-items:center;justify-content:center;">
-                Session taken by another tab
-            </div>
-        `;
-        window.location.href = "/login";
-    }
-});
-document.addEventListener("contextmenu", (e) => {
-    e.preventDefault();
-});
-document.addEventListener("keydown", (e) => {
-    // F12
-    if (e.key === "F12") {
-        e.preventDefault();
-    }
+//     // If it's NOT my tab → I'm the old one → logout
+//     if (event.newValue !== tabId) {
+//         document.body.innerHTML = `
+//             <div style="color:white;background:black;height:100vh;display:flex;align-items:center;justify-content:center;">
+//                 Session taken by another tab
+//             </div>
+//         `;
+//         window.location.href = "/login";
+//     }
+// });
+// document.addEventListener("contextmenu", (e) => {
+//     e.preventDefault();
+// });
+// document.addEventListener("keydown", (e) => {
+//     // F12
+//     if (e.key === "F12") {
+//         e.preventDefault();
+//     }
 
-    // Ctrl+Shift+I / Ctrl+Shift+J / Ctrl+U
-    if (
-        (e.ctrlKey && e.shiftKey && (e.key === "I" || e.key === "J")) ||
-        (e.ctrlKey && e.key === "U")
-    ) {
-        e.preventDefault();
-    }
-});
+//     // Ctrl+Shift+I / Ctrl+Shift+J / Ctrl+U
+//     if (
+//         (e.ctrlKey && e.shiftKey && (e.key === "I" || e.key === "J")) ||
+//         (e.ctrlKey && e.key === "U")
+//     ) {
+//         e.preventDefault();
+//     }
+// });
 </script>
 
 <template>

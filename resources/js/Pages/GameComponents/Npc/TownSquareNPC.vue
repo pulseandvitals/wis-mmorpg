@@ -14,6 +14,7 @@ import Market from "./Market.vue";
 import CardInformation from "./CardInformation.vue";
 import PvPMaster from "./PvPMaster.vue";
 import Guild from "./Guild.vue";
+import Expedition from "./Expedition.vue";
 const props = defineProps({
     all_maps: Object,
     player: Object,
@@ -231,6 +232,7 @@ function handleOpenPvpArena() {
             :player="player"
             @close="isPvpOpen = false"
         />
+        <Expedition />
         <Guild />
     </template>
 </template>

@@ -596,6 +596,8 @@ class WorldMapController extends Controller
 
         $player->pvp_battle_id = null;
         $player->in_pvp = 0;
+        $player->is_online = 1;
+        $player->activity_status = null;
         $player->save();
 
         return [

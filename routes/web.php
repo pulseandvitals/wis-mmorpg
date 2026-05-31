@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\BattleController;
 use App\Http\Controllers\CardController;
+use App\Http\Controllers\ExpeditionController;
 use App\Http\Controllers\GearController;
 use App\Http\Controllers\GuildController;
 use App\Http\Controllers\InventoryController;
@@ -89,6 +90,10 @@ Route::prefix('world')->group(function () {
     Route::post('/contribute-guild',[GuildController::class,'contributeGuild']);
     Route::post('/apply-icon',[GuildController::class,'applyGuildIcon']);
     Route::post('/leave-guild',[GuildController::class,'leaveGuild']);
+
+    Route::post('/start-expedition',[ExpeditionController::class,'startExpedition']);
+    Route::get('/my-expedition',[ExpeditionController::class,'myExpedition']);
+    Route::post('/claim-expedition',[ExpeditionController::class,'claimExpedition']);
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
