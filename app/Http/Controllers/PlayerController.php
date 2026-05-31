@@ -50,7 +50,10 @@ class PlayerController extends Controller
     public function getPlayerRanking()
     {
         $players = Player::query()
-            ->select('name','current_level','class_type')
+            ->select('name', 'current_level', 'class_type')
+            ->whereHas('user', function ($q) {
+                $q->where('is_admin', false);
+            })
             ->orderByDesc('current_level')
             ->orderByDesc('current_experience')
             ->limit(5)
