@@ -100,6 +100,23 @@ window.addEventListener("storage", (event) => {
         window.location.href = "/login";
     }
 });
+document.addEventListener("contextmenu", (e) => {
+    e.preventDefault();
+});
+document.addEventListener("keydown", (e) => {
+    // F12
+    if (e.key === "F12") {
+        e.preventDefault();
+    }
+
+    // Ctrl+Shift+I / Ctrl+Shift+J / Ctrl+U
+    if (
+        (e.ctrlKey && e.shiftKey && (e.key === "I" || e.key === "J")) ||
+        (e.ctrlKey && e.key === "U")
+    ) {
+        e.preventDefault();
+    }
+});
 </script>
 
 <template>
