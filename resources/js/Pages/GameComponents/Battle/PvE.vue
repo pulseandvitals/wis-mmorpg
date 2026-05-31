@@ -59,6 +59,20 @@ function playSpellCast() {
     sfx.play().catch(() => {});
 }
 
+const elementIcons = {
+    fire: "🔥",
+    water: "💧",
+    earth: "🪨",
+    wind: "🌪",
+    lightning: "⚡",
+};
+
+const getElementIcon = (element) => {
+    return (
+        elementIcons[(element || "").toLowerCase()] ?? "/elements/neutral.png"
+    );
+};
+
 /* CRIT CHECK */
 function isCritical(critRate) {
     return Math.random() * 100 < critRate;
@@ -703,11 +717,16 @@ onUnmounted(() => {
                             !playerTurn || battleEnded,
                     }"
                 >
-                    <!-- HOTKEY NUMBER -->
+                    <!-- HOTKEY -->
                     <div
                         class="absolute top-1 left-1 text-[10px] bg-black/70 text-yellow-400 px-1 rounded"
                     >
                         {{ index + 1 }}
+                    </div>
+
+                    <!-- ELEMENT INDICATOR -->
+                    <div class="absolute top-1 right-1">
+                        {{ getElementIcon(skill.element) }}
                     </div>
 
                     <!-- SKILL ICON -->
