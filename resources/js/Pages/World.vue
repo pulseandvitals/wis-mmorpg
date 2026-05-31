@@ -426,7 +426,6 @@ function processQueue(onFinish = null) {
     const next = moveQueue.shift();
 
     if (!next) {
-        console.warn("Move queue returned empty item");
         return;
     }
 
@@ -444,8 +443,6 @@ function processQueue(onFinish = null) {
         player.x = next.x;
         player.y = next.y;
         player.moving = false;
-
-        console.log("Movement finished:", player.x, player.y);
 
         // If there are no more queued moves, send the final position.
         if (!moveQueue || moveQueue.length === 0) {
@@ -776,6 +773,7 @@ onMounted(() => {
     playersPositionListener();
     registerPvpListener();
     zoneStateListener();
+    console.log(import.meta.env.VITE_PUSHER_APP_KEY);
 });
 const filteredMaps = computed(() => {
     return props.all_maps.data.filter(
