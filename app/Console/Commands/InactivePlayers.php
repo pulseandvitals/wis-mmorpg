@@ -61,6 +61,12 @@ class InactivePlayers extends Command
                 'is_online' => true
             ]);
 
+        DB::table('players')
+            ->where('activity_status', 'expedition')
+            ->update([
+                'is_online' => true
+            ]);
+
         $this->info("Offline: {$inactivePlayers->count()}");
         $this->info("Online: {$activePlayers->count()}");
     }
