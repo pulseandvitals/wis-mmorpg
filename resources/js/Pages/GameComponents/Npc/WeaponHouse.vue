@@ -265,7 +265,9 @@ onMounted(async () => {
                                                         class="text-xs py-2 rounded bg-green-500/10 border border-green-400/30 text-green-300 hover:bg-green-500/20 hover:border-green-400/60 transition"
                                                         :disabled="loading"
                                                         @click="
-                                                            craftGear(weapon)
+                                                            craftGear(
+                                                                selectedWeaponMaterials,
+                                                            )
                                                         "
                                                     >
                                                         {{

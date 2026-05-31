@@ -138,7 +138,8 @@ class GearController extends Controller
     {
         $player = auth()->user()->player;
         $recipe = CraftingMaterial::where('requirement_level', $request->gear['requirement_level'])->first();
-
+        dd($request->gear);
+        dd($recipe);
         if (!$recipe) {
             return response()->json(['message' => 'Material not found'], 404);
         }
