@@ -30,7 +30,7 @@ const expeditionMaps = ref([
     {
         id: 2,
         name: "Dark Forest",
-        level_required: 15,
+        level_required: 10,
         monsters: 30,
         image: "/maps/Dark Forest.png",
         loot: [
@@ -46,7 +46,7 @@ const expeditionMaps = ref([
     {
         id: 3,
         name: "Crystal Cave",
-        level_required: 30,
+        level_required: 20,
         monsters: 30,
         image: "/maps/Crystal Cave.png",
         loot: [
@@ -63,7 +63,7 @@ const expeditionMaps = ref([
     {
         id: 4,
         name: "Volcanic Wasteland",
-        level_required: 50,
+        level_required: 30,
         monsters: 30,
         image: "/maps/Volcanic Wasteland.png",
         loot: [
@@ -82,7 +82,7 @@ const expeditionMaps = ref([
     {
         id: 5,
         name: "Sky Islands",
-        level_required: 75,
+        level_required: 40,
         monsters: 30,
         image: "/maps/Sky Islands.png",
         loot: ["Ancient Scale", "Dragon Heart", "Celebeam Gem", "Seleri Gem"],
@@ -265,9 +265,17 @@ const formatTime = (sec) => {
                                     Monsters / Hour
                                 </div>
 
-                                <div class="text-sm text-yellow-300 mt-1">
-                                    Loot:
-                                    {{ map.loot.join(", ") }}
+                                <div class="flex flex-wrap gap-2">
+                                    <div
+                                        v-for="(item, index) in map.loot"
+                                        :key="index"
+                                        class="flex items-center gap-1 bg-black/40 px-2 py-1 rounded"
+                                    >
+                                        <img
+                                            :src="`/materials/${item}.png`"
+                                            class="w-5 h-5 object-cover rounded"
+                                        />
+                                    </div>
                                 </div>
                             </div>
 
