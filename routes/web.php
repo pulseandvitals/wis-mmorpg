@@ -94,6 +94,7 @@ Route::prefix('world')->group(function () {
     Route::post('/start-expedition',[ExpeditionController::class,'startExpedition']);
     Route::get('/my-expedition',[ExpeditionController::class,'myExpedition']);
     Route::post('/claim-expedition',[ExpeditionController::class,'claimExpedition']);
+    Route::post('/cancel-expedition',[ExpeditionController::class,'cancelExpedition']);
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');

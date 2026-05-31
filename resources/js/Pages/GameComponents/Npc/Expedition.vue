@@ -144,6 +144,22 @@ async function claimExpedition() {
     }
 }
 
+async function cancelExpedition() {
+    try {
+        loading.value = true;
+
+        const res = await axios.post("/cancel-expedition");
+
+        expedition.value = null;
+
+        pushAlert(res.data.message, "success");
+    } catch (e) {
+        pushAlert(e.response.data.message, "error");
+    } finally {
+        loading.value = false;
+    }
+}
+
 onMounted(async () => {
     await getMyExpedition();
 });
@@ -361,7 +377,17 @@ const formatTime = (sec) => {
                             </div>
 
                             <div v-else class="text-yellow-400 mt-4">
-                                Expedition in progress...
+                                <button
+                                    class="px-4 py-2 bg-red-600 hover:bg-red-500 rounded text-white"
+                                    @click="cancelExpedition"
+                                >
+                                    Cancel Expedition
+                                </button>
+
+                                <div class="text-xs text-gray-400 mt-2">
+                                    ⚠ Withdrawing will cancel the expedition and
+                                    you may lose progress.
+                                </div>
                             </div>
                         </div>
                     </div>

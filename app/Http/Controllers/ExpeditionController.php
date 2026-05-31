@@ -201,4 +201,21 @@ class ExpeditionController extends Controller
             'expedition' => null
         ]);
     }
+
+    public function cancelExpedition()
+    {
+        $player = auth()->user()->player;
+
+        Expedition::where('player_id', $player->id)
+            ->where('status', 'progress')
+            ->update([
+                'status' => 'cancelled'
+        ]);
+
+        return response()->json([
+            'status' => "success",
+            'message' => "Cancelled expedition",
+            "expedition" => null,
+        ]);
+    }
 }
