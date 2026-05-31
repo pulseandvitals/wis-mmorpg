@@ -38,13 +38,35 @@ const skillEffectPlayer = ref(null);
 const skillEffectOpponent = ref(null);
 const attackingPlayer = ref(false);
 const attackingOpponent = ref(false);
+const killBanner = ref(null);
 
+const spellSound = new Audio("/audio/SpellCasting.mp3");
+const pvpSound = new Audio("/audio/PvP.mp3");
+function playSpellCast() {
+    const sfx = spellSound.cloneNode();
+
+    sfx.volume = 0.25 + Math.random() * 0.2; // softer range
+    sfx.playbackRate = 1.8 + Math.random() * 0.4; // ~2x speed feel
+
+    sfx.currentTime = 0;
+    sfx.play().catch(() => {});
+}
+function playPvpSoundtrack() {
+    const sfx = pvpSound.cloneNode();
+
+    sfx.volume = 0.25 + Math.random() * 0.2; // softer range
+    sfx.playbackRate = 0.95 + Math.random() * 0.1;
+
+    sfx.currentTime = 0;
+    sfx.play().catch(() => {});
+}
 // ======================================================
 function openPvPBattle(id, enemy) {
     showBattleModal.value = true;
     battleEnded.value = false;
     currentBattleId.value = id;
     listenBattle(currentBattleId.value);
+    showBattleModal.value ? playPvpSoundtrack() : null;
     const spriteFolder = enemy.wing
         ? `${enemy.class_type} ${enemy.wing}`
         : enemy.class_type;
@@ -83,6 +105,14 @@ async function useSkill(skill) {
         battleState.value.locked = false;
         playerTurn.value = true;
     }
+}
+
+function showKillBanner() {
+    killBanner.value = true;
+
+    setTimeout(() => {
+        killBanner.value = false;
+    }, 3000);
 }
 
 // ======================================================
@@ -246,17 +276,20 @@ function formatDamage(e) {
 function triggerSkillEffect(name, target) {
     if (!name) return;
 
+    // 🔊 SPELL SOUND (sync with animation start)
+    playSpellCast();
+
     const skillName = name
         .toLowerCase()
         .replace(/\s+/g, "-")
         .replace(/[^a-z-]/g, "");
 
-    // Keep legacy single `skillEffect` for any existing template checks
     skillEffect.value = skillName;
 
     if (target === "player") {
         skillEffectPlayer.value = skillName;
         attackingPlayer.value = true;
+
         setTimeout(() => {
             skillEffectPlayer.value = null;
             attackingPlayer.value = false;
@@ -265,13 +298,13 @@ function triggerSkillEffect(name, target) {
     } else if (target === "opponent") {
         skillEffectOpponent.value = skillName;
         attackingOpponent.value = true;
+
         setTimeout(() => {
             skillEffectOpponent.value = null;
             attackingOpponent.value = false;
             skillEffect.value = null;
         }, 900);
     } else {
-        // no target specified: clear generic effect after timeout
         setTimeout(() => {
             skillEffect.value = null;
         }, 900);
@@ -317,7 +350,9 @@ function listenBattle(battleId) {
 
             const won = Number(e.winner_id) === Number(props.player.id);
 
-            logs.value.unshift(won ? "🏆 You Won!" : "💀 You Lost!");
+            if (won) {
+                showKillBanner();
+            }
 
             // lock controls
             battleState.value.locked = true;
@@ -349,6 +384,9 @@ function listenBattle(battleId) {
 
 <template>
     <div v-if="showBattleModal" class="pve-modal-wrapper">
+        <div v-if="killBanner" class="kill-banner">
+            <img src="/banner/BannerKill.png" class="kill-banner-image" />
+        </div>
         <div class="pve-modal">
             <!-- HEADER -->
             <div class="modal-header">
@@ -1336,5 +1374,55 @@ MONSTER SELECT
 
 .skill-card.active-turn {
     box-shadow: 0 0 10px rgba(255, 215, 0, 0.4);
+}
+
+.kill-banner {
+    position: absolute;
+
+    top: 40px;
+    left: 50%;
+
+    transform: translateX(-50%);
+
+    z-index: 999999;
+
+    pointer-events: none;
+
+    animation: killBannerAnim 3s ease forwards;
+}
+
+.kill-banner-image {
+    width: 450px;
+    max-width: 90vw;
+
+    image-rendering: auto;
+
+    filter: drop-shadow(0 0 15px rgba(255, 215, 0, 0.7))
+        drop-shadow(0 0 30px rgba(255, 80, 0, 0.5));
+}
+
+@keyframes killBannerAnim {
+    0% {
+        opacity: 0;
+        transform: translate(-50%, -80px) scale(0.4);
+    }
+
+    15% {
+        opacity: 1;
+        transform: translate(-50%, 0) scale(1.15);
+    }
+
+    25% {
+        transform: translate(-50%, 0) scale(1);
+    }
+
+    80% {
+        opacity: 1;
+    }
+
+    100% {
+        opacity: 0;
+        transform: translate(-50%, -30px) scale(1.05);
+    }
 }
 </style>

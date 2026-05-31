@@ -209,13 +209,11 @@ class PvPService
         $p1->update([
             'in_pvp' => false,
             'pvp_battle_id' => null,
-            'is_stunned' => false,
         ]);
 
         $p2->update([
             'in_pvp' => false,
             'pvp_battle_id' => null,
-            'is_stunned' => false,
         ]);
 
         broadcast(new ZoneStateUpdated($p1->current_map_id,[

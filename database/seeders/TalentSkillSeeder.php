@@ -33,7 +33,7 @@ class TalentSkillSeeder extends Seeder
                     [
                         'stat' => 'defense',
                         'operation' => 'multiply',
-                        'value' => 12,
+                        'value' => 10,
                         'value_type' => 'percent',
                     ]
                 ]),
@@ -80,12 +80,12 @@ class TalentSkillSeeder extends Seeder
 
             [
                 'name' => 'Mana Flow',
-                'description' => '+20% Mana increase',
+                'description' => '+8% Mana increase',
                 'effects' => json_encode([
                     [
                         'stat' => 'mp',
                         'operation' => 'multiply',
-                        'value' => 20,
+                        'value' => 8,
                         'value_type' => 'percent',
                     ]
                 ]),
@@ -93,12 +93,12 @@ class TalentSkillSeeder extends Seeder
 
             [
                 'name' => 'Health Boost',
-                'description' => '+15% Health increase',
+                'description' => '+8% Health increase',
                 'effects' => json_encode([
                     [
                         'stat' => 'hp',
                         'operation' => 'multiply',
-                        'value' => 15,
+                        'value' => 8,
                         'value_type' => 'percent',
                     ]
                 ]),

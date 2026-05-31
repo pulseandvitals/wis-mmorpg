@@ -47,6 +47,18 @@ const showLootModal = ref(false);
 const isLevelUp = ref(false);
 const logs = ref([]);
 const emit = defineEmits(["click-monster"]);
+
+const spellSound = new Audio("/audio/SpellCasting.mp3");
+function playSpellCast() {
+    const sfx = spellSound.cloneNode();
+
+    sfx.volume = 0.25 + Math.random() * 0.2; // softer range
+    sfx.playbackRate = 1.8 + Math.random() * 0.4; // ~2x speed feel
+
+    sfx.currentTime = 0;
+    sfx.play().catch(() => {});
+}
+
 /* CRIT CHECK */
 function isCritical(critRate) {
     return Math.random() * 100 < critRate;
@@ -286,6 +298,7 @@ function applyElementalDamage(damage, attackerElement, defenderElement) {
 SKILL EFFECT
 ========================================= */
 function triggerSkillEffect(skill) {
+    playSpellCast();
     const skillName = skill.name
         .toLowerCase()
         .replace(/\s+/g, "-")

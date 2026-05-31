@@ -25,6 +25,38 @@ const buffIcons = {
     secret: "/potions/Secret Potion.png",
     recovery: "/potions/Recovery Potion.png",
 };
+const talentIcons = {
+    attack: "/talents/True Strike.png",
+    crit: "/talents/Critical Focus.png",
+    defense: "/talents/Iron Skin.png",
+    hp: "/talents/Health Boost.png",
+    mp: "/talents/Mana Flow.png",
+    evasion: "/talents/Evasive Dance.png",
+    speed: "/talents/Swift Step.png",
+    stun: "/talents/Force Break.png",
+};
+const talents = computed(() => {
+    const raw = props.player?.selected_talent_skills || [];
+
+    return raw
+        .map((t) => {
+            // step 1: parse outer string
+            let parsed = typeof t === "string" ? JSON.parse(t) : t;
+
+            // step 2: flatten inner array
+            if (Array.isArray(parsed)) {
+                return parsed;
+            }
+
+            return parsed;
+        })
+        .flat()
+        .map((talent, index) => ({
+            id: index,
+            ...talent,
+            icon: talentIcons[talent.stat] ?? "/talents/default.png",
+        }));
+});
 const buffs = computed(() => {
     if (!props.player?.active_buff_effects) return [];
 
@@ -37,7 +69,12 @@ const buffs = computed(() => {
             icon: buffIcons[buff.stat] || "/potions/default.png",
         }));
 });
-
+const allStatusIcons = computed(() => {
+    return [
+        ...buffs.value.map((b) => ({ ...b, type: "buff" })),
+        ...talents.value.map((t) => ({ ...t, type: "talent" })),
+    ];
+});
 const formatTime = (sec) => {
     const m = Math.floor(sec / 60);
     const s = sec % 60;
@@ -61,12 +98,16 @@ onUnmounted(() => clearInterval(interval));
 
 <template>
     <div class="buff-bar">
-        <div v-for="buff in buffs" :key="buff.id" class="buff-item">
-            <img :src="buff.icon" class="buff-icon" />
+        <div
+            v-for="item in allStatusIcons"
+            :key="item.type + '-' + item.id"
+            class="buff-item"
+        >
+            <img :src="item.icon" class="buff-icon" />
 
-            <!-- TIMER OVERLAY -->
-            <div class="buff-timer">
-                {{ formatTime(buff.remaining) }}
+            <!-- only buffs have timer -->
+            <div v-if="item.type === 'buff'" class="buff-timer">
+                {{ formatTime(item.remaining) }}
             </div>
         </div>
     </div>

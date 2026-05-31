@@ -594,6 +594,10 @@ class WorldMapController extends Controller
             return response()->json(['error' => 'Character not found'], 404);
         }
 
+        $player->pvp_battle_id = null;
+        $player->in_pvp = 0;
+        $player->save();
+
         return [
             'playerData' => PlayerResource::make($player),
             'playerSkills' => ClassSkillResource::collection(Skill::byClass($player->class_type)->byLevel($player->current_level)->get()),

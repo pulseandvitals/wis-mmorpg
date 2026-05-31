@@ -31,7 +31,7 @@ class MiniEventController extends Controller
             ]);
         }
 
-        $roll = (bool) rand(0,1);
+        $roll = rand(1, 100) <= 40;
         $amountBet = $request->input('amount');
         if($roll) {
             $player->current_gold += $amountBet;

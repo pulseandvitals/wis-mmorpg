@@ -141,7 +141,7 @@ class PotionSeeder extends Seeder
 
         [
             'name' => 'EXP Potion',
-            'description' => 'Doubles experience gained for 3 hrs',
+            'description' => 'Doubles experience gained for 1 hr',
             'type' => 'buff',
             'effect' => json_encode([
                 [
@@ -149,7 +149,7 @@ class PotionSeeder extends Seeder
                     'operation' => 'multiply',
                     'value' => 100,
                     'value_type' => 'percent',
-                    'duration' => 10800
+                    'duration' => 3600
                 ]
             ]),
             'item_price' => 60,
