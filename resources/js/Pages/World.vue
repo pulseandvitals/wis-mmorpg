@@ -418,20 +418,25 @@ function handleMapClick(e) {
 function processQueue(onFinish = null) {
     if (player.moving) return;
 
-    if (moveQueue.length === 0) {
+    if (!moveQueue || moveQueue.length === 0) {
         onFinish?.();
         return;
     }
 
     const next = moveQueue.shift();
 
+    if (!next) {
+        console.warn("Move queue returned empty item");
+        return;
+    }
+
     const dx = next.x - player.x;
     const dy = next.y - player.y;
 
     if (dx > 0) player.direction = "right";
-    if (dx < 0) player.direction = "left";
-    if (dy > 0) player.direction = "down";
-    if (dy < 0) player.direction = "up";
+    else if (dx < 0) player.direction = "left";
+    else if (dy > 0) player.direction = "down";
+    else if (dy < 0) player.direction = "up";
 
     player.moving = true;
 
@@ -439,11 +444,22 @@ function processQueue(onFinish = null) {
         player.x = next.x;
         player.y = next.y;
         player.moving = false;
-        updatePlayerMovement(player.x, player.y, player.direction, false);
+
+        console.log("Movement finished:", player.x, player.y);
+
+        // If there are no more queued moves, send the final position.
+        if (!moveQueue || moveQueue.length === 0) {
+            updatePlayerMovement(player.x, player.y, player.direction);
+
+            // call onFinish when provided (e.g. to start battle)
+            onFinish?.();
+            return;
+        }
+
+        // otherwise continue processing the remaining queue
         processQueue(onFinish);
     });
 }
-
 function isBlocked(x, y) {
     if (x < 0 || y < 0) return true;
 
@@ -499,6 +515,9 @@ function movePlayer(dx, dy) {
 
     smoothMove(player, nextX * tileSize, nextY * tileSize, () => {
         player.moving = false;
+
+        // send movement update after single-step keyboard move completes
+        updatePlayerMovement(player.x, player.y, player.direction);
     });
 }
 
@@ -583,23 +602,33 @@ function moveMonsters() {
 const players = ref([]);
 const page = usePage();
 const myPlayerId = page.props.auth?.player?.id;
-let lastSent = { x: null, y: null, dir: null };
+let isSendingMove = false;
+let pendingMove = null;
 
 async function updatePlayerMovement(x, y, dir) {
-    // prevent spamming same position
-    if (lastSent.x === x && lastSent.y === y && lastSent.dir === dir) return;
+    // overwrite pending move instead of spamming requests
+    pendingMove = { x, y, dir };
 
-    lastSent = { x, y, dir };
+    if (isSendingMove) return;
 
-    try {
-        await axios.post("/update-player-move", {
-            x,
-            y,
-            dir,
-        });
-    } catch (err) {
-        console.error("Movement update failed:", err);
+    isSendingMove = true;
+
+    while (pendingMove) {
+        const { x, y, dir } = pendingMove;
+        pendingMove = null;
+
+        try {
+            await axios.post("/update-player-move", {
+                x,
+                y,
+                dir,
+            });
+        } catch (err) {
+            console.error("Movement update failed:", err);
+        }
     }
+
+    isSendingMove = false;
 }
 
 async function getPlayers() {
