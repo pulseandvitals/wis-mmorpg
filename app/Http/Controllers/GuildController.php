@@ -227,7 +227,9 @@ class GuildController extends Controller
         $path = "guild_icons/{$guild->id}";
         $file_name = Str::random(16) . '.' . $file->getClientOriginalExtension();
 
-        $file->move(public_path($path), $file_name);
+        $uploadPath = base_path("../public_html/{$path}");
+
+        $file->move($uploadPath, $file_name);
 
         $guild->icon = url("{$path}/{$file_name}");
         $guild->save();
