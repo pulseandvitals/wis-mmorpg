@@ -52,7 +52,7 @@ class PlayerController extends Controller
         $players = Player::query()
             ->select('name', 'current_level', 'class_type')
             ->whereHas('user', function ($q) {
-                $q->where('is_admin', false);
+                $q->where('role', 'player');
             })
             ->orderByDesc('current_level')
             ->orderByDesc('current_experience')
