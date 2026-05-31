@@ -773,7 +773,6 @@ onMounted(() => {
     playersPositionListener();
     registerPvpListener();
     zoneStateListener();
-    console.log(import.meta.env.VITE_PUSHER_APP_KEY);
 });
 const filteredMaps = computed(() => {
     return props.all_maps.data.filter(
