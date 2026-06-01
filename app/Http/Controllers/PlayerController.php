@@ -51,6 +51,7 @@ class PlayerController extends Controller
     {
         $players = Player::query()
             ->select('name','current_level','class_type')
+            ->where('id' , '!=', 1)
             ->orderByDesc('current_level')
             ->orderByDesc('current_experience')
             ->limit(5)
