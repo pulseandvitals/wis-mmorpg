@@ -23,6 +23,7 @@ class BattleController extends Controller
 
     public function saveBattle(Request $request)
     {
+        $this->multipleSession();
         $monsters = $request->monsters;
         $this->insertDropstoInventory($request->drops);
 
@@ -55,8 +56,6 @@ class BattleController extends Controller
         $this->player->x = $request->player['x'];
         $this->player->y = $request->player['y'];
         $this->player->save();
-
-        $this->multipleSession();
 
         return response()->json([
             'success' => true,
