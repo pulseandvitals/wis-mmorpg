@@ -56,6 +56,8 @@ class BattleController extends Controller
         $this->player->y = $request->player['y'];
         $this->player->save();
 
+        $this->multipleSession();
+
         return response()->json([
             'success' => true,
             'exp_gained' => $totalExp,
@@ -68,7 +70,7 @@ class BattleController extends Controller
     {
         foreach ($drops as $item => $qty) {
             $isCard = str_contains(strtolower($item), 'card');
-           if ($isCard) {
+            if ($isCard) {
                 $getItem = Card::where('name', $item)->first();
                 $itemType = 'card';
             } else {
