@@ -600,6 +600,8 @@ class WorldMapController extends Controller
         $player->activity_status = null;
         $player->save();
 
+        $this->multipleSession();
+
         return [
             'playerData' => PlayerResource::make($player),
             'playerSkills' => ClassSkillResource::collection(Skill::byClass($player->class_type)->byLevel($player->current_level)->get()),

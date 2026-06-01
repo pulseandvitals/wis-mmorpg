@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Support\Facades\DB;
+
 abstract class Controller
 {
     public function saveMap($map)
@@ -18,5 +20,23 @@ abstract class Controller
         $chars = mb_str_split($text);
         shuffle($chars);
         return implode('', $chars);
+    }
+
+    public function multipleSession()
+    {
+        $userId = auth()->id();
+
+        $sessions = DB::table('sessions')
+            ->where('user_id', $userId)
+            ->orderBy('last_activity', 'desc')
+            ->get();
+
+        if ($sessions->count() > 1) {
+            $sessionsToDelete = $sessions->slice(1);
+
+            DB::table('sessions')
+                ->whereIn('id', $sessionsToDelete->pluck('id'))
+                ->delete();
+        }
     }
 }
