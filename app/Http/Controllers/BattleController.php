@@ -43,7 +43,13 @@ class BattleController extends Controller
         $this->player->current_experience += (int)($totalExp * $multiplier);
         $this->player->current_gold += $totalGold;
         $neededExp = Experience::whereLevel($this->player->current_level)->value('required_experience');
+
         if ($this->player->current_experience >= (int) $neededExp) {
+
+            if($this->player->current_level >= 50) {
+                return;
+            }
+
             $this->player->current_level += 1;
             $this->player->current_experience -= $neededExp;
 
