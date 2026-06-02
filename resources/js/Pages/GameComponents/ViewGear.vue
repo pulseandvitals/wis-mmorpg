@@ -127,7 +127,9 @@ const cardArmory = computed(() =>
                 <div class="text-purple-400 text-sm">Player</div>
 
                 <div class="text-white text-lg font-bold">
-                    {{ gear?.name || "Unknown Player" }}
+                    {{ gear?.name || "Unknown Player" }} - Lvl.{{
+                        gear?.current_level
+                    }}
                 </div>
             </div>
 

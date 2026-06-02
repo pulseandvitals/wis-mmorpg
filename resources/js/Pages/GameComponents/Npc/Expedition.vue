@@ -410,14 +410,6 @@ const formatTime = (sec) => {
                 class="w-full mt-2 p-2 rounded bg-gray-800 text-white"
             >
                 <option :value="1">1 Hour</option>
-
-                <option :value="2">2 Hours</option>
-
-                <option :value="4">4 Hours</option>
-
-                <option :value="6">6 Hours</option>
-
-                <option :value="12">12 Hours</option>
             </select>
 
             <div class="actions">
