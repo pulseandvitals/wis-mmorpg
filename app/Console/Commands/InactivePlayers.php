@@ -21,7 +21,7 @@ class InactivePlayers extends Command
      *
      * @var string
      */
-    protected $description = 'Inactive players for 30 minutes will automatically shutdown and tagged as offline.';
+    protected $description = 'Inactive players for 60 minutes will automatically shutdown and tagged as offline.';
 
     /**
      * Execute the console command.
@@ -31,12 +31,7 @@ class InactivePlayers extends Command
 
         $inactivePlayers = DB::table('sessions')
             ->whereNotNull('user_id')
-            ->where('last_activity', '<', now()->subMinutes(30)->timestamp)
-            ->pluck('user_id');
-
-        $activePlayers = DB::table('sessions')
-            ->whereNotNull('user_id')
-            ->where('last_activity', '>=', now()->subMinutes(30)->timestamp)
+            ->where('last_activity', '<', now()->subMinutes(80)->timestamp)
             ->pluck('user_id');
 
         /*
@@ -50,18 +45,6 @@ class InactivePlayers extends Command
                 'is_online' => false
             ]);
 
-        /*
-        |--------------------------------------------------------------------------
-        | ACTIVE PLAYERS
-        |--------------------------------------------------------------------------
-        */
-        DB::table('players')
-            ->whereIn('id', $activePlayers)
-            ->update([
-                'is_online' => true
-            ]);
-
         $this->info("Offline: {$inactivePlayers->count()}");
-        $this->info("Online: {$activePlayers->count()}");
     }
 }
