@@ -42,6 +42,12 @@ class BattleController extends Controller
         $levelUp = false;
         $this->player->current_experience += (int)($totalExp * $multiplier);
         $this->player->current_gold += $totalGold;
+        $this->player->current_health = $request->player['current_health'];
+        $this->player->current_mana = $request->player['current_mana'];
+        $this->player->x = $request->player['x'];
+        $this->player->y = $request->player['y'];
+        $this->player->save();
+
         $neededExp = Experience::whereLevel($this->player->current_level)->value('required_experience');
 
         if ($this->player->current_experience >= (int) $neededExp) {
@@ -52,16 +58,11 @@ class BattleController extends Controller
 
             $this->player->current_level += 1;
             $this->player->current_experience -= $neededExp;
+            $this->player->save();
 
             $this->player->recalculateStats();
             $levelUp = true;
         }
-
-        $this->player->current_health = $request->player['current_health'];
-        $this->player->current_mana = $request->player['current_mana'];
-        $this->player->x = $request->player['x'];
-        $this->player->y = $request->player['y'];
-        $this->player->save();
 
         return response()->json([
             'success' => true,
